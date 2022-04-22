@@ -76,13 +76,22 @@ public class Ball : MonoBehaviour
         // On collision with paddle, ball should bounce
         if (c.gameObject.tag == "Paddle")
         {
-            BounceBall(c);
+            Vector3 paddleVelocity = m_MotionData.Velocity;
+            Vector3 paddleAccel = m_MotionData.Acceleration;
+            Vector3 cpNormal = c.GetContact(0).normal;
+            Paddle paddle = c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>();
+            BounceBall(paddleVelocity, paddleAccel, cpNormal, paddle);
         }
         // if ball collides with the floor or something random, it is no longer bouncing
         else
         {
             isBouncing = false;
         }
+    }
+
+    public void SimulateOnCollisionEnterWithPaddle(Vector3 paddleVelocity, Vector3 paddleAccel, Vector3 cpNormal)
+    {
+        BounceBall(paddleVelocity, paddleAccel, cpNormal, null);
     }
 
     // For every frame that the ball is still in collision with the paddle, 
@@ -131,15 +140,11 @@ public class Ball : MonoBehaviour
         return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
     }
 
-    private void BounceBall(Collision c)
+    private void BounceBall(Vector3 paddleVelocity, Vector3 paddleAccel, Vector3 cpNormal, Paddle paddle)
     {
-        ContactPoint cp = c.GetContact(0);
-
-        Vector3 paddleVelocity = m_MotionData.Velocity;
-        Vector3 paddleAccel = m_MotionData.Acceleration;
         Vector3 Vin = GetComponent<Kinematics>().storedVelocity;
         
-        ApplyBouncePhysics(paddleVelocity, paddleAccel, cp, Vin);
+        ApplyBouncePhysics(paddleVelocity, paddleAccel, cpNormal, Vin);
 
         // Determine if collision should be counted as an active bounce
         if (paddleVelocity.magnitude < 0.05f)
@@ -151,12 +156,12 @@ public class Ball : MonoBehaviour
             isBouncing = true;
 
             CheckApexSuccess();
-            DeclareBounce(c);
+            DeclareBounce(paddle);
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
         }
 
         // DEBUGGING
-        debugvelocitycollision(cp.normal);
+        debugvelocitycollision(cpNormal);
     }
 
     void CheckApexSuccess()
@@ -182,10 +187,10 @@ public class Ball : MonoBehaviour
     }
 
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
-    void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 paddleAccel, ContactPoint cp, Vector3 Vin)
+    void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 paddleAccel, Vector3 cpNormal, Vector3 Vin)
     {
         // Reduce the effects of the paddle tilt so the ball doesn't bounce everywhere
-        Vector3 reducedNormal = ProvideLeewayFromUp(cp.normal);
+        Vector3 reducedNormal = ProvideLeewayFromUp(cpNormal);
 
         // Get reflected bounce, with energy transfer
         Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, reducedNormal, 0.8f);
@@ -239,7 +244,7 @@ public class Ball : MonoBehaviour
     // Try to declare that the ball has been bounced. If the ball
     // was bounced too recently, then this declaration will fail.
     // This is to ensure that bounces are only counted once.
-    public void DeclareBounce(Collision c)
+    public void DeclareBounce(Paddle paddle)
     {
         if (justBounced)
         {
@@ -249,7 +254,7 @@ public class Ball : MonoBehaviour
         else
         {
             justBounced = true;
-            gameScript.BallBounced(c);
+            gameScript.BallBounced(paddle);
             StartCoroutine(FinishBounceDeclaration());
         }
     }
