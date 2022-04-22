@@ -31,12 +31,6 @@ public class InputManager : MonoBehaviour
             GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SetTargetLineHeight(GlobalControl.Instance.targetLineHeightOffset);
         }
 
-        // Swap which controller should be used 
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SwapActivePaddle();
-        }
-
         // Toggle slow mode 
         if (Input.GetKeyDown(KeyCode.T))
         {

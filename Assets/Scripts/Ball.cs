@@ -58,7 +58,7 @@ public class Ball : MonoBehaviour
             Paddle paddle = Paddle.GetPaddleFromCollider(c);
             Vector3 paddleVelocity = paddle.Velocity;
             Vector3 cpNormal = c.GetContact(0).normal;
-            BounceBall(paddleVelocity, cpNormal, paddle);
+            BounceBall(paddleVelocity, cpNormal);
         }
         // if ball collides with the floor or something random, it is no longer bouncing
         else
@@ -71,7 +71,7 @@ public class Ball : MonoBehaviour
     {
         if (GetComponent<SphereCollider>().enabled)
         {
-            BounceBall(paddleVelocity, cpNormal, null);
+            BounceBall(paddleVelocity, cpNormal);
         }
     }
 
@@ -124,9 +124,7 @@ public class Ball : MonoBehaviour
         return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
     }
 
-    private void BounceBall(
-        Vector3 paddleVelocity, Vector3 cpNormal, Paddle paddle
-    )
+    private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
         Vector3 Vin = GetComponent<Kinematics>().storedVelocity;
         
@@ -142,7 +140,7 @@ public class Ball : MonoBehaviour
             isBouncing = true;
 
             CheckApexSuccess();
-            DeclareBounce(paddle);
+            DeclareBounce();
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
         }
 
@@ -230,7 +228,7 @@ public class Ball : MonoBehaviour
     // Try to declare that the ball has been bounced. If the ball
     // was bounced too recently, then this declaration will fail.
     // This is to ensure that bounces are only counted once.
-    public void DeclareBounce(Paddle paddle)
+    public void DeclareBounce()
     {
         if (justBounced)
         {
@@ -240,7 +238,7 @@ public class Ball : MonoBehaviour
         else
         {
             justBounced = true;
-            gameScript.BallBounced(paddle);
+            gameScript.BallBounced();
             StartCoroutine(FinishBounceDeclaration());
         }
     }

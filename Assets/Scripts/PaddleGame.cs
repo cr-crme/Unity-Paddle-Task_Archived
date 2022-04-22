@@ -2,14 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Labs.SuperScience;
 using Valve.VR;
-using System.Runtime.CompilerServices;
 using System;
-using System.Linq;
-using System.Collections.ObjectModel;
 using TMPro;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine.SceneManagement;
 
 public class PaddleGame : MonoBehaviour
@@ -22,18 +17,10 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	private GameObject hmd;
 
-	[Tooltip("The left paddle in the game")]
 	[SerializeField]
-	private Paddle leftPaddle;
-
-	[Tooltip("The right paddle in the game")]
-	[SerializeField]
-	private Paddle rightPaddle;
-
-	[Tooltip("The right paddle in the game")]
-	[SerializeField]
-	private bool useLeft;
-
+	[Tooltip("The paddles in the game")]
+	PaddlesManager paddlesManager;
+	
 	[Tooltip("The ball being bounced")]
 	[SerializeField]
 	private GameObject ball;
@@ -102,8 +89,6 @@ public class PaddleGame : MonoBehaviour
 	// If 3 of the last 10 bounces were successful, update the exploration mode physics 
 	private const int EXPLORATION_MAX_BOUNCES = 10;
 	private const int EXPLORATION_SUCCESS_THRESHOLD = 6;
-	private int explorationModeBounces;
-	private int explorationModeSuccesses;
 	private CircularBuffer<bool> explorationModeBuffer = new CircularBuffer<bool>(EXPLORATION_MAX_BOUNCES);
 
 	// The paddle bounce height, velocity, and acceleration to be recorded on each bounce.
@@ -141,7 +126,6 @@ public class PaddleGame : MonoBehaviour
 	private List<float> bounceHeightList = new List<float>();
 
 	int difficultyEvaluationTrials;
-	int trialDifficultyChanged = 0;
 	private List<ScoreEffect> scoreEffects = new List<ScoreEffect>();
 	private List<DifficultyEvaluation> difficultyEvaluationOrder = new List<DifficultyEvaluation>() 
 	{ 
@@ -208,21 +192,10 @@ public class PaddleGame : MonoBehaviour
 			performanceDifficulties.Add(globalControl.difficulty);
 		}
 
-		// Get reference to Paddle
-		useLeft = false;
-
 		// Calibrate the target line to be at the player's eye level
 		SetTargetLineHeight(globalControl.targetLineHeightOffset);
 		targetRadius = globalControl.targetHeightEnabled ? globalControl.targetRadius : 0f;
 
-		if (globalControl.numPaddles > 1)
-		{
-			rightPaddle.EnablePaddle();
-			rightPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
-
-			leftPaddle.EnablePaddle();
-			leftPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
-		}
 
 		PopulateScoreEffects();
 
@@ -324,13 +297,13 @@ public class PaddleGame : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.U))
 		{
 			curScore -= 25f;
-			BallBounced(null);
+			BallBounced();
 			Debug.Log("Score decreased");
 		}
 		if (Input.GetKeyDown(KeyCode.I))
 		{
 			curScore += 25f;
-			BallBounced(null);
+			BallBounced();
 			Debug.Log("Score increased");
 		}
 		if (Input.GetKeyDown(KeyCode.Q))
@@ -819,7 +792,7 @@ public class PaddleGame : MonoBehaviour
 #region Checks, Interactions, Data
 
 	// This will be called when the ball successfully bounces on the paddle.
-	public void BallBounced(Paddle paddle)
+	public void BallBounced()
 	{
 		if (numBounces > 0)
 		{
@@ -832,7 +805,7 @@ public class PaddleGame : MonoBehaviour
 		// If there are two paddles, switch the active one
 		if (globalControl.numPaddles > 1)
 		{
-			StartCoroutine(WaitToSwitchPaddles(paddle));;
+			StartCoroutine(WaitToSwitchPaddles());
 		}
 
 		if (!maxScoreEffectReached && curScore >= scoreEffects[scoreEffectTarget].score)
@@ -1067,16 +1040,6 @@ public class PaddleGame : MonoBehaviour
 		dataHandler.recordHeaderInfo(condition, expCondition, session, maxTrialTime, hoverTime, targetRadius);
 	}
 
-	// Initialize paddle information to be recorded upon next bounce
-	private void SetUpPaddleData()
-	{
-		Paddle paddle = GetActivePaddle();
-
-		paddleBounceHeight = paddle.Position.y;
-		paddleBounceVelocity = paddle.Velocity;
-		paddleBounceAccel = paddle.Acceleration;
-	}
-
 	// Determine data for recording a bounce and finally, record it.
 	private void GatherBounceData()
 	{
@@ -1112,7 +1075,7 @@ public class PaddleGame : MonoBehaviour
 	// Grab ball and paddle info and record it. Should be called once per frame
 	private void GatherContinuousData()
 	{
-		Paddle paddle = GetActivePaddle();
+		Paddle paddle = paddlesManager.ActivePaddle;
 		Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
 		Vector3 paddleVelocity = paddle.Velocity;
 		Vector3 paddleAccel = paddle.Acceleration;
@@ -1124,12 +1087,21 @@ public class PaddleGame : MonoBehaviour
 			dataHandler.recordContinuous(degreesOfFreedom, Time.time, cbm, globalControl.paused, ballVelocity, paddleVelocity, paddleAccel, difficultyEvaluation);
 		}
 	}
+	// Initialize paddle information to be recorded upon next bounce
+	private void SetUpPaddleData()
+	{
+		Paddle paddle = paddlesManager.ActivePaddle;
 
-#endregion // Gathering and recording data
+		paddleBounceHeight = paddle.Position.y;
+		paddleBounceVelocity = paddle.Velocity;
+		paddleBounceAccel = paddle.Acceleration;
+	}
 
-#endregion // Checks, Interactions, Data
+	#endregion // Gathering and recording data
 
-#region Difficulty
+	#endregion // Checks, Interactions, Data
+
+	#region Difficulty
 
 	private int GetDifficulty(DifficultyEvaluation evaluation)
 	{
@@ -1420,21 +1392,6 @@ public class PaddleGame : MonoBehaviour
 
 #region Exploration Mode
 
-	public void SwapActivePaddle()
-	{
-		SteamVR_Behaviour_Pose paddlePose = GameObject.Find("Paddle").GetComponent<SteamVR_Behaviour_Pose>();
-		useLeft = !useLeft;
-
-		if (useLeft)
-		{
-			paddlePose.inputSource = SteamVR_Input_Sources.LeftHand;
-		}
-		else
-		{
-			paddlePose.inputSource = SteamVR_Input_Sources.RightHand;
-		}
-	}
-
 	// Toggles the timescale to make the game slower 
 	public void ToggleTimescale()
 	{
@@ -1485,41 +1442,12 @@ public class PaddleGame : MonoBehaviour
 	}
 
 	// In order to prevent bugs, wait a little bit for the paddles to switch
-	IEnumerator WaitToSwitchPaddles(Paddle paddle)
+	IEnumerator WaitToSwitchPaddles()
 	{
 		yield return new WaitForSeconds(0.1f);
 		// We need the paddle identifier. This is the second parent of the collider in the heirarchy.
-		SwitchPaddles(paddle.GetPaddleIdentifier());
+		paddlesManager.SwitchActivePaddle();
 	}
-
-	// Switch the active paddles
-	private void SwitchPaddles(Paddle.PaddleIdentifier paddleId)
-	{
-		if (paddleId == Paddle.PaddleIdentifier.LEFT)
-		{
-			leftPaddle.DisablePaddle();
-			rightPaddle.EnablePaddle();
-		}
-		else
-		{
-			leftPaddle.EnablePaddle();
-			rightPaddle.DisablePaddle();
-		}
-	}
-
-	// Finds the currently active paddle (in the case of two paddles)
-	Paddle GetActivePaddle()
-	{
-		if (leftPaddle.ColliderIsActive())
-		{
-			return leftPaddle;
-		}
-		else
-		{
-			return rightPaddle;
-		}
-	}
-
 #endregion // Exploration Mode
 
 }
