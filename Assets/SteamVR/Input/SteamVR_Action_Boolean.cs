@@ -345,6 +345,8 @@ namespace Valve.VR
         /// </summary>
         public override void UpdateValue()
         {
+            if (OpenVR.Input == null) return;
+
             lastActionData = actionData;
             lastActive = active;
 
