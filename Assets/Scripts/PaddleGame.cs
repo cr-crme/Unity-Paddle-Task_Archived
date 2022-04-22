@@ -304,7 +304,6 @@ public class PaddleGame : MonoBehaviour
 		// Reset ball if it drops 
 		HoverOnReset();
 
-// #if UNITY_EDITOR
 		// add time adjust jl controls for demonstrations
 		if (Input.GetKeyDown(KeyCode.N))
 		{
@@ -350,7 +349,14 @@ public class PaddleGame : MonoBehaviour
 				numAccurateBounces += targetConditionBounces[difficultyEvaluation] * 7;
 			}
 		}
-// #endif
+		if (Input.GetKeyDown(KeyCode.B))
+        {
+			ball.GetComponent<Ball>().SimulateOnCollisionEnterWithPaddle(
+				new Vector3(0, (float)1, 0),
+				new Vector3(0, (float)1, 0),
+				new Vector3(0, 1, 0)
+			);
+		}
 
 		if (globalControl.recordingData)
 		{
@@ -836,7 +842,7 @@ public class PaddleGame : MonoBehaviour
 	#region Checks, Interactions, Data
 
 	// This will be called when the ball successfully bounces on the paddle.
-	public void BallBounced(Collision c)
+	public void BallBounced(Paddle paddle)
 	{
 		if (numBounces < 1)
 		{
@@ -853,7 +859,7 @@ public class PaddleGame : MonoBehaviour
 		// If there are two paddles, switch the active one
 		if (globalControl.numPaddles > 1)
 		{
-			StartCoroutine(WaitToSwitchPaddles(c));
+			StartCoroutine(WaitToSwitchPaddles(paddle));;
 		}
 
 		if (!maxScoreEffectReached && curScore >= scoreEffects[scoreEffectTarget].score)
@@ -1505,11 +1511,11 @@ public class PaddleGame : MonoBehaviour
 	}
 
 	// In order to prevent bugs, wait a little bit for the paddles to switch
-	IEnumerator WaitToSwitchPaddles(Collision c)
+	IEnumerator WaitToSwitchPaddles(Paddle paddle)
 	{
 		yield return new WaitForSeconds(0.1f);
 		// We need the paddle identifier. This is the second parent of the collider in the heirarchy.
-		SwitchPaddles(c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>().GetPaddleIdentifier());
+		SwitchPaddles(paddle.GetPaddleIdentifier());
 	}
 
 	// Switch the active paddles
