@@ -245,6 +245,13 @@ namespace Valve.VR
 
         public void OnEnable()
         {
+            if (!OpenVR.IsHmdPresent())
+            {
+                // Place the camera at the height of a children to simule it
+                transform.position = new Vector3((float)0.0, (float)1.00, (float)0.0);
+                return;
+            }
+
             if (Application.isPlaying)
             {
                 GetComponent<MeshRenderer>().enabled = drawInGame;
