@@ -81,8 +81,11 @@ public class Ball : MonoBehaviour
     // of acceleration. 
     void OnCollisionStay(Collision c)
     {
-        float pVySlice = Paddle.GetPaddleFromCollider(c).Velocity.y / 8.0f;    // 8 is a good divisor
-        rigidBody.velocity += new Vector3(0, pVySlice, 0);
+        if (c.gameObject.tag == "Paddle")
+        {
+            float pVySlice = Paddle.GetPaddleFromCollider(c).Velocity.y / 8.0f;    // 8 is a good divisor
+            rigidBody.velocity += new Vector3(0, pVySlice, 0);
+        }
     }
 
     // Called from ExplorationMode.cs --> start()
