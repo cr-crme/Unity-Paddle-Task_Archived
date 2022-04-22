@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Unity.Labs.SuperScience;
 
 public class Paddle : MonoBehaviour
 {
@@ -30,6 +29,8 @@ public class Paddle : MonoBehaviour
     [SerializeField]
     private GameObject backsideModel;
 
+    private PhysicsTracker m_MotionData = new PhysicsTracker();
+
     // Enable this paddle. Make it visible and turn on collider
     public void EnablePaddle()
     {
@@ -37,6 +38,19 @@ public class Paddle : MonoBehaviour
 
         paddleModel.GetComponent<MeshRenderer>().material = opaquePaddleMat;
         backsideModel.GetComponent<MeshRenderer>().material = opaqueBacksideMat;
+
+        // Use UnityLabs PhysicsTracker
+        m_MotionData.Reset(transform.position, transform.rotation, Vector3.zero, Vector3.zero);
+    }
+    static public Paddle GetPaddleFromCollider(Collision c)
+    {
+        return c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>();
+    }
+
+    void Update()
+    {
+        // send updated information to physicstracker
+        m_MotionData.mUpdate(transform.position, transform.rotation, Time.smoothDeltaTime);
     }
 
     // Disable this paddle. Make it transparent and turn off collider.
@@ -47,6 +61,10 @@ public class Paddle : MonoBehaviour
         paddleModel.GetComponent<MeshRenderer>().material = transparentPaddleMat;
         backsideModel.GetComponent<MeshRenderer>().material = transparentBacksideMat;
     }
+
+    public Vector3 Position { get { return transform.position; } }
+    public Vector3 Velocity { get { return m_MotionData.Velocity; } }
+    public Vector3 Acceleration { get { return m_MotionData.Acceleration; } }
 
     // Is the collider on this paddle active?
     public bool ColliderIsActive()

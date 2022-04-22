@@ -140,10 +140,6 @@ public class PaddleGame : MonoBehaviour
 
 	// Timescale
 	public bool slowtime = false;
-
-	// Reference to Paddle PhysicsTracker via Ball script
-	PhysicsTracker m_MotionData;
-
 	private List<float> bounceHeightList = new List<float>();
 
 	int difficultyEvaluationTrials;
@@ -229,8 +225,6 @@ public class PaddleGame : MonoBehaviour
 		paddle = GetActivePaddle();
 		useLeft = false;
 
-		m_MotionData = ball.GetComponent<Ball>().m_MotionData;
-
 		// Calibrate the target line to be at the player's eye level
 		SetTargetLineHeight(globalControl.targetLineHeightOffset);
 		targetRadius = globalControl.targetHeightEnabled ? globalControl.targetRadius : 0f;
@@ -278,15 +272,11 @@ public class PaddleGame : MonoBehaviour
 		{
 			_trialTimer += Time.unscaledDeltaTime;
 		}
-		
-		if(Time.timeScale == 0)
+
+		if(GlobalControl.Instance.paused)
 		{
 			// no processing until unpaused
 			return;
-		}
-		else if (Time.timeScale == 1)
-		{
-			// Debug.Log("timescale is 1");
 		}
 
 		// Data handler. Record continuous ball & paddle info
@@ -353,7 +343,6 @@ public class PaddleGame : MonoBehaviour
         {
 			ball.GetComponent<Ball>().SimulateOnCollisionEnterWithPaddle(
 				new Vector3(0, (float)1, 0),
-				new Vector3(0, (float)1, 0),
 				new Vector3(0, 1, 0)
 			);
 		}
@@ -375,10 +364,14 @@ public class PaddleGame : MonoBehaviour
 		if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation) /*globalControl.GetTimeLimitSeconds()*/)
 		{
 #if !UNITY_EDITOR
-			Debug.Log("Time limit of " + globalControl.GetTimeLimitSeconds() + " seconds has passed. Quitting");
+			Debug.Log(
+				$"Time limit of {GetMaxDifficultyTrialTime(difficultyEvaluation)} seconds has passed. Quitting"
+			);
 #endif
-
-			Debug.LogFormat("time elapsed {0} greater than max trial time {1}", globalControl.GetTimeElapsed(), GetMaxDifficultyTrialTime(difficultyEvaluation));
+			Debug.Log(
+				$"time elapsed {globalControl.GetTimeElapsed()} greater " +
+                $"than max trial time {GetMaxDifficultyTrialTime(difficultyEvaluation)}"
+			);
 			EvaluateDifficultyResult(false);
 		}
 	}
@@ -1095,11 +1088,9 @@ public class PaddleGame : MonoBehaviour
 	{
 		GameObject paddle = GetActivePaddle();
 
-		paddleBounceHeight = paddle.transform.position.y;
-		//paddleBounceVelocity = paddle.GetComponent<Paddle>().GetVelocity();
-		//paddleBounceAccel = paddle.GetComponent<Paddle>().GetAcceleration();
-		paddleBounceVelocity = m_MotionData.Velocity;
-		paddleBounceAccel = m_MotionData.Acceleration;
+		paddleBounceHeight = paddle.GetComponent<Paddle>().Position.y;
+		paddleBounceVelocity = paddle.GetComponent<Paddle>().Velocity;
+		paddleBounceAccel = paddle.GetComponent<Paddle>().Acceleration;
 	}
 
 	// Determine data for recording a bounce and finally, record it.
@@ -1140,8 +1131,8 @@ public class PaddleGame : MonoBehaviour
 		//Vector3 paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity();
 		//Vector3 paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
 		Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
-		Vector3 paddleVelocity = m_MotionData.Velocity;
-		Vector3 paddleAccel = m_MotionData.Acceleration;
+		Vector3 paddleVelocity = paddle.GetComponent<Paddle>().Velocity;
+		Vector3 paddleAccel = paddle.GetComponent<Paddle>().Acceleration;
 
 		Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
