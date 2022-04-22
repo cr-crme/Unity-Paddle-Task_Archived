@@ -46,7 +46,7 @@ public class TestReset : MonoBehaviour
         }
 		else if (collision.gameObject.tag == "Paddle")
 		{
-            Debug.LogFormat("Collided with {0} at {1} with contact count", collision.gameObject.name, Time.time, collision.contactCount);
+            Debug.Log($"Collided with {collision.gameObject.name} at {Time.time} with contact count {collision.contactCount}");
 
             paddlePose.enabled = false;
             rigidbody.useGravity = false;

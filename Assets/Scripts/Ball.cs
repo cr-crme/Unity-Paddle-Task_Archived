@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Valve.VR.InteractionSystem;
 using Unity.Labs.SuperScience;
 
 public class Ball : MonoBehaviour
-{    
+{
     [Tooltip("The normal ball color")]
     [SerializeField]
     private Material ballMat;
@@ -28,9 +27,6 @@ public class Ball : MonoBehaviour
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
 
-    // Store last position of ball for pause
-    private Vector3 lastPosition = Vector3.up;
-
     // This is true when the player is currently paddling the ball. If the 
     // player stops paddling the ball, set to false.
     public bool isBouncing = false;
@@ -44,13 +40,6 @@ public class Ball : MonoBehaviour
     // For Green/White IEnumerator coroutine 
     bool inTurnBallWhiteCR = false;
 
-    // Unity PhysicsTracker Configuration ======================================
-    [SerializeField]
-    [Tooltip("The object to track in space and report physics data on.")]
-    Transform m_ToTrack;
-    public PhysicsTracker m_MotionData = new PhysicsTracker();
-    // =========================================================================
-
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
@@ -59,16 +48,6 @@ public class Ball : MonoBehaviour
         rigidBody.velocity = Vector3.zero;
         rigidBody.useGravity = false;
         rigidBody.detectCollisions = false;
-
-        // Use UnityLabs PhysicsTracker
-        m_MotionData.Reset(m_ToTrack.position, m_ToTrack.rotation, Vector3.zero, Vector3.zero);
-    }
-
-    private void Update()
-    {
-        // send updated information to physicstracker
-        m_MotionData.mUpdate(m_ToTrack.position, m_ToTrack.rotation, Time.smoothDeltaTime);
-        
     }
 
     void OnCollisionEnter(Collision c)
@@ -76,11 +55,10 @@ public class Ball : MonoBehaviour
         // On collision with paddle, ball should bounce
         if (c.gameObject.tag == "Paddle")
         {
-            Vector3 paddleVelocity = m_MotionData.Velocity;
-            Vector3 paddleAccel = m_MotionData.Acceleration;
+            Paddle paddle = Paddle.GetPaddleFromCollider(c);
+            Vector3 paddleVelocity = paddle.Velocity;
             Vector3 cpNormal = c.GetContact(0).normal;
-            Paddle paddle = c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>();
-            BounceBall(paddleVelocity, paddleAccel, cpNormal, paddle);
+            BounceBall(paddleVelocity, cpNormal, paddle);
         }
         // if ball collides with the floor or something random, it is no longer bouncing
         else
@@ -89,11 +67,11 @@ public class Ball : MonoBehaviour
         }
     }
 
-    public void SimulateOnCollisionEnterWithPaddle(Vector3 paddleVelocity, Vector3 paddleAccel, Vector3 cpNormal)
+    public void SimulateOnCollisionEnterWithPaddle(Vector3 paddleVelocity, Vector3 cpNormal)
     {
         if (GetComponent<SphereCollider>().enabled)
         {
-            BounceBall(paddleVelocity, paddleAccel, cpNormal, null);
+            BounceBall(paddleVelocity, cpNormal, null);
         }
     }
 
@@ -103,7 +81,7 @@ public class Ball : MonoBehaviour
     // of acceleration. 
     void OnCollisionStay(Collision c)
     {
-        float pVySlice = m_MotionData.Velocity.y / 8.0f;    // 8 is a good divisor
+        float pVySlice = Paddle.GetPaddleFromCollider(c).Velocity.y / 8.0f;    // 8 is a good divisor
         rigidBody.velocity += new Vector3(0, pVySlice, 0);
     }
 
@@ -143,11 +121,13 @@ public class Ball : MonoBehaviour
         return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
     }
 
-    private void BounceBall(Vector3 paddleVelocity, Vector3 paddleAccel, Vector3 cpNormal, Paddle paddle)
+    private void BounceBall(
+        Vector3 paddleVelocity, Vector3 cpNormal, Paddle paddle
+    )
     {
         Vector3 Vin = GetComponent<Kinematics>().storedVelocity;
         
-        ApplyBouncePhysics(paddleVelocity, paddleAccel, cpNormal, Vin);
+        ApplyBouncePhysics(paddleVelocity, cpNormal, Vin);
 
         // Determine if collision should be counted as an active bounce
         if (paddleVelocity.magnitude < 0.05f)
@@ -190,7 +170,7 @@ public class Ball : MonoBehaviour
     }
 
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
-    void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 paddleAccel, Vector3 cpNormal, Vector3 Vin)
+    void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 cpNormal, Vector3 Vin)
     {
         // Reduce the effects of the paddle tilt so the ball doesn't bounce everywhere
         Vector3 reducedNormal = ProvideLeewayFromUp(cpNormal);
