@@ -245,7 +245,7 @@ namespace Valve.VR
 
         public void OnEnable()
         {
-            if (!OpenVR.IsHmdPresent())
+            if (OpenVR.Input == null)
             {
                 // Place the camera at the height of a children to simule it
                 transform.position = new Vector3((float)0.0, (float)1.00, (float)0.0);

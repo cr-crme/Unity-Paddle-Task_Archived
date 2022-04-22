@@ -91,7 +91,10 @@ public class Ball : MonoBehaviour
 
     public void SimulateOnCollisionEnterWithPaddle(Vector3 paddleVelocity, Vector3 paddleAccel, Vector3 cpNormal)
     {
-        BounceBall(paddleVelocity, paddleAccel, cpNormal, null);
+        if (GetComponent<SphereCollider>().enabled)
+        {
+            BounceBall(paddleVelocity, paddleAccel, cpNormal, null);
+        }
     }
 
     // For every frame that the ball is still in collision with the paddle, 
