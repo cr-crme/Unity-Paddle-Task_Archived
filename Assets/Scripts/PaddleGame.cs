@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -256,7 +256,7 @@ public class PaddleGame : MonoBehaviour
 
 		}
 	
-		Initialize();
+		Initialize(true);
 
 		SetDifficulty(difficulty);
 		// difficulty shifts timescale, so pause it again
@@ -401,7 +401,7 @@ public class PaddleGame : MonoBehaviour
 
 	#region Initialization
 
-	public void Initialize()
+	public void Initialize(bool firstTime)
 	{
 		if (globalControl.playVideo)
 		{
@@ -467,9 +467,16 @@ public class PaddleGame : MonoBehaviour
 		UpdateHighestBounceDisplay();
 		feedbackCanvas.UpdateScoreText(curScore, numBounces);
 
-		// ensure drop time on first drop
-		inHoverMode = true;
-		effectController.StopAllParticleEffects();
+        // ensure drop time on first drop
+		if (firstTime)
+        {
+			inHoverMode = true;
+			effectController.StopAllParticleEffects();
+		}
+        else
+        {
+			StartCoroutine(Respawning());
+		}
 
 		Debug.Log("Initialized");
 		if (session == Session.BASELINE)
@@ -653,17 +660,15 @@ public class PaddleGame : MonoBehaviour
 			timeToDropQuad.SetActive(false);
 
 			// Check if ball is on ground
-			if (!inRespawnMode && ball.transform.position.y < ball.transform.localScale.y && !_isInTrial)
+			if (!inRespawnMode && ball.transform.position.y < ball.transform.localScale.y)
 			{
 				ResetTrial();
 				_isInTrial = true;
 				_trialTimer = 0;
 			}
 			
-			if (SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
+			if (Input.GetKeyDown(KeyCode.R) || SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
 			{
-				//inHoverMode = true;
-				_isInTrial = false;
 				Debug.Log("Should be logging.");
 				StartCoroutine(Respawning());
 			}
@@ -703,6 +708,7 @@ public class PaddleGame : MonoBehaviour
 		inHoverMode = true;
 		yield return new WaitForEndOfFrame();
 		effectController.StopParticleEffect(effectController.dissolve);
+		pauseHandler.Pause();
 		effectController.StartEffect(effectController.respawn);
 		yield return new WaitForSeconds(ballRespawnSeconds);
 		ball.GetComponent<Ball>().TurnBallWhite();
@@ -821,6 +827,7 @@ public class PaddleGame : MonoBehaviour
 		{
 			// Check if game should end or evaluation set change
 			CheckEndCondition();
+			Initialize(false);
 		}
 	}
 
@@ -1224,11 +1231,6 @@ public class PaddleGame : MonoBehaviour
 		Debug.LogFormat("Increased Difficulty Evaluation to {0} with new difficulty evaluation difficulty evaluation: ", difficultyEvaluationIndex, difficultyEvaluation.ToString());
 
 		SetDifficulty(tempDifficulty);
-
-		Initialize();
-
-		// await input for next difficulty evaluation
-		pauseHandler.Pause();
 	}
 
 	/// <summary>

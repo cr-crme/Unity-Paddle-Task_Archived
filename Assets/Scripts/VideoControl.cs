@@ -123,7 +123,7 @@ public class VideoControl : MonoBehaviour
             globalControl.recordingData = true;
             paddleGame.StartRecording();
         }
-        paddleGame.Initialize();
+        paddleGame.Initialize(false);
         globalPauseHandler.pauseIndicator.visibleOverride = false;
 	}
 
