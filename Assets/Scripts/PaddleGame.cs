@@ -24,11 +24,11 @@ public class PaddleGame : MonoBehaviour
 
 	[Tooltip("The left paddle in the game")]
 	[SerializeField]
-	private GameObject leftPaddle;
+	private Paddle leftPaddle;
 
 	[Tooltip("The right paddle in the game")]
 	[SerializeField]
-	private GameObject rightPaddle;
+	private Paddle rightPaddle;
 
 	[Tooltip("The right paddle in the game")]
 	[SerializeField]
@@ -123,10 +123,8 @@ public class PaddleGame : MonoBehaviour
 	private DifficultyEvaluation difficultyEvaluation;
 	private int maxTrialTime;
 	private float hoverTime;
-	private float elapsedTime;
 
 	// Variables to keep track of resetting the ball after dropping to the ground
-	GameObject paddle;
 	private bool inHoverMode = false;
 	private bool inHoverResetCoroutine = false;
 	private bool inPlayDropSoundRoutine = false;
@@ -184,9 +182,7 @@ public class PaddleGame : MonoBehaviour
 	};
 
 	private List<int> performanceDifficulties = new List<int>();
-	float trialDuration = 0;
 
-	int difficultyExampleValue = 2;
 	float difficultyExampleTime = 30f;
 
 	int highestBounces, highestAccurateBounces;
@@ -197,15 +193,6 @@ public class PaddleGame : MonoBehaviour
 	void Start()
 	{
 		globalControl = GlobalControl.Instance;
-		//#region Testing
-
-		//globalControl.maxBaselineTrialTime = 1;
-		//globalControl.maxModerate1TrialTime = 1;
-		//globalControl.maxMaximalTrialTime = 1;
-		//globalControl.maxModerate2TrialTime = 1;
-
-		//#endregion
-
 		dataHandler = GetComponent<DataHandler>();
 
 		difficultyEvaluationTrials = globalControl.difficultyEvaluationTrials;
@@ -222,7 +209,6 @@ public class PaddleGame : MonoBehaviour
 		}
 
 		// Get reference to Paddle
-		paddle = GetActivePaddle();
 		useLeft = false;
 
 		// Calibrate the target line to be at the player's eye level
@@ -231,11 +217,11 @@ public class PaddleGame : MonoBehaviour
 
 		if (globalControl.numPaddles > 1)
 		{
-			rightPaddle.GetComponent<Paddle>().EnablePaddle();
-			rightPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
+			rightPaddle.EnablePaddle();
+			rightPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
 
-			leftPaddle.GetComponent<Paddle>().EnablePaddle();
-			leftPaddle.GetComponent<Paddle>().SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
+			leftPaddle.EnablePaddle();
+			leftPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
 		}
 
 		PopulateScoreEffects();
@@ -246,8 +232,6 @@ public class PaddleGame : MonoBehaviour
 		{
 			globalControl.recordingData = false;
 			globalControl.maxTrialTime = 0;
-
-
 		}
 	
 		Initialize(true);
@@ -283,6 +267,7 @@ public class PaddleGame : MonoBehaviour
 		GatherContinuousData();
 
 		// Update Canvas display
+		timeToDropQuad.SetActive(false);
 		feedbackCanvas.UpdateScoreText(curScore, numBounces);
 
 		// Record list of heights for bounce data analysis
@@ -291,10 +276,38 @@ public class PaddleGame : MonoBehaviour
 			bounceHeightList.Add(ball.transform.position.y);
 		}
 
-		// Reset ball if it drops 
-		HoverOnReset();
+		// Reset time scale
+		Time.timeScale = globalControl.timescale;
 
-		// add time adjust jl controls for demonstrations
+		// Reset ball if it drops 
+		ManageIfBallOnGround();
+		ManageHoveringPhase();
+
+		// Check for inputs
+		ManageInputs();
+
+
+		if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation) /*globalControl.GetTimeLimitSeconds()*/)
+		{
+			Debug.Log(
+				$"time elapsed {globalControl.GetTimeElapsed()} greater " +
+                $"than max trial time {GetMaxDifficultyTrialTime(difficultyEvaluation)}"
+			);
+			EvaluateDifficultyResult(false);
+		}
+	}
+
+	void ManageInputs()
+    {
+		// Actual game inputs
+		if (SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
+		{
+			Debug.Log("Forcing restart.");
+			StartCoroutine(Respawning());
+		}
+
+#if UNITY_EDITOR
+		// Debug related inputs
 		if (Input.GetKeyDown(KeyCode.N))
 		{
 			globalControl.timescale = Mathf.Clamp(globalControl.timescale - .05f, .05f, 3f);
@@ -333,50 +346,28 @@ public class PaddleGame : MonoBehaviour
 		}
 		if (Input.GetKeyDown(KeyCode.L))
 		{
-			if(session == Session.BASELINE)
+			if (session == Session.BASELINE)
 			{
 				numBounces += targetConditionBounces[difficultyEvaluation] * 7;
 				numAccurateBounces += targetConditionBounces[difficultyEvaluation] * 7;
 			}
 		}
 		if (Input.GetKeyDown(KeyCode.B))
-        {
+		{
 			ball.GetComponent<Ball>().SimulateOnCollisionEnterWithPaddle(
 				new Vector3(0, (float)1, 0),
 				new Vector3(0, 1, 0)
 			);
 		}
-
-		if (globalControl.recordingData)
+		if (Input.GetKeyDown(KeyCode.R))
 		{
-			trialDuration += Time.deltaTime;
+			Debug.Log("Forcing restart.");
+			StartCoroutine(Respawning());
 		}
-
-		// Debug.Log("elapsed time " + globalControl.GetTimeElapsed() + " out of max trial time: " + GetMaxDifficultyTrialTime(difficultyEvaluation));
-
-		#region Testing
-		if (difficultyEvaluationIndex == 3)
-		{
-			// Debug.Log("Evaluating second moderate trial"); 
-		}
-		#endregion
-
-		if (globalControl.GetTimeElapsed() > GetMaxDifficultyTrialTime(difficultyEvaluation) /*globalControl.GetTimeLimitSeconds()*/)
-		{
-#if !UNITY_EDITOR
-			Debug.Log(
-				$"Time limit of {GetMaxDifficultyTrialTime(difficultyEvaluation)} seconds has passed. Quitting"
-			);
 #endif
-			Debug.Log(
-				$"time elapsed {globalControl.GetTimeElapsed()} greater " +
-                $"than max trial time {GetMaxDifficultyTrialTime(difficultyEvaluation)}"
-			);
-			EvaluateDifficultyResult(false);
-		}
 	}
 
-	private void OnApplicationQuit()
+	void OnApplicationQuit()
 	{
 		QuitTask();
 	}
@@ -398,7 +389,7 @@ public class PaddleGame : MonoBehaviour
 		SceneManager.LoadScene(0);
 	}
 
-	#region Initialization
+#region Initialization
 
 	public void Initialize(bool firstTime)
 	{
@@ -641,57 +632,50 @@ public class PaddleGame : MonoBehaviour
 		ball.GetComponent<Ball>().ResetBall();
 	}
 
-	#endregion // Initialization
+#endregion // Initialization
 
-	#region Reset Trial
+#region Reset Trial
 
 	// Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
-	public void HoverOnReset()
+	void ManageHoveringPhase()
 	{
 		if (!inHoverMode)
+			return;
+
+		timeToDropQuad.SetActive(true);
+
+		ball.GetComponent<SphereCollider>().enabled = false;
+
+		// Hover ball at target line for a second
+		StartCoroutine(PlayDropSound(ballResetHoverSeconds - 0.15f));
+		StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
+
+		// Start countdown timer 
+		StartCoroutine(UpdateTimeToDropDisplay());
+
+		ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
+		ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+		ball.transform.position = Ball.spawnPosition(targetLine);
+		ball.transform.rotation = Quaternion.identity;
+
+		Time.timeScale = 1f;
+		//Debug.Log("Entering hover mode");
+	}
+
+	void ManageIfBallOnGround()
+    {
+		if (inHoverMode) 
+			return;
+
+		if (inRespawnMode)
+			return;         
+		
+		// Check if ball is on ground
+		if (ball.transform.position.y < ball.transform.localScale.y)
 		{
-			if (!inRespawnMode)
-			{
-				Time.timeScale = globalControl.timescale;
-				// Debug.Log("Hover finished " + Time.timeScale);
-			}
-
-			timeToDropQuad.SetActive(false);
-
-			// Check if ball is on ground
-			if (!inRespawnMode && ball.transform.position.y < ball.transform.localScale.y)
-			{
-				ResetTrial();
-				_isInTrial = true;
-				_trialTimer = 0;
-			}
-			
-			if (Input.GetKeyDown(KeyCode.R) || SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
-			{
-				Debug.Log("Should be logging.");
-				StartCoroutine(Respawning());
-			}
-		}
-		else // if hovering
-		{
-			timeToDropQuad.SetActive(true);
-
-			ball.GetComponent<SphereCollider>().enabled = false;
-
-			// Hover ball at target line for a second
-			StartCoroutine(PlayDropSound(ballResetHoverSeconds - 0.15f));
-			StartCoroutine(ReleaseHoverOnReset(ballResetHoverSeconds));
-
-			// Start countdown timer 
-			StartCoroutine(UpdateTimeToDropDisplay());
-
-			ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
-			ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-			ball.transform.position = Ball.spawnPosition(targetLine);
-			ball.transform.rotation = Quaternion.identity;
-
-			Time.timeScale = 1f;
-			//Debug.Log("Entering hover mode");
+			ResetTrial();
+			_isInTrial = true;
+			_trialTimer = 0;
 		}
 	}
 
@@ -830,22 +814,18 @@ public class PaddleGame : MonoBehaviour
 		}
 	}
 
-	#endregion // Reset
+#endregion // Reset
 
-	#region Checks, Interactions, Data
+#region Checks, Interactions, Data
 
 	// This will be called when the ball successfully bounces on the paddle.
 	public void BallBounced(Paddle paddle)
 	{
-		if (numBounces < 1)
-		{
-			SetUpPaddleData();
-		}
-		else
+		if (numBounces > 0)
 		{
 			GatherBounceData();
-			SetUpPaddleData();
 		}
+		SetUpPaddleData();
 		numBounces++;
 		numTotalBounces++;
 
@@ -857,7 +837,12 @@ public class PaddleGame : MonoBehaviour
 
 		if (!maxScoreEffectReached && curScore >= scoreEffects[scoreEffectTarget].score)
 		{
-			Debug.LogFormat("max score for effects not reached. current score {0} is greater than the target {1} for effect {2}. startign effects, increasing score target...", curScore, scoreEffectTarget, scoreEffects[scoreEffectTarget].score);
+			Debug.Log(
+				$"max score for effects not reached. current score " +
+                $"{curScore} is greater than the target {scoreEffectTarget} for effect " +
+                $"{scoreEffects[scoreEffectTarget].score}. startign effects, increasing " +
+                $"score target..."
+			);
 
 			foreach (var disableEffect in scoreEffects[scoreEffectTarget].disableEffects)
 			{
@@ -870,7 +855,6 @@ public class PaddleGame : MonoBehaviour
 			{
 				maxScoreEffectReached = true;
 				Debug.Log($"max effect score reached, score is {curScore} and score target was {scoreEffects[scoreEffectTarget].score}");
-				//Debug.LogFormat("max effect score reached, score is {0} and score target was {1}", curScore, scoreEffects[scoreEffectTarget].score);
 			}
 			else
 			{
@@ -1075,7 +1059,7 @@ public class PaddleGame : MonoBehaviour
 		return null;
 	}
 
-	#region Gathering and recording data
+#region Gathering and recording data
 
 	public void StartRecording()
 	{
@@ -1086,11 +1070,11 @@ public class PaddleGame : MonoBehaviour
 	// Initialize paddle information to be recorded upon next bounce
 	private void SetUpPaddleData()
 	{
-		GameObject paddle = GetActivePaddle();
+		Paddle paddle = GetActivePaddle();
 
-		paddleBounceHeight = paddle.GetComponent<Paddle>().Position.y;
-		paddleBounceVelocity = paddle.GetComponent<Paddle>().Velocity;
-		paddleBounceAccel = paddle.GetComponent<Paddle>().Acceleration;
+		paddleBounceHeight = paddle.Position.y;
+		paddleBounceVelocity = paddle.Velocity;
+		paddleBounceAccel = paddle.Acceleration;
 	}
 
 	// Determine data for recording a bounce and finally, record it.
@@ -1128,11 +1112,10 @@ public class PaddleGame : MonoBehaviour
 	// Grab ball and paddle info and record it. Should be called once per frame
 	private void GatherContinuousData()
 	{
-		//Vector3 paddleVelocity = paddle.GetComponent<Paddle>().GetVelocity();
-		//Vector3 paddleAccel = paddle.GetComponent<Paddle>().GetAcceleration();
+		Paddle paddle = GetActivePaddle();
 		Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
-		Vector3 paddleVelocity = paddle.GetComponent<Paddle>().Velocity;
-		Vector3 paddleAccel = paddle.GetComponent<Paddle>().Acceleration;
+		Vector3 paddleVelocity = paddle.Velocity;
+		Vector3 paddleAccel = paddle.Acceleration;
 
 		Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
@@ -1142,11 +1125,11 @@ public class PaddleGame : MonoBehaviour
 		}
 	}
 
-	#endregion // Gathering and recording data
+#endregion // Gathering and recording data
 
-	#endregion // Checks, Interactions, Data
+#endregion // Checks, Interactions, Data
 
-	#region Difficulty
+#region Difficulty
 
 	private int GetDifficulty(DifficultyEvaluation evaluation)
 	{
@@ -1514,20 +1497,20 @@ public class PaddleGame : MonoBehaviour
 	{
 		if (paddleId == Paddle.PaddleIdentifier.LEFT)
 		{
-			leftPaddle.GetComponent<Paddle>().DisablePaddle();
-			rightPaddle.GetComponent<Paddle>().EnablePaddle();
+			leftPaddle.DisablePaddle();
+			rightPaddle.EnablePaddle();
 		}
 		else
 		{
-			leftPaddle.GetComponent<Paddle>().EnablePaddle();
-			rightPaddle.GetComponent<Paddle>().DisablePaddle();
+			leftPaddle.EnablePaddle();
+			rightPaddle.DisablePaddle();
 		}
 	}
 
 	// Finds the currently active paddle (in the case of two paddles)
-	private GameObject GetActivePaddle()
+	Paddle GetActivePaddle()
 	{
-		if (leftPaddle.GetComponent<Paddle>().ColliderIsActive())
+		if (leftPaddle.ColliderIsActive())
 		{
 			return leftPaddle;
 		}
