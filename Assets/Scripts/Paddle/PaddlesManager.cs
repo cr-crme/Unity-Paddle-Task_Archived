@@ -31,6 +31,13 @@ public class PaddlesManager : MonoBehaviour
     }
 
 
+    // In order to prevent bugs, wait a little bit for the paddles to switch
+    public IEnumerator WaitThenSwitchPaddles()
+    {
+        yield return new WaitForSeconds(0.1f);
+        SwitchActivePaddle();
+    }
+
     public void SwitchActivePaddle()
     {
         if (currentPaddleIsLeft)
