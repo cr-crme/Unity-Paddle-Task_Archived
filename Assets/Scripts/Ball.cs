@@ -95,19 +95,19 @@ public class Ball : MonoBehaviour
         Debug.Log("Init bounce mod. ec:" + GlobalControl.Instance.expCondition);
         switch (GlobalControl.Instance.expCondition)
         {
-            case ExpCondition.NORMAL:
+            case TaskType.ExpCondition.NORMAL:
                 currentBounceModification = bounceModList[0];
                 break;
-            case ExpCondition.LIGHTEST:
+            case TaskType.ExpCondition.LIGHTEST:
                 currentBounceModification = bounceModList[1];
                 break;
-            case ExpCondition.LIGHTER:
+            case TaskType.ExpCondition.LIGHTER:
                 currentBounceModification = bounceModList[2];
                 break;
-            case ExpCondition.HEAVIER:
+            case TaskType.ExpCondition.HEAVIER:
                 currentBounceModification = bounceModList[3];
                 break;
-            case ExpCondition.HEAVIEST:
+            case TaskType.ExpCondition.HEAVIEST:
                 currentBounceModification = bounceModList[4];
                 break;
             default:
@@ -164,7 +164,7 @@ public class Ball : MonoBehaviour
             gameScript.IndicateSuccessBall();       // Flash ball green 
         }
     
-        if (GlobalControl.Instance.expCondition == ExpCondition.RANDOM)
+        if (GlobalControl.Instance.expCondition == TaskType.ExpCondition.RANDOM)
         {
             gameScript.ModifyPhysicsOnSuccess(successfulBounce);    // Check if 3 bounces were successful in the last 10
         }
@@ -178,13 +178,13 @@ public class Ball : MonoBehaviour
 
         // Get reflected bounce, with energy transfer
         Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, reducedNormal, 0.8f);
-        if (GlobalControl.Instance.condition == Condition.REDUCED)
+        if (GlobalControl.Instance.condition == TaskType.Condition.REDUCED)
         {
             Vreflected = LimitDeviationFromUp(Vreflected, GlobalControl.Instance.degreesOfFreedom);
         }
 
         // Apply paddle velocity
-        if (GlobalControl.Instance.condition == Condition.REDUCED)
+        if (GlobalControl.Instance.condition == TaskType.Condition.REDUCED)
         {
             Vreflected = new Vector3(0, Vreflected.y + (1.25f * paddleVelocity.y), 0);
         }

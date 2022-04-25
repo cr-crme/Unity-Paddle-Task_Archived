@@ -4,13 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum Condition { REGULAR, ENHANCED, REDUCED, TARGETLINE };
-public enum Session { BASELINE, ACQUISITION, RETENTION, TRANSFER, SHOWCASE };
-public enum TargetHeight { DEFAULT, LOWERED, RAISED };
-public enum ExpCondition { RANDOM = 0, HEAVIEST = 1, HEAVIER = 2, NORMAL = 3, LIGHTER = 4, LIGHTEST = 5 };
-public enum DifficultyEvaluation { BASE, MODERATE, MAXIMAL, CUSTOM };
-public enum Mindset { GROWTH, CONTROL };
-
 /// <summary>
 /// Stores calibration data for trial use in a single place.
 /// </summary>
@@ -31,19 +24,19 @@ public class GlobalControl : MonoBehaviour
     public int numPaddles = 1;
 
     // The condition of this instance
-    public Condition condition = Condition.ENHANCED;
+    public TaskType.Condition condition = TaskType.Condition.ENHANCED;
 
     // The Exploration condition of this instance (controls randomized physics)
-    public ExpCondition expCondition = ExpCondition.NORMAL;
+    public TaskType.ExpCondition expCondition = TaskType.ExpCondition.NORMAL;
 
     // Target Line Height
-    public TargetHeight targetHeightPreference = TargetHeight.DEFAULT;
+    public TaskType.TargetHeight targetHeightPreference = TaskType.TargetHeight.DEFAULT;
 
     // Target Line Success Threshold
     public float targetRadius = 0.05f;
 
     // Test period of this instance
-    public Session session = Session.BASELINE;
+    public TaskType.Session session = TaskType.Session.BASELINE;
 
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;
@@ -108,7 +101,7 @@ public class GlobalControl : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        if (condition == Condition.ENHANCED)
+        if (condition == TaskType.Condition.ENHANCED)
         {
             explorationMode = ExplorationMode.FORCED;
         }
