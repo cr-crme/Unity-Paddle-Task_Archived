@@ -1445,14 +1445,6 @@ public class PaddleGame : MonoBehaviour
 			return;
 		}
 	}
-
-	// In order to prevent bugs, wait a little bit for the paddles to switch
-	IEnumerator WaitToSwitchPaddles()
-	{
-		yield return new WaitForSeconds(0.1f);
-		// We need the paddle identifier. This is the second parent of the collider in the heirarchy.
-		paddlesManager.SwitchActivePaddle();
-	}
 #endregion // Exploration Mode
 
 }
