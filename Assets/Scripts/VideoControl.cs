@@ -118,7 +118,7 @@ public class VideoControl : MonoBehaviour
         // paddleGame.SetDifficulty(1);
         globalControl.playVideo = false;
         globalPauseHandler.Pause();
-        if (globalControl.session != Session.SHOWCASE)
+        if (globalControl.session != TaskType.Session.SHOWCASE)
         {
             globalControl.recordingData = true;
             paddleGame.StartRecording();

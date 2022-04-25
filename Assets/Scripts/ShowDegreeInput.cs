@@ -19,7 +19,7 @@ public class ShowDegreeInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GlobalControl.Instance.condition == Condition.REDUCED)
+        if (GlobalControl.Instance.condition == TaskType.Condition.REDUCED)
         {
             inputBox.SetActive(true);
         }

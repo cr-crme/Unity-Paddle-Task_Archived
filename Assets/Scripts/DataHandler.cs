@@ -44,15 +44,15 @@ public class DataHandler : MonoBehaviour
 
 	private string pid;
 
-	bool isExplorationMode = (GlobalControl.Instance.condition == Condition.ENHANCED);
+	bool isExplorationMode = (GlobalControl.Instance.condition == TaskType.Condition.ENHANCED);
 
 	int difficultyEvaluationIndex = -1;
 
-	Dictionary<DifficultyEvaluation, int> evaluationsCount = new Dictionary<DifficultyEvaluation, int>();
+	Dictionary<TaskType.DifficultyEvaluation, int> evaluationsCount = new Dictionary<TaskType.DifficultyEvaluation, int>();
 
 	public bool dataWritten = false;
 
-	public void InitializeDifficultyEvaluationData(DifficultyEvaluation difficultyEvaluation)
+	public void InitializeDifficultyEvaluationData(TaskType.DifficultyEvaluation difficultyEvaluation)
 	{
 		trialDatas.Add(new DifficultyEvaluationData<TrialData>(difficultyEvaluation, new List<TrialData>()));
 		bounceDatas.Add(new DifficultyEvaluationData<BounceData>(difficultyEvaluation, new List<BounceData>()));
@@ -61,7 +61,7 @@ public class DataHandler : MonoBehaviour
 		difficultyEvaluationIndex++;
 	}
 
-	int GetEvaluationsIteration(DifficultyEvaluation difficultyEvaluation)
+	int GetEvaluationsIteration(TaskType.DifficultyEvaluation difficultyEvaluation)
 	{
 		int evaluation = 0;
 		if (!evaluationsCount.ContainsKey(difficultyEvaluation))
@@ -80,7 +80,7 @@ public class DataHandler : MonoBehaviour
 
 	void ResetEvaluationsIteration()
 	{
-		evaluationsCount = new Dictionary<DifficultyEvaluation, int>();
+		evaluationsCount = new Dictionary<TaskType.DifficultyEvaluation, int>();
 	}
 
 
@@ -120,19 +120,19 @@ public class DataHandler : MonoBehaviour
 	//}
 
 	// Records trial data into the data list
-	public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, DifficultyEvaluation difficultyEvaluation, int difficulty)
+	public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, TaskType.DifficultyEvaluation difficultyEvaluation, int difficulty)
 	{
 		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialData(degreesOfFreedom, time, trialTime, trialNum, numBounces, numAccurateBounces, difficulty));
 	}
 
 	// Records bounce data into the data list
-	public void recordBounce(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel, DifficultyEvaluation difficultyEvaluation)
+	public void recordBounce(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel, TaskType.DifficultyEvaluation difficultyEvaluation)
 	{
 		bounceDatas[difficultyEvaluationIndex].datas.Add(new BounceData(degreesOfFreedom, time, bouncemod, trialNum, bounceNum, bounceNumTotal, apexTargetError, success, paddleVelocity, paddleAccel));
 	}
 
 	// Records continuous ball and paddle data into the data list
-	public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel, DifficultyEvaluation difficultyEvaluation)
+	public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel, TaskType.DifficultyEvaluation difficultyEvaluation)
 	{
 		continuousDatas[difficultyEvaluationIndex].datas.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
 	}
@@ -142,7 +142,7 @@ public class DataHandler : MonoBehaviour
 		difficultyDatas[difficultyEvaluationIndex].datas.Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time, difficulty));
 	}
 
-	public void recordHeaderInfo(Condition c, ExpCondition ec, Session s, int maxtime, float htime, float tradius)
+	public void recordHeaderInfo(TaskType.Condition c, TaskType.ExpCondition ec, TaskType.Session s, int maxtime, float htime, float tradius)
 	{
 		headerData = new HeaderData(c, ec, s, maxtime, htime, tradius);
 	}

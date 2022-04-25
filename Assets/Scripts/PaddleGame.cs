@@ -69,6 +69,9 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	List<DifficultyAudioClip> difficultyAudioClips;
 
+	// Manage the current task to perform
+	TaskManager taskManager;
+
 	// Current number of bounces that the player has acheieved in this trial
 	private int numBounces = 0;
 	private int numAccurateBounces = 0;
@@ -102,10 +105,10 @@ public class PaddleGame : MonoBehaviour
 	public float degreesOfFreedom;
 
 	// This session information
-	private Condition condition;
-	private ExpCondition expCondition;
-	private Session session;
-	private DifficultyEvaluation difficultyEvaluation;
+	private TaskType.Condition condition;
+	private TaskType.ExpCondition expCondition;
+	private TaskType.Session session;
+	private TaskType.DifficultyEvaluation difficultyEvaluation;
 	private int maxTrialTime;
 	private float hoverTime;
 
@@ -127,12 +130,12 @@ public class PaddleGame : MonoBehaviour
 
 	int difficultyEvaluationTrials;
 	private List<ScoreEffect> scoreEffects = new List<ScoreEffect>();
-	private List<DifficultyEvaluation> difficultyEvaluationOrder = new List<DifficultyEvaluation>() 
-	{ 
-		DifficultyEvaluation.BASE, 
-		DifficultyEvaluation.MODERATE, 
-		DifficultyEvaluation.MAXIMAL, 
-		DifficultyEvaluation.MODERATE 
+	private List<TaskType.DifficultyEvaluation> difficultyEvaluationOrder = new List<TaskType.DifficultyEvaluation>() 
+	{
+		TaskType.DifficultyEvaluation.BASE,
+		TaskType.DifficultyEvaluation.MODERATE,
+		TaskType.DifficultyEvaluation.MAXIMAL,
+		TaskType.DifficultyEvaluation.MODERATE 
 	};
 	private int difficultyEvaluationIndex = 0;
 
@@ -150,19 +153,19 @@ public class PaddleGame : MonoBehaviour
 		//{ DifficultyEvaluation.CUSTOM, new List<TrialData>() }
 	// };
 
-	private Dictionary<DifficultyEvaluation, int> targetConditionBounces = new Dictionary<DifficultyEvaluation, int>()
+	private Dictionary<TaskType.DifficultyEvaluation, int> targetConditionBounces = new Dictionary<TaskType.DifficultyEvaluation, int>()
 	{
-		{ DifficultyEvaluation.BASE, 5 },
-		{ DifficultyEvaluation.MODERATE, 5 },
-		{ DifficultyEvaluation.MAXIMAL, 5 },
-		{ DifficultyEvaluation.CUSTOM, -1 }
+		{ TaskType.DifficultyEvaluation.BASE, 5 },
+		{ TaskType.DifficultyEvaluation.MODERATE, 5 },
+		{ TaskType.DifficultyEvaluation.MAXIMAL, 5 },
+		{ TaskType.DifficultyEvaluation.CUSTOM, -1 }
 	};
-	private Dictionary<DifficultyEvaluation, int> targetConditionAccurateBounces = new Dictionary<DifficultyEvaluation, int>()
+	private Dictionary<TaskType.DifficultyEvaluation, int> targetConditionAccurateBounces = new Dictionary<TaskType.DifficultyEvaluation, int>()
 	{
-		{ DifficultyEvaluation.BASE, 0 },
-		{ DifficultyEvaluation.MODERATE, 5 },
-		{ DifficultyEvaluation.MAXIMAL, 5 },
-		{ DifficultyEvaluation.CUSTOM, -1 }
+		{ TaskType.DifficultyEvaluation.BASE, 0 },
+		{ TaskType.DifficultyEvaluation.MODERATE, 5 },
+		{ TaskType.DifficultyEvaluation.MAXIMAL, 5 },
+		{ TaskType.DifficultyEvaluation.CUSTOM, -1 }
 	};
 
 	private List<int> performanceDifficulties = new List<int>();
@@ -179,11 +182,13 @@ public class PaddleGame : MonoBehaviour
 		globalControl = GlobalControl.Instance;
 		dataHandler = GetComponent<DataHandler>();
 
+		taskManager = new TaskManager(true);
+
 		difficultyEvaluationTrials = globalControl.difficultyEvaluationTrials;
 
 		Instantiate(globalControl.environments[globalControl.environmentOption]);
 
-		if(globalControl.session == Session.BASELINE)
+		if(globalControl.session == TaskType.Session.BASELINE)
 		{
 			performanceDifficulties.Add(1);
 		}
@@ -201,7 +206,7 @@ public class PaddleGame : MonoBehaviour
 
 		InitializeTrialConditions();
 
-		if(globalControl.session == Session.SHOWCASE)
+		if(globalControl.session == TaskType.Session.SHOWCASE)
 		{
 			globalControl.recordingData = false;
 			globalControl.maxTrialTime = 0;
@@ -319,7 +324,7 @@ public class PaddleGame : MonoBehaviour
 		}
 		if (Input.GetKeyDown(KeyCode.L))
 		{
-			if (session == Session.BASELINE)
+			if (session == TaskType.Session.BASELINE)
 			{
 				numBounces += targetConditionBounces[difficultyEvaluation] * 7;
 				numAccurateBounces += targetConditionBounces[difficultyEvaluation] * 7;
@@ -394,7 +399,7 @@ public class PaddleGame : MonoBehaviour
 
 		curScore = 0;
 
-		if (globalControl.session == Session.BASELINE)
+		if (globalControl.session == TaskType.Session.BASELINE)
 		{
 			difficultyEvaluation = difficultyEvaluationOrder[difficultyEvaluationIndex];
 			difficulty = GetDifficulty(difficultyEvaluationOrder[difficultyEvaluationIndex]);
@@ -406,7 +411,7 @@ public class PaddleGame : MonoBehaviour
 			dataHandler.InitializeDifficultyEvaluationData(difficultyEvaluationOrder[difficultyEvaluationIndex]);
 
 		}
-		else if (globalControl.session == Session.SHOWCASE)
+		else if (globalControl.session == TaskType.Session.SHOWCASE)
 		{
 			difficulty = 2;
 			StartShowcase();
@@ -414,8 +419,8 @@ public class PaddleGame : MonoBehaviour
 		else
 		{
 			difficulty = globalControl.difficulty;
-			trialData.Add(new DifficultyEvaluationData<TrialData>(DifficultyEvaluation.CUSTOM, new List<TrialData>()));
-			dataHandler.InitializeDifficultyEvaluationData(DifficultyEvaluation.CUSTOM);
+			trialData.Add(new DifficultyEvaluationData<TrialData>(TaskType.DifficultyEvaluation.CUSTOM, new List<TrialData>()));
+			dataHandler.InitializeDifficultyEvaluationData(TaskType.DifficultyEvaluation.CUSTOM);
 			pauseHandler.Pause();
 			// difficulty shifts timescale, so pause it again
 			Time.timeScale = 0;
@@ -442,7 +447,7 @@ public class PaddleGame : MonoBehaviour
 		}
 
 		Debug.Log("Initialized");
-		if (session == Session.BASELINE)
+		if (session == TaskType.Session.BASELINE)
 		{
 			Debug.Log("Evaluating trial difficulty index: " + difficultyEvaluationIndex);
 		}
@@ -474,13 +479,13 @@ public class PaddleGame : MonoBehaviour
 	{
 		switch (globalControl.targetHeightPreference)
 		{
-			case TargetHeight.RAISED:
+			case TaskType.TargetHeight.RAISED:
 				y *= 1.1f;
 				break;
-			case TargetHeight.LOWERED:
+			case TaskType.TargetHeight.LOWERED:
 				y *= 0.9f;
 				break;
-			case TargetHeight.DEFAULT:
+			case TaskType.TargetHeight.DEFAULT:
 				break;
 			default:
 				Debug.Log("Error: Invalid Target Height Preference");
@@ -529,28 +534,28 @@ public class PaddleGame : MonoBehaviour
 //#if UNITY_EDITOR
 //			if (false)
 //#else
-			if (trialData.numBounces >= targetConditionBounces[DifficultyEvaluation.BASE])
+			if (trialData.numBounces >= targetConditionBounces[TaskType.DifficultyEvaluation.BASE])
 // #endif
 			{
-				return trialData.numBounces / targetConditionBounces[DifficultyEvaluation.BASE];
+				return trialData.numBounces / targetConditionBounces[TaskType.DifficultyEvaluation.BASE];
 			}
 			return 0; 
 		});
 		moderateTrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
 		{ 
-			if (trialData.numBounces >= targetConditionBounces[DifficultyEvaluation.MODERATE] && (!globalControl.targetHeightEnabled || trialData.numAccurateBounces >= targetConditionAccurateBounces[DifficultyEvaluation.MODERATE])) 
+			if (trialData.numBounces >= targetConditionBounces[TaskType.DifficultyEvaluation.MODERATE] && (!globalControl.targetHeightEnabled || trialData.numAccurateBounces >= targetConditionAccurateBounces[TaskType.DifficultyEvaluation.MODERATE])) 
 			{
-				int bounces = trialData.numBounces / targetConditionBounces[DifficultyEvaluation.MODERATE];
-				int accurateBounces = trialData.numAccurateBounces / targetConditionAccurateBounces[DifficultyEvaluation.MODERATE];
+				int bounces = trialData.numBounces / targetConditionBounces[TaskType.DifficultyEvaluation.MODERATE];
+				int accurateBounces = trialData.numAccurateBounces / targetConditionAccurateBounces[TaskType.DifficultyEvaluation.MODERATE];
 				return !globalControl.targetHeightEnabled ? bounces : accurateBounces; 
 			} 
 			return 0; 
 		});
 		maximaltrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
 		{
-			if (trialData.numBounces >= targetConditionBounces[DifficultyEvaluation.MAXIMAL])
+			if (trialData.numBounces >= targetConditionBounces[TaskType.DifficultyEvaluation.MAXIMAL])
 			{
-				return trialData.numAccurateBounces / targetConditionBounces[DifficultyEvaluation.MAXIMAL];
+				return trialData.numAccurateBounces / targetConditionBounces[TaskType.DifficultyEvaluation.MAXIMAL];
 			}
 			return 0; 
 		});
@@ -805,7 +810,7 @@ public class PaddleGame : MonoBehaviour
 		// If there are two paddles, switch the active one
 		if (globalControl.numPaddles > 1)
 		{
-			StartCoroutine(WaitToSwitchPaddles());
+			StartCoroutine(paddlesManager.WaitThenSwitchPaddles());
 		}
 
 		if (!maxScoreEffectReached && curScore >= scoreEffects[scoreEffectTarget].score)
@@ -854,7 +859,7 @@ public class PaddleGame : MonoBehaviour
 	/// </summary>
 	void CheckEndCondition(bool fromBounce = false)
 	{
-		if(session == Session.SHOWCASE)
+		if(session == TaskType.Session.SHOWCASE)
 		{
 			return;
 		}
@@ -868,7 +873,7 @@ public class PaddleGame : MonoBehaviour
 			CheckTrialConditions(fromBounce);
 		}
 
-		if (difficultyEvaluation == DifficultyEvaluation.CUSTOM && globalControl.GetTimeLimitSeconds() == 0)
+		if (difficultyEvaluation == TaskType.DifficultyEvaluation.CUSTOM && globalControl.GetTimeLimitSeconds() == 0)
 		{
 			return;
 		}
@@ -972,17 +977,17 @@ public class PaddleGame : MonoBehaviour
 		return (height > lowerLimit) && (height < upperLimit);
 	}
 
-	public TrialCondition GetDifficultyCondition(DifficultyEvaluation evaluation)
+	public TrialCondition GetDifficultyCondition(TaskType.DifficultyEvaluation evaluation)
 	{
-		if (evaluation == DifficultyEvaluation.BASE)
+		if (evaluation == TaskType.DifficultyEvaluation.BASE)
 		{
 			return baseTrialCondition;
 		}
-		else if (evaluation == DifficultyEvaluation.MODERATE)
+		else if (evaluation == TaskType.DifficultyEvaluation.MODERATE)
 		{
 			return moderateTrialCondition;
 		}
-		else if (evaluation == DifficultyEvaluation.MAXIMAL)
+		else if (evaluation == TaskType.DifficultyEvaluation.MAXIMAL)
 		{
 			return maximaltrialCondition;
 		}
@@ -990,29 +995,29 @@ public class PaddleGame : MonoBehaviour
 		return null;
 	}
 
-	public int GetMaxDifficultyTrialTime(DifficultyEvaluation difficultyEvaluation)
+	public int GetMaxDifficultyTrialTime(TaskType.DifficultyEvaluation difficultyEvaluation)
 	{
 		int trialTime = -1;
-		if (difficultyEvaluation == DifficultyEvaluation.BASE)
+		if (difficultyEvaluation == TaskType.DifficultyEvaluation.BASE)
 		{
 			trialTime = globalControl.maxBaselineTrialTime;
 		}
-		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
+		else if (difficultyEvaluation == TaskType.DifficultyEvaluation.MODERATE)
 		{
-			if(difficultyEvaluationIndex == difficultyEvaluationOrder.IndexOf(DifficultyEvaluation.MODERATE))
+			if(difficultyEvaluationIndex == difficultyEvaluationOrder.IndexOf(TaskType.DifficultyEvaluation.MODERATE))
 			{
 				trialTime = globalControl.maxModerate1TrialTime;
 			}
-			else if (difficultyEvaluationIndex == difficultyEvaluationOrder.LastIndexOf(DifficultyEvaluation.MODERATE))
+			else if (difficultyEvaluationIndex == difficultyEvaluationOrder.LastIndexOf(TaskType.DifficultyEvaluation.MODERATE))
 			{
 				trialTime = globalControl.maxModerate2TrialTime;
 			}
 		}
-		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
+		else if (difficultyEvaluation == TaskType.DifficultyEvaluation.MAXIMAL)
 		{
 			trialTime = globalControl.maxMaximalTrialTime;
 		}
-		else if (difficultyEvaluation == DifficultyEvaluation.CUSTOM)
+		else if (difficultyEvaluation == TaskType.DifficultyEvaluation.CUSTOM)
 		{
 			trialTime = globalControl.maxTrialTime;
 		}
@@ -1103,13 +1108,13 @@ public class PaddleGame : MonoBehaviour
 
 	#region Difficulty
 
-	private int GetDifficulty(DifficultyEvaluation evaluation)
+	private int GetDifficulty(TaskType.DifficultyEvaluation evaluation)
 	{
-		if (evaluation == DifficultyEvaluation.CUSTOM)
+		if (evaluation == TaskType.DifficultyEvaluation.CUSTOM)
 		{
 			return globalControl.difficulty;
 		}
-		else if (evaluation == DifficultyEvaluation.BASE)
+		else if (evaluation == TaskType.DifficultyEvaluation.BASE)
 		{
 #if UNITY_EDITOR
 			// return 10;
@@ -1136,7 +1141,7 @@ public class PaddleGame : MonoBehaviour
 		var difficultyScalar = GetPerformanceBasedDifficultyScalar(successfulCompletion);
 		var tempDifficulty = 0;
 
-		if(session == Session.ACQUISITION || session == Session.SHOWCASE)
+		if(session == TaskType.Session.ACQUISITION || session == TaskType.Session.SHOWCASE)
 		{
 			// over once end time is reached.
 			QuitTask();
@@ -1146,16 +1151,16 @@ public class PaddleGame : MonoBehaviour
 		Debug.Log($"{nameof(tempDifficulty)}={tempDifficulty} {nameof(difficultyScalar)}={difficultyScalar}");
 
 		// each are evaluating for the next difficultyEvaluation
-		if (difficultyEvaluation == DifficultyEvaluation.BASE)
+		if (difficultyEvaluation == TaskType.DifficultyEvaluation.BASE)
 		{
 			tempDifficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
 		}
-		else if (difficultyEvaluation == DifficultyEvaluation.MODERATE)
+		else if (difficultyEvaluation == TaskType.DifficultyEvaluation.MODERATE)
 		{
 			tempDifficulty = Mathf.RoundToInt(Mathf.Lerp(6, 10, difficultyScalar));
 
 		}
-		else if (difficultyEvaluation == DifficultyEvaluation.MAXIMAL)
+		else if (difficultyEvaluation == TaskType.DifficultyEvaluation.MAXIMAL)
 		{
 			tempDifficulty = Mathf.RoundToInt(Mathf.Lerp(2, 5, difficultyScalar));
 		}

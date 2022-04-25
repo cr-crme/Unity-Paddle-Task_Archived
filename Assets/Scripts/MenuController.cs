@@ -34,7 +34,7 @@ public class MenuController : MonoBehaviour {
 
     void UpdateConditionalUIObjects()
 	{
-        bool baseline = GlobalControl.Instance.session == Session.BASELINE;
+        bool baseline = GlobalControl.Instance.session == TaskType.Session.BASELINE;
 		maxTrialTimeObject.SetActive(!baseline);
         maxDifficultyTrialTimeObject.SetActive(baseline);
 		
@@ -59,7 +59,7 @@ public class MenuController : MonoBehaviour {
     /// <param name="arg0"></param>
     public void RecordDegrees()
     {
-        GlobalControl.Instance.degreesOfFreedom = (GlobalControl.Instance.condition == Condition.REDUCED) ? 0.0f : 90.0f;
+        GlobalControl.Instance.degreesOfFreedom = (GlobalControl.Instance.condition == TaskType.Condition.REDUCED) ? 0.0f : 90.0f;
         // GetComponent<MenuPlayerPrefs>().SaveDOF(GlobalControl.Instance.degreesOfFreedom);
     }
 
@@ -152,20 +152,20 @@ public class MenuController : MonoBehaviour {
         switch (arg0)
         {
             case 0:
-                GlobalControl.Instance.condition = Condition.REGULAR;
+                GlobalControl.Instance.condition = TaskType.Condition.REGULAR;
                 break;
             case 1:
-                GlobalControl.Instance.condition = Condition.ENHANCED;
+                GlobalControl.Instance.condition = TaskType.Condition.ENHANCED;
                 break;
             case 2:
-                GlobalControl.Instance.condition = Condition.REDUCED;
+                GlobalControl.Instance.condition = TaskType.Condition.REDUCED;
                 break;
             case 3:
-                GlobalControl.Instance.condition = Condition.TARGETLINE;
+                GlobalControl.Instance.condition = TaskType.Condition.TARGETLINE;
                 break;
 
             default:
-                GlobalControl.Instance.condition = Condition.REGULAR;
+                GlobalControl.Instance.condition = TaskType.Condition.REGULAR;
                 break;
         }
 
@@ -196,25 +196,25 @@ public class MenuController : MonoBehaviour {
         switch (arg0)
         {
             case 0:
-                GlobalControl.Instance.expCondition = ExpCondition.RANDOM;
+                GlobalControl.Instance.expCondition = TaskType.ExpCondition.RANDOM;
                 break;
             case 1:
-                GlobalControl.Instance.expCondition = ExpCondition.LIGHTEST;
+                GlobalControl.Instance.expCondition = TaskType.ExpCondition.LIGHTEST;
                 break;
             case 2:
-                GlobalControl.Instance.expCondition = ExpCondition.LIGHTER;
+                GlobalControl.Instance.expCondition = TaskType.ExpCondition.LIGHTER;
                 break;
             case 3:
-                GlobalControl.Instance.expCondition = ExpCondition.NORMAL;
+                GlobalControl.Instance.expCondition = TaskType.ExpCondition.NORMAL;
                 break;
             case 4:
-                GlobalControl.Instance.expCondition = ExpCondition.HEAVIER;
+                GlobalControl.Instance.expCondition = TaskType.ExpCondition.HEAVIER;
                 break;
             case 5:
-                GlobalControl.Instance.expCondition = ExpCondition.HEAVIEST;
+                GlobalControl.Instance.expCondition = TaskType.ExpCondition.HEAVIEST;
                 break;
             default:
-                GlobalControl.Instance.expCondition = ExpCondition.RANDOM;
+                GlobalControl.Instance.expCondition = TaskType.ExpCondition.RANDOM;
                 break;
         }
 
@@ -229,23 +229,23 @@ public class MenuController : MonoBehaviour {
 
         if (arg0 == 0)
         {
-            GlobalControl.Instance.session = Session.BASELINE;
+            GlobalControl.Instance.session = TaskType.Session.BASELINE;
         }
         else if (arg0 == 1)
         {
-            GlobalControl.Instance.session = Session.ACQUISITION;
+            GlobalControl.Instance.session = TaskType.Session.ACQUISITION;
         }
         else if (arg0 == 2)
         {
-            GlobalControl.Instance.session = Session.RETENTION;
+            GlobalControl.Instance.session = TaskType.Session.RETENTION;
         }
         else if (arg0 == 3)
         {
-            GlobalControl.Instance.session = Session.TRANSFER;
+            GlobalControl.Instance.session = TaskType.Session.TRANSFER;
         }
         else if (arg0 == 4)
         {
-            GlobalControl.Instance.session = Session.SHOWCASE;
+            GlobalControl.Instance.session = TaskType.Session.SHOWCASE;
         }
 
 
@@ -261,15 +261,15 @@ public class MenuController : MonoBehaviour {
 
         if (arg0 == 0)
         {
-            GlobalControl.Instance.targetHeightPreference = TargetHeight.DEFAULT;
+            GlobalControl.Instance.targetHeightPreference = TaskType.TargetHeight.DEFAULT;
         }
         if (arg0 == 1)
         {
-            GlobalControl.Instance.targetHeightPreference = TargetHeight.LOWERED;
+            GlobalControl.Instance.targetHeightPreference = TaskType.TargetHeight.LOWERED;
         }
         if (arg0 == 2)
         {
-            GlobalControl.Instance.targetHeightPreference = TargetHeight.RAISED;
+            GlobalControl.Instance.targetHeightPreference = TaskType.TargetHeight.RAISED;
         }
 
         GetComponent<MenuPlayerPrefs>().SaveTargetHeight(arg0);
