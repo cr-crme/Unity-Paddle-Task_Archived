@@ -16,7 +16,7 @@ public class DifficultyFactory
             DifficultyChoice.BASE, 
             new DifficultyDefinition(
                 "BASE",
-                10.0,
+                10.0 * 60,
                 5,
                 0,
                 new Tuple<double, double>(2, 5),
@@ -68,7 +68,7 @@ public class DifficultyFactory
             DifficultyChoice.MODERATE,
             new DifficultyDefinition(
                 "MODERATE",
-                10.0,
+                10.0 * 60,
                 5,
                 5,
                 new Tuple<double, double>(6, 10),
@@ -119,7 +119,7 @@ public class DifficultyFactory
             DifficultyChoice.MAXIMAL,
             new DifficultyDefinition(
                 "MAXIMAL",
-                10.0,
+                10.0 * 60,
                 5,
                 5,
                 new Tuple<double, double>(6, 10),

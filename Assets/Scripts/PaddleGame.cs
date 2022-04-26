@@ -392,10 +392,6 @@ public class PaddleGame : MonoBehaviour
 		}
 
 		Debug.Log("Initialized");
-		if (session == TaskType.Session.BASELINE)
-		{
-			Debug.Log("Evaluating trial difficulty index: " + difficultyEvaluationIndex);
-		}
 	}
 
 	// Sets Target Line height based on HMD eye level and target position preference
