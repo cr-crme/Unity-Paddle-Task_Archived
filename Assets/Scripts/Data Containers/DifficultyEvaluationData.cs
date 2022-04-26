@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 public class DifficultyEvaluationData<T> 
 {
-	public TaskType.DifficultyEvaluation difficultyEvaluation;
+	public DifficultyDefinition difficultyEvaluation;
 	public List<T> datas;
 
-	public DifficultyEvaluationData(TaskType.DifficultyEvaluation difficultyEvaluation, List<T> datas)
+	public DifficultyEvaluationData(DifficultyDefinition difficultyEvaluation, List<T> datas)
 	{
 		this.difficultyEvaluation = difficultyEvaluation;
 		this.datas = datas;

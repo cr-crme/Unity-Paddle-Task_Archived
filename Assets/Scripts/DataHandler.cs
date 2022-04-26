@@ -11,7 +11,7 @@ using UnityEngine.Networking;
 public class DataHandler : MonoBehaviour
 {
 	// stores the data for writing to file at end of task
-	List<DifficultyEvaluationData<TrialData>> trialDatas = new List<DifficultyEvaluationData<TrialData>>();
+	List<DifficultyEvaluationData<TrialResults>> trialDatas = new List<DifficultyEvaluationData<TrialResults>>();
 	//{
 	//    { DifficultyEvaluation.BASE, new List<TrialData>() },
 	//    { DifficultyEvaluation.MODERATE, new List<TrialData>() },
@@ -48,39 +48,41 @@ public class DataHandler : MonoBehaviour
 
 	int difficultyEvaluationIndex = -1;
 
-	Dictionary<TaskType.DifficultyEvaluation, int> evaluationsCount = new Dictionary<TaskType.DifficultyEvaluation, int>();
+	Dictionary<DifficultyChoice, int> evaluationsCount = new Dictionary<DifficultyChoice, int>();
 
 	public bool dataWritten = false;
 
-	public void InitializeDifficultyEvaluationData(TaskType.DifficultyEvaluation difficultyEvaluation)
+	public void InitializeDifficultyEvaluationData(DifficultyDefinition difficultyEvaluation)
 	{
-		trialDatas.Add(new DifficultyEvaluationData<TrialData>(difficultyEvaluation, new List<TrialData>()));
+		trialDatas.Add(new DifficultyEvaluationData<TrialResults>(difficultyEvaluation, new List<TrialResults>()));
 		bounceDatas.Add(new DifficultyEvaluationData<BounceData>(difficultyEvaluation, new List<BounceData>()));
 		continuousDatas.Add(new DifficultyEvaluationData<ContinuousData>(difficultyEvaluation, new List<ContinuousData>()));
 		difficultyDatas.Add(new DifficultyEvaluationData<DifficultyData>(difficultyEvaluation, new List<DifficultyData>()));
 		difficultyEvaluationIndex++;
 	}
 
-	int GetEvaluationsIteration(TaskType.DifficultyEvaluation difficultyEvaluation)
+	int GetEvaluationsIteration(DifficultyDefinition difficultyEvaluation)
 	{
-		int evaluation = 0;
-		if (!evaluationsCount.ContainsKey(difficultyEvaluation))
-		{
-			evaluation = 1;
-			evaluationsCount.Add(difficultyEvaluation, 1);
-		}
-		else
-		{
-			evaluationsCount[difficultyEvaluation]++;
-			evaluation = evaluationsCount[difficultyEvaluation];
-		}
+		//int evaluation = 0;
+		//if (!evaluationsCount.ContainsKey(difficultyEvaluation))
+		//{
+		//	evaluation = 1;
+		//	evaluationsCount.Add(difficultyEvaluation, 1);
+		//}
+		//else
+		//{
+		//	evaluationsCount[difficultyEvaluation]++;
+		//	evaluation = evaluationsCount[difficultyEvaluation];
+		//}
 
-		return evaluation;
+		//return evaluation;
+		// TODO: CHECK THIS
+		return 0;
 	}
 
 	void ResetEvaluationsIteration()
 	{
-		evaluationsCount = new Dictionary<TaskType.DifficultyEvaluation, int>();
+		evaluationsCount = new Dictionary<DifficultyChoice, int>();
 	}
 
 
@@ -120,19 +122,19 @@ public class DataHandler : MonoBehaviour
 	//}
 
 	// Records trial data into the data list
-	public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, TaskType.DifficultyEvaluation difficultyEvaluation, int difficulty)
+	public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, DifficultyChoice difficultyEvaluation, int difficulty)
 	{
-		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialData(degreesOfFreedom, time, trialTime, trialNum, numBounces, numAccurateBounces, difficulty));
+		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialResults(time, numBounces, numAccurateBounces));
 	}
 
 	// Records bounce data into the data list
-	public void recordBounce(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel, TaskType.DifficultyEvaluation difficultyEvaluation)
+	public void recordBounce(float degreesOfFreedom, float time, Vector3 bouncemod, int trialNum, int bounceNum, int bounceNumTotal, float apexTargetError, bool success, Vector3 paddleVelocity, Vector3 paddleAccel, DifficultyChoice difficultyEvaluation)
 	{
 		bounceDatas[difficultyEvaluationIndex].datas.Add(new BounceData(degreesOfFreedom, time, bouncemod, trialNum, bounceNum, bounceNumTotal, apexTargetError, success, paddleVelocity, paddleAccel));
 	}
 
 	// Records continuous ball and paddle data into the data list
-	public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel, TaskType.DifficultyEvaluation difficultyEvaluation)
+	public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel, DifficultyChoice difficultyEvaluation)
 	{
 		continuousDatas[difficultyEvaluationIndex].datas.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
 	}
@@ -216,16 +218,14 @@ public class DataHandler : MonoBehaviour
 				writer.WriteRow(header);
 
 				// write each line of data
-				foreach (TrialData d in trialData.datas)
+				foreach (TrialResults d in trialData.datas)
 				{
 					CsvRow row = new CsvRow();
 
 					row.Add(pid);
 					row.Add(d.time.ToString());
-					row.Add(d.trialTime.ToString("0.00"));
-					row.Add(d.trialNum.ToString());
-					row.Add(d.numBounces.ToString());
-					row.Add(d.numAccurateBounces.ToString());
+					row.Add(d.nbBounces.ToString());
+					row.Add(d.nbAccurateBounces.ToString());
 
 					writer.WriteRow(row);
 				}

@@ -23,6 +23,8 @@ public class Ball : MonoBehaviour
     [SerializeField]
     private PaddleGame gameScript;
 
+    [SerializeField, Tooltip("Handles the ball sound effects")]
+    private BallSoundPlayer ballSoundPlayer;
 
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
@@ -40,9 +42,22 @@ public class Ball : MonoBehaviour
     // For Green/White IEnumerator coroutine 
     bool inTurnBallWhiteCR = false;
 
+
+    // Variables to keep track of resetting the ball after dropping to the ground
+    public bool inHoverMode { get; protected set; } = true;
+    public bool inRespawnMode { get; protected set; } = false;
+    private bool inHoverResetCoroutine = false;
+    private bool inPlayDropSoundRoutine = false;
+    private int ballResetHoverSeconds = 3;
+    private int ballRespawnSeconds = 1;
+
+    public EffectController effectController;
+
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
+        ballSoundPlayer = GetComponent<BallSoundPlayer>();
+        effectController = GetComponent<EffectController>();
 
         // Physics for ball is disabled until Space is pressed
         rigidBody.velocity = Vector3.zero;
@@ -124,6 +139,25 @@ public class Ball : MonoBehaviour
         return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
     }
 
+    public IEnumerator Respawning(GlobalPauseHandler pauseHandler)
+    {
+        Debug.Log("Respawning started " + Time.timeScale);
+        inRespawnMode = true;
+        Time.timeScale = 1f;
+        effectController.StopAllParticleEffects();
+        effectController.StartEffect(effectController.dissolve);
+        yield return new WaitForSeconds(ballRespawnSeconds);
+        inRespawnMode = false;
+        inHoverMode = true;
+        yield return new WaitForEndOfFrame();
+        effectController.StopParticleEffect(effectController.dissolve);
+        pauseHandler.Pause();
+        effectController.StartEffect(effectController.respawn);
+        yield return new WaitForSeconds(ballRespawnSeconds);
+        TurnBallWhite();
+        Debug.Log("Respawning finished " + Time.timeScale);
+    }
+
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
         Vector3 Vin = GetComponent<Kinematics>().storedVelocity;
@@ -143,9 +177,11 @@ public class Ball : MonoBehaviour
             DeclareBounce();
             GetComponent<BounceSoundPlayer>().PlayBounceSound();
         }
+    }
 
-        // DEBUGGING
-        debugvelocitycollision(cpNormal);
+    public bool isOnGround()
+    {
+        return transform.position.y < transform.localScale.y;
     }
 
     void CheckApexSuccess()
@@ -161,13 +197,22 @@ public class Ball : MonoBehaviour
         bool successfulBounce = gameScript.GetHeightInsideTargetWindow(apexHeight);
 
         if (successfulBounce) { 
-            gameScript.IndicateSuccessBall();       // Flash ball green 
+            IndicateSuccessBall();       // Flash ball green 
         }
     
         if (GlobalControl.Instance.expCondition == TaskType.ExpCondition.RANDOM)
         {
             gameScript.ModifyPhysicsOnSuccess(successfulBounce);    // Check if 3 bounces were successful in the last 10
         }
+    }
+
+    // Turns ball green briefly and plays success sound.
+    public void IndicateSuccessBall()
+    {
+        ballSoundPlayer.PlaySuccessSound();
+
+        TurnBallGreen();
+        StartCoroutine(TurnBallWhiteCR(0.3f));
     }
 
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
@@ -216,15 +261,6 @@ public class Ball : MonoBehaviour
         return LimitDeviationFromUp(n, degreesOfTilt);
     }
 
-    // for debugging only. remove later.
-    void debugvelocitycollision(Vector3 n)
-    {
-        DebuggerDisplay dd = GameObject.Find("Debugger Display").GetComponent<DebuggerDisplay>();
-
-        dd.Display("paddle tilt deg: " + (Vector3.Angle(Vector3.up, n)), 1);
-
-    }
-
     // Try to declare that the ball has been bounced. If the ball
     // was bounced too recently, then this declaration will fail.
     // This is to ensure that bounces are only counted once.
@@ -256,6 +292,38 @@ public class Ball : MonoBehaviour
     {
         TurnBallWhite();
         gameScript.ResetTrial();
+    }
+
+    // Drops ball after reset
+    public IEnumerator ReleaseHoverOnReset(float time)
+    {
+        if (inHoverResetCoroutine)
+        {
+            yield break;
+        }
+        inHoverResetCoroutine = true;
+
+        yield return new WaitForSeconds(time);
+
+        // Stop hovering
+        inHoverMode = false;
+        inHoverResetCoroutine = false;
+        inPlayDropSoundRoutine = false;
+
+        GetComponent<SphereCollider>().enabled = true;
+    }
+
+    // Play drop sound
+    public IEnumerator PlayDropSound(float time)
+    {
+        if (inPlayDropSoundRoutine)
+        {
+            yield break;
+        }
+        inPlayDropSoundRoutine = true;
+        yield return new WaitForSeconds(time);
+
+        ballSoundPlayer.PlayDropSound();
     }
 
     // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction

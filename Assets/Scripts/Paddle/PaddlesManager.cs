@@ -13,9 +13,10 @@ public class PaddlesManager : MonoBehaviour
     private Paddle rightPaddle;
 
     bool currentPaddleIsLeft = false;
+    public int NbPaddles { get { return globalControl.numPaddles; } }
 
     GlobalControl globalControl;
-    // Start is called before the first frame update
+
     void Start()
     {
         globalControl = GlobalControl.Instance;
@@ -31,9 +32,9 @@ public class PaddlesManager : MonoBehaviour
     }
 
 
-    // In order to prevent bugs, wait a little bit for the paddles to switch
     public IEnumerator WaitThenSwitchPaddles()
     {
+        // In order to prevent bugs, wait a little bit for the paddles to switch
         yield return new WaitForSeconds(0.1f);
         SwitchActivePaddle();
     }

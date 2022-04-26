@@ -66,7 +66,10 @@ public class GlobalControl : MonoBehaviour
     public bool paused = true;
 
     // Alter the speed at which physics and other updates occur
-    public float timescale = 1f;
+    private float _timescale = 1f;
+    public float timescale { 
+        get { return _timescale; } set { _timescale = value;  Time.timeScale = value; } 
+    }
 
     // Will hide the target height and alter behaviors so they are affected by consecutive hits only
     public bool targetHeightEnabled = true;
@@ -85,12 +88,6 @@ public class GlobalControl : MonoBehaviour
 
     // sometimes data should not be recorded, tracked here.
     public bool recordingData = true;
-
-    // How many trials should be used for difficulty evaluation
-    public int difficultyEvaluationTrials = 10;
-
-    // low and high ends for difficulty scale
-    public int difficultyMin = 1, difficultyMax = 10;
     
     // some conditions affect this offset
     [NonSerialized]
