@@ -121,7 +121,7 @@ public class VideoControl : MonoBehaviour
         if (globalControl.session != TaskType.Session.SHOWCASE)
         {
             globalControl.recordingData = true;
-            paddleGame.StartRecording();
+            //paddleGame.StartRecording();
         }
         paddleGame.Initialize(false);
         globalPauseHandler.pauseIndicator.visibleOverride = false;
@@ -130,7 +130,7 @@ public class VideoControl : MonoBehaviour
     IEnumerator PracticeTime(float start, VideoData videoData)
 	{
         yield return new WaitForSecondsRealtime(start);
-        paddleGame.SetDifficulty(videoData.difficulty);
+        //paddleGame.SetDifficulty(videoData.difficulty);
         player.clip = videoData.videoClip;
         player.Play();
         audioSource.PlayOneShot(videoData.audioClip);
