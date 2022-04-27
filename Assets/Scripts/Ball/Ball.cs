@@ -188,20 +188,14 @@ public class Ball : MonoBehaviour
 
         // Get reflected bounce, with energy transfer
         Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, reducedNormal, 0.8f);
-        if (GlobalControl.Instance.condition == TaskType.Condition.REDUCED)
-        {
-            Vreflected = LimitDeviationFromUp(Vreflected, GlobalControl.Instance.degreesOfFreedom);
-        }
+        //TODO: if (...reduce energy transfer)
+        //    Vreflected = LimitDeviationFromUp(Vreflected, GlobalControl.Instance.degreesOfFreedom);
 
         // Apply paddle velocity
-        if (GlobalControl.Instance.condition == TaskType.Condition.REDUCED)
-        {
-            Vreflected = new Vector3(0, Vreflected.y + (1.25f * paddleVelocity.y), 0);
-        }
-        else
-        {
-            Vreflected += new Vector3(0, paddleVelocity.y, 0);
-        }
+        //TODO: if (... reduce velocity transfer)
+        //    Vreflected = new Vector3(0, Vreflected.y + (1.25f * paddleVelocity.y), 0);
+        Vreflected += new Vector3(0, paddleVelocity.y, 0);
+        
         rigidBody.velocity = Vreflected;
     }
 
