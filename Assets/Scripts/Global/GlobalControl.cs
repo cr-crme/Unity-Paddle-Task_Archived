@@ -19,9 +19,6 @@ public class GlobalControl : MonoBehaviour
     // The number of paddles that the player is using. Usually 1 or 2.
     public int numPaddles = 1;
 
-    // The condition of this instance
-    public TaskType.Condition condition = TaskType.Condition.REGULAR;
-
     // The Exploration condition of this instance (controls randomized physics)
     public TaskType.ExpCondition expCondition = TaskType.ExpCondition.NORMAL;
 
