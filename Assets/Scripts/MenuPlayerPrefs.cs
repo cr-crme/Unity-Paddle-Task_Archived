@@ -7,35 +7,10 @@ public class MenuPlayerPrefs : MonoBehaviour
 {
     public MenuController menuController;
     // All Main Menu parameters 
-    public string[] preferenceList =
-    {
-        //"dof",
-        "maxtrials",
-        "hovertime",
-        "targetradius",
-        "condition",
-        //"exploration",
-        "expcondition",
-        "session",
-        "targetheight",
-        //"numpaddles"
-    };
-
+ 
     private void Start()
     {
         menuController = GetComponent<MenuController>();
-    }
-
-    // Public setters. Parameters should correspond to MenuController parameters for easy loading.
-    public void SaveDOF(float giDOF)
-    {
-        PlayerPrefs.SetFloat("dof", giDOF);
-        PlayerPrefs.Save();
-    }
-    public void SaveMaxTrials(int giMaxTrials)
-    {
-        PlayerPrefs.SetInt("maxtrials", giMaxTrials);
-        PlayerPrefs.Save();
     }
     public void SaveHoverTime(float sliderValue)
     {
@@ -62,11 +37,6 @@ public class MenuPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetInt("expcondition", menuInt);
         PlayerPrefs.Save();
     }
-    public void SaveSession(int menuInt)
-    {
-        PlayerPrefs.SetInt("session", menuInt);
-        PlayerPrefs.Save();
-    }
     public void SaveTargetHeight(int menuInt)
     {
         PlayerPrefs.SetInt("targetheight", menuInt);
@@ -80,13 +50,7 @@ public class MenuPlayerPrefs : MonoBehaviour
 
 
     // Private methods to load PlayerPrefs into the menu. 
-    private void LoadMaxTrialsToMenu()
-    {
-        if (PlayerPrefs.HasKey("maxtrials"))
-        {
-            menuController.RecordMaxTrials(PlayerPrefs.GetInt("maxtrials"));
-        }
-    }
+
     private void LoadHoverTimeToMenu()
     {
         if (PlayerPrefs.HasKey("hovertime"))
@@ -116,13 +80,6 @@ public class MenuPlayerPrefs : MonoBehaviour
             menuController.RecordExpCond(PlayerPrefs.GetInt("expcondition"));
         }
     }
-    private void LoadSessionToMenu()
-    {
-        if (PlayerPrefs.HasKey("session"))
-        {
-            menuController.RecordSession(PlayerPrefs.GetInt("session"));
-        }
-    }
     private void LoadTargetHeightToMenu()
     {
         if (PlayerPrefs.HasKey("targetheight"))
@@ -133,41 +90,7 @@ public class MenuPlayerPrefs : MonoBehaviour
     
 
 
-    // Loads all saved preferences to the main menu
-    public void LoadAllPreferences()
-    {
-        foreach (string pref in preferenceList) {
-            if (PlayerPrefs.HasKey(pref))
-            {
-                switch (pref)
-                {
-                    case "maxtrials":
-                        LoadMaxTrialsToMenu();
-                        break;
-                    case "hovertime":
-                        LoadHoverTimeToMenu();
-                        break;
-                    case "targetradius":
-                        LoadTargetRadiusToMenu();
-                        break;
-                    case "condition":
-                        LoadConditionToMenu();
-                        break;
-                    case "expcondition":
-                        LoadExpConditionToMenu();
-                        break;
-                    case "session":
-                        LoadSessionToMenu();
-                        break;
-                    case "targetheight":
-                        LoadTargetHeightToMenu();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
+    
 
     // Clears all saved main menu preferences
     public void ResetPlayerPrefs()

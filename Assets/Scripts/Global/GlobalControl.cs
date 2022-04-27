@@ -30,31 +30,19 @@ public class GlobalControl : MonoBehaviour
     public TaskType.ExpCondition expCondition = TaskType.ExpCondition.NORMAL;
 
     // Target Line Height
-    public TaskType.TargetHeight targetHeightPreference = TaskType.TargetHeight.DEFAULT;
+    public TaskType.TargetHeight targetHeightPreference = TaskType.TargetHeight.EYE_LEVEL;
 
     // Target Line Success Threshold
     public float targetRadius = 0.05f;
 
     // Test period of this instance
-    public TaskType.Session session = TaskType.Session.BASELINE;
+    public TaskType.Session session = TaskType.Session.PRACTISE;
 
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;
 
     // Time limit in minutes after beginning, after which the game will end
     public int maxTrialTime = 0;
-
-    // Time limit in minutes after beginning, after which the game will end
-    public int maxBaselineTrialTime = 10;
-
-    // Time limit in minutes after beginning, after which the game will end
-    public int maxModerate1TrialTime = 10;
-
-    // Time limit in minutes after beginning, after which the game will end
-    public int maxMaximalTrialTime = 10;
-
-    // Time limit in minutes after beginning, after which the game will end
-    public int maxModerate2TrialTime = 10;
 
     // Time elapsed while game is not paused, in seconds 
     public float timeElapsed = 0;
@@ -71,11 +59,9 @@ public class GlobalControl : MonoBehaviour
         get { return _timescale; } set { _timescale = value;  Time.timeScale = value; } 
     }
 
-    // Will hide the target height and alter behaviors so they are affected by consecutive hits only
-    public bool targetHeightEnabled = true;
 
     // value affecting various metrics increasing randomness and general difficulty
-    public int difficulty = 1;
+    public int level = 1;
 
     // Play video at the start
     public bool playVideo = false;

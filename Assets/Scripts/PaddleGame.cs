@@ -202,9 +202,7 @@ public class PaddleGame : MonoBehaviour
 			);
 			sessionManager.EvaluatePerformance(globalControl.GetTimeElapsed());
 			if (
-				session == TaskType.Session.ACQUISITION 
-				|| session == TaskType.Session.SHOWCASE 
-				|| sessionManager.isSessionOver
+				session == TaskType.Session.SHOWCASE || sessionManager.isSessionOver
 			)
 			{
 				// over once end time is reached.
@@ -263,7 +261,7 @@ public class PaddleGame : MonoBehaviour
 		}
 		if (Input.GetKeyDown(KeyCode.L))
 		{
-			if (session == TaskType.Session.BASELINE)
+			if (session == TaskType.Session.PRACTISE)
 			{
 				numBounces += sessionManager.nbOfBounceRequired * 7;
 				numAccurateBounces += sessionManager.nbOfAccurateBounceRequired * 7;
@@ -328,14 +326,14 @@ public class PaddleGame : MonoBehaviour
 		//	StartRecording();
 		//}
 
-		if (globalControl.targetHeightEnabled == false) targetLine.SetActive(false);
+		if (!sessionManager.hasTarget) targetLine.SetActive(false);
 
 		ball.GetComponent<EffectController>().dissolve.effectTime = globalControl.ballResetHoverSeconds;
 		ball.GetComponent<EffectController>().respawn.effectTime = globalControl.ballResetHoverSeconds;
 
 		curScore = 0;
 
-		if (globalControl.session == TaskType.Session.BASELINE)
+		if (globalControl.session == TaskType.Session.PRACTISE)
 		{
 			difficultyDisplay.text = sessionManager.currentLevel.ToString();
 			//trialData.Add(new DifficultyEvaluationData<TrialData>(
@@ -353,7 +351,7 @@ public class PaddleGame : MonoBehaviour
 		}
 		else
 		{
-			sessionManager.currentLevel = globalControl.difficulty;
+			sessionManager.currentLevel = globalControl.level;
 			//trialData.Add(new DifficultyEvaluationData<TrialData>(TrialDifficultyPreset.CUSTOM, new List<TrialData>()));
 			// TODO: CHECK NEXT LINE
 			//dataHandler.InitializeDifficultyEvaluationData(DifficultyChoice.BASE);
@@ -413,14 +411,7 @@ public class PaddleGame : MonoBehaviour
 
 	private void toggleTargetLine()
     {
-		if (globalControl.targetHeightEnabled)
-		{
-			targetLine.SetActive(true);
-		}
-		else
-		{
-			targetLine.SetActive(false);
-		}
+		targetLine.SetActive(sessionManager.hasTarget);
 	}
 
 	private float ApplyInstanceTargetHeightPref(float y)
@@ -433,10 +424,10 @@ public class PaddleGame : MonoBehaviour
 			case TaskType.TargetHeight.LOWERED:
 				y *= 0.9f;
 				break;
-			case TaskType.TargetHeight.DEFAULT:
+			case TaskType.TargetHeight.EYE_LEVEL:
 				break;
 			default:
-				Debug.Log("Error: Invalid Target Height Preference");
+				Debug.LogError("Error: Invalid Target Height Preference");
 				break;
 		}
 		return y;
@@ -851,7 +842,7 @@ public class PaddleGame : MonoBehaviour
 	// Returns true if the ball is within the target line boundaries.
 	public bool GetHeightInsideTargetWindow(float height)
 	{
-		if (!globalControl.targetHeightEnabled) return false;
+		if (!sessionManager.hasTarget) return false;
 
 		float targetHeight = targetLine.transform.position.y;
 		float lowerLimit = targetHeight - globalControl.targetRadius;
@@ -993,9 +984,8 @@ public class PaddleGame : MonoBehaviour
 		// TODO: This should be done by GlobalControl itself
 		Debug.Log("Setting Difficulty: " + sessionManager.currentLevel);
 		GlobalControl globalControl = GlobalControl.Instance;
-		globalControl.targetHeightEnabled = sessionManager.hasTarget;
 		globalControl.targetLineHeightOffset = sessionManager.targetHeightOffset;
-		globalControl.targetRadius = globalControl.targetHeightEnabled ? sessionManager.targetWidth / 2f : 0;
+		globalControl.targetRadius = sessionManager.hasTarget ? sessionManager.targetWidth / 2f : 0;
 		globalControl.timescale = sessionManager.ballSpeed;
 
 		// Reset trial
