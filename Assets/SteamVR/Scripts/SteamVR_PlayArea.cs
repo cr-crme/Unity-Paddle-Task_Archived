@@ -247,7 +247,7 @@ namespace Valve.VR
         {
             if (OpenVR.Input == null)
             {
-                // Place the camera at the height of a children to simule it
+                // Place the camera at the height of a child to simule it
                 transform.position = new Vector3((float)0.0, (float)1.00, (float)0.0);
                 return;
             }
