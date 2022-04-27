@@ -43,7 +43,6 @@ public class MenuController : MonoBehaviour {
             "practise_level",
             "hovertime",
             "targetradius",
-            "condition",
             "expcondition",
             "session",
             "targetheight",
@@ -72,9 +71,6 @@ public class MenuController : MonoBehaviour {
                         break;
                     case "targetradius":
                         //LoadTargetRadiusToMenu();
-                        break;
-                    case "condition":
-                        //LoadConditionToMenu();
                         break;
                     case "expcondition":
                         //LoadExpConditionToMenu();
@@ -302,30 +298,6 @@ public class MenuController : MonoBehaviour {
         GetComponent<MenuPlayerPrefs>().SaveTargetRadius(value);
     }
     
-
-    // Records the Condition from the dropdown menu
-    public void RecordCondition(int arg0)
-    {
-        TMP_Dropdown d = GameObject.Find("Condition Dropdown").GetComponent<TMP_Dropdown>();
-        d.value = arg0;
-
-        switch (arg0)
-        {
-            case 0:
-                globalControl.condition = TaskType.Condition.REGULAR;
-                break;
-            case 3:
-                globalControl.condition = TaskType.Condition.TARGETLINE;
-                break;
-
-            default:
-                globalControl.condition = TaskType.Condition.REGULAR;
-                break;
-        }
-
-        GetComponent<MenuPlayerPrefs>().SaveCondition(arg0);
-    }
-
     // Records the Condition from the dropdown menu
     public void RecordExpCond(int arg0)
     {

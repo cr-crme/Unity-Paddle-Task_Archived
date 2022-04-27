@@ -22,11 +22,6 @@ public class MenuPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetFloat("targetradius", sliderValue);
         PlayerPrefs.Save();
     }
-    public void SaveCondition(int menuInt)
-    {
-        PlayerPrefs.SetInt("condition", menuInt);
-        PlayerPrefs.Save();
-    }
     public void SaveExpCondition(int menuInt)
     {
         PlayerPrefs.SetInt("expcondition", menuInt);
@@ -58,13 +53,6 @@ public class MenuPlayerPrefs : MonoBehaviour
         if (PlayerPrefs.HasKey("maxtrials"))
         {
             menuController.UpdateTargetRadius(PlayerPrefs.GetFloat("targetradius"));
-        }
-    }
-    private void LoadConditionToMenu()
-    {
-        if (PlayerPrefs.HasKey("condition"))
-        {
-            menuController.RecordCondition(PlayerPrefs.GetInt("condition"));
         }
     }
 
