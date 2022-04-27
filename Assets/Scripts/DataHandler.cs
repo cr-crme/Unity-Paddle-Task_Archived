@@ -44,8 +44,6 @@ public class DataHandler : MonoBehaviour
 
 	private string pid;
 
-	bool isExplorationMode = (GlobalControl.Instance.condition == TaskType.Condition.ENHANCED);
-
 	int difficultyEvaluationIndex = -1;
 
 	Dictionary<DifficultyChoice, int> evaluationsCount = new Dictionary<DifficultyChoice, int>();
@@ -355,7 +353,6 @@ public class DataHandler : MonoBehaviour
 
 					row.Add(pid);
 					row.Add(d.time.ToString());
-					row.Add(DhWriteYBounceMod(d.bounceModification));
 					row.Add(d.paused ? "PAUSED" : "");
 					row.Add(d.ballPos.x.ToString());
 					row.Add(d.ballPos.y.ToString());
@@ -434,8 +431,4 @@ public class DataHandler : MonoBehaviour
 
 	// utility functions --------------------------------------------
 
-	string DhWriteYBounceMod(Vector3 bm)
-	{
-		return isExplorationMode ? bm.y.ToString() : "NORMAL";
-	}
 }

@@ -79,11 +79,6 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	private GlobalPauseHandler pauseHandler;
 
-	// If 3 of the last 10 bounces were successful, update the exploration mode physics 
-	private const int EXPLORATION_MAX_BOUNCES = 10;
-	private const int EXPLORATION_SUCCESS_THRESHOLD = 6;
-	private CircularBuffer<bool> explorationModeBuffer = new CircularBuffer<bool>(EXPLORATION_MAX_BOUNCES);
-
 	// The paddle bounce height, velocity, and acceleration to be recorded on each bounce.
 	// These are the values on the *paddle*, NOT the ball
 	private float paddleBounceHeight;
@@ -392,9 +387,6 @@ public class PaddleGame : MonoBehaviour
 		float y = ApplyInstanceTargetHeightPref(GetHmdHeight()) + offset;
 
 		targetLine.transform.position = new Vector3(x, y, z);
-
-		// Update Exploration Mode height calibration
-		GetComponent<ExplorationMode>().CalibrateEyeLevel(targetLine.transform.position.y);
 
 		var kinematics = ball.GetComponent<Kinematics>();
 		if (kinematics)
@@ -1037,40 +1029,6 @@ public class PaddleGame : MonoBehaviour
 		else
 		{
 			Time.timeScale = 1.0f;
-		}
-	}
-
-	// If 6 of the last 10 bounces were successful, update ExplorationMode physics 
-	// bool parameter is whether last bounce was success 
-	public void ModifyPhysicsOnSuccess(bool bounceSuccess)
-	{
-		if (globalControl.explorationMode != GlobalControl.ExplorationMode.FORCED)
-		{
-			return;
-		}
-
-		explorationModeBuffer.Add(bounceSuccess);
-
-		int successes = 0;
-
-		bool[] temp = explorationModeBuffer.GetArray();
-		for (int i = 0; i < explorationModeBuffer.length(); i++)
-		{
-			if (temp[i])
-			{
-				successes++;
-			}
-		}
-
-		if (successes >= EXPLORATION_SUCCESS_THRESHOLD)
-		{
-			// Change game physics
-			GetComponent<ExplorationMode>().ModifyBouncePhysics();
-			GetComponent<ExplorationMode>().IndicatePhysicsChange();
-
-			// Reset counter
-			explorationModeBuffer = new CircularBuffer<bool>(EXPLORATION_MAX_BOUNCES);
-			return;
 		}
 	}
 #endregion // Exploration Mode

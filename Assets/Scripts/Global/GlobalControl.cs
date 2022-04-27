@@ -13,10 +13,6 @@ public class GlobalControl : MonoBehaviour
     // The single instance of this class
     public static GlobalControl Instance;
 
-    public enum ExplorationMode { NONE, TASK, FORCED };
-
-    public ExplorationMode explorationMode = ExplorationMode.NONE;
-
     // participant ID to differentiate data files
     public string participantID = "";
 
@@ -24,7 +20,7 @@ public class GlobalControl : MonoBehaviour
     public int numPaddles = 1;
 
     // The condition of this instance
-    public TaskType.Condition condition = TaskType.Condition.ENHANCED;
+    public TaskType.Condition condition = TaskType.Condition.REGULAR;
 
     // The Exploration condition of this instance (controls randomized physics)
     public TaskType.ExpCondition expCondition = TaskType.ExpCondition.NORMAL;
@@ -84,11 +80,6 @@ public class GlobalControl : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        if (condition == TaskType.Condition.ENHANCED)
-        {
-            explorationMode = ExplorationMode.FORCED;
-        }
-
         if (Instance == null)
         {
             DontDestroyOnLoad(gameObject);
