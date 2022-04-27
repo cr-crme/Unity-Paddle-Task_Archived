@@ -98,7 +98,6 @@ public class PaddleGame : MonoBehaviour
 	private TaskType.Condition condition;
 	private TaskType.ExpCondition expCondition;
 	private TaskType.Session session;
-	private int maxTrialTime;
 
 
 	// Variables for countdown timer display
@@ -129,7 +128,6 @@ public class PaddleGame : MonoBehaviour
 	{
 		globalControl = GlobalControl.Instance;
 		dataHandler = GetComponent<DataHandler>();
-
 		sessionManager = new SessionManager(paddlesManager);
 
 		Instantiate(globalControl.environments[globalControl.environmentOption]);
@@ -153,17 +151,10 @@ public class PaddleGame : MonoBehaviour
 
 		SetTrialLevel(sessionManager.currentLevel);
 
-		// difficulty shifts timescale, so pause it again
-		Time.timeScale = 0;
-
+        // difficulty shifts timescale, so pause it again
+        Time.timeScale = 0;
 		globalControl.ResetTimeElapsed();
-
 		pauseHandler.Pause();
-
-
-		// countdown for first drop
-		// ResetTrial();
-		// inRespawnMode = true;
 	}
 
 	void Update()
@@ -330,7 +321,6 @@ public class PaddleGame : MonoBehaviour
 		condition = globalControl.condition;
 		expCondition = globalControl.expCondition;
 		session = globalControl.session;
-		maxTrialTime = globalControl.maxTrialTime;
 		degreesOfFreedom = globalControl.degreesOfFreedom;
 
 		//if (globalControl.recordingData)
@@ -840,12 +830,12 @@ public class PaddleGame : MonoBehaviour
 	void UpdateHighestBounceDisplay()
 	{
 		string bounces = highestBounces.ToString();
-		highestBouncesDisplay.text = String.Format("{0} bounces in a row!", bounces);
+		highestBouncesDisplay.text = $"{bounces} bounces in a row!";
 	
-		if (targetLine.activeInHierarchy)
+		if (sessionManager.hasTarget)
 		{
 			string accurateBounces = highestAccurateBounces.ToString();
-			highestAccurateBouncesDisplay.text = String.Format("{0} target hits!", accurateBounces);
+			highestAccurateBouncesDisplay.text = $"{accurateBounces} target hits!";
 		}
 		else
 		{
@@ -912,7 +902,7 @@ public class PaddleGame : MonoBehaviour
 	//	{
 	//		// Record session data
 	//		dataHandler.recordHeaderInfo(
-	//			condition, expCondition, session, maxTrialTime, globalControl.ballResetHoverSeconds, globalControl.targetRadius
+	//			condition, expCondition, session, globalControl.maxTrialTime, globalControl.ballResetHoverSeconds, globalControl.targetRadius
 	//		);
 	//	}
 
