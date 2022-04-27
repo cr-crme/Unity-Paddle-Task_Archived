@@ -314,9 +314,6 @@ public class MenuController : MonoBehaviour {
             case 0:
                 globalControl.condition = TaskType.Condition.REGULAR;
                 break;
-            case 2:
-                globalControl.condition = TaskType.Condition.REDUCED;
-                break;
             case 3:
                 globalControl.condition = TaskType.Condition.TARGETLINE;
                 break;
