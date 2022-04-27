@@ -27,7 +27,6 @@ public class MenuController : MonoBehaviour {
         UnityEngine.XR.XRSettings.enabled = false;
         globalControl.numPaddles = 1;
         globalControl.participantID = "";
-        globalControl.explorationMode = GlobalControl.ExplorationMode.NONE;
 
         // Load saved preferences
         LoadAllPreferences();
@@ -45,7 +44,6 @@ public class MenuController : MonoBehaviour {
             "hovertime",
             "targetradius",
             "condition",
-            //"exploration",
             "expcondition",
             "session",
             "targetheight",
@@ -316,9 +314,6 @@ public class MenuController : MonoBehaviour {
             case 0:
                 globalControl.condition = TaskType.Condition.REGULAR;
                 break;
-            case 1:
-                globalControl.condition = TaskType.Condition.ENHANCED;
-                break;
             case 2:
                 globalControl.condition = TaskType.Condition.REDUCED;
                 break;
@@ -332,21 +327,6 @@ public class MenuController : MonoBehaviour {
         }
 
         GetComponent<MenuPlayerPrefs>().SaveCondition(arg0);
-    }
-
-    // Records the functional Exploration mode, tied to Condition dropdown menu
-    public void RecordExplorationMode(int arg0)
-    {
-        if (arg0 == 1)
-        {
-            globalControl.explorationMode = GlobalControl.ExplorationMode.FORCED;
-        }
-        else
-        {
-            globalControl.explorationMode = GlobalControl.ExplorationMode.NONE;
-        }
-
-        GetComponent<MenuPlayerPrefs>().SaveExplorationMode(arg0);
     }
 
     // Records the Condition from the dropdown menu

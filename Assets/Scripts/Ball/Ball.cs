@@ -103,36 +103,6 @@ public class Ball : MonoBehaviour
         }
     }
 
-    // Called from ExplorationMode.cs --> start()
-    public void InitBounceMod()
-    {
-        List<Vector3> bounceModList = GameObject.Find("[SteamVR]").GetComponent<ExplorationMode>().GetBounceModList();
-        Debug.Log("Init bounce mod. ec:" + GlobalControl.Instance.expCondition);
-        switch (GlobalControl.Instance.expCondition)
-        {
-            case TaskType.ExpCondition.NORMAL:
-                currentBounceModification = bounceModList[0];
-                break;
-            case TaskType.ExpCondition.LIGHTEST:
-                currentBounceModification = bounceModList[1];
-                break;
-            case TaskType.ExpCondition.LIGHTER:
-                currentBounceModification = bounceModList[2];
-                break;
-            case TaskType.ExpCondition.HEAVIER:
-                currentBounceModification = bounceModList[3];
-                break;
-            case TaskType.ExpCondition.HEAVIEST:
-                currentBounceModification = bounceModList[4];
-                break;
-            default:
-                currentBounceModification = new Vector3(0, 0, 0);
-                break;
-        }
-
-        Debug.Log("Initializing ball bounce mod to " + currentBounceModification.y);
-    }
-
     // Returns the default spawn position of the ball (10cm above the target line) 
     public static Vector3 spawnPosition(GameObject targetLine)
     {
@@ -199,11 +169,6 @@ public class Ball : MonoBehaviour
         if (successfulBounce) { 
             IndicateSuccessBall();       // Flash ball green 
         }
-    
-        if (GlobalControl.Instance.expCondition == TaskType.ExpCondition.RANDOM)
-        {
-            gameScript.ModifyPhysicsOnSuccess(successfulBounce);    // Check if 3 bounces were successful in the last 10
-        }
     }
 
     // Turns ball green briefly and plays success sound.
@@ -238,12 +203,6 @@ public class Ball : MonoBehaviour
             Vreflected += new Vector3(0, paddleVelocity.y, 0);
         }
         rigidBody.velocity = Vreflected;
-
-        // If physics are being changed mid game, change them!
-        if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
-        {
-            rigidBody.velocity += currentBounceModification;
-        }
     }
 
     Vector3 ProvideLeewayFromUp(Vector3 n)

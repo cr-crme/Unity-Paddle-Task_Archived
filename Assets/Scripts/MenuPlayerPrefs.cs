@@ -27,11 +27,6 @@ public class MenuPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetInt("condition", menuInt);
         PlayerPrefs.Save();
     }
-    public void SaveExplorationMode(int menuInt)
-    {
-        PlayerPrefs.SetInt("exploration", menuInt);
-        PlayerPrefs.Save();
-    }
     public void SaveExpCondition(int menuInt)
     {
         PlayerPrefs.SetInt("expcondition", menuInt);
