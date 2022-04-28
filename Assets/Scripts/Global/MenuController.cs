@@ -27,26 +27,23 @@ public class MenuController : MonoBehaviour {
     {
         globalControl = GlobalControl.Instance;
         preferenceList = new Dictionary<string, (object, LoadCallback)>(){
-            { "nbPaddles", (GetNbPaddlesDropdown(), LoadNbPaddlesDropdownToMenu) },
-            { "environment", (GetEnvironmentDropdown(), LoadEnvironmentDropdownToMenu) },
+            { "nbPaddles", (GetNbPaddles(), LoadNbPaddlesToMenu) },
+            { "environment", (GetEnvironment(), LoadEnvironmentToMenu) },
             { "session", (GetRecordSession(), LoadSessionToMenu) },
-            { "practise_totalTime", (GetPractiseTotalTimeDropdown(), LoadPractiseTotalTimeToMenu) },
-            { "showcase_timePerTrial", (GetShowcaseTimePerTrialDropdown(), LoadShowcaseTimePerTrialToMenu) },
-            { "practise_level", (GetPractiseLevelDropdown(), LoadPractiseLevelToMenu) },
-            { "showcase_toggleVideo", (GetShowcaseVideoToggle(), LoadShowcaseVideoToggleToMenu) },
-            { "targetHeight", (GetTargetHeightDropdown(), LoadTargetHeightDropdownToMenu) },
-            { "targetWidth", (GetTargetWidthSlider(), LoadTargetWidthSliderToMenu) },
-            { "hoverTime", (GetBallHoverTimeSlider(), LoadBallHoverTimeSliderToMenu) },
+            { "practise_totalTime", (GetPractiseTotalTime(), LoadPractiseTotalTimeToMenu) },
+            { "showcase_timePerTrial", (GetShowcaseTimePerTrial(), LoadShowcaseTimePerTrialToMenu) },
+            { "practise_level", (GetPractiseStartingLevel(), LoadPractiseStartingLevelToMenu) },
+            { "showcase_toggleVideo", (GetShowcaseVideo(), LoadShowcaseVideoToMenu) },
+            { "targetHeight", (GetTargetHeight(), LoadTargetHeightToMenu) },
+            { "targetWidth", (GetTargetWidth(), LoadTargetWidthToMenu) },
+            { "hoverTime", (GetBallHoverTime(), LoadBallHoverTimeToMenu) },
         };
 
         // disable VR settings for menu scene
         UnityEngine.XR.XRSettings.enabled = false;
-        globalControl.nbPaddles = 1;
-        globalControl.participantID = "";
 
         // Load saved preferences
         LoadAllPreferences(false);
-
         UpdateConditionalUIObjects();
     }
     public void LoadAllPreferences(bool resetToDefault)
@@ -69,9 +66,31 @@ public class MenuController : MonoBehaviour {
 	}
     #endregion
 
+    #region Finalization
+    public void NextScene()
+    {
+        if (globalControl.nbPaddles == 1)
+        {
+            SceneManager.LoadScene("Paddle");
+        }
+        else
+        {
+            SceneManager.LoadScene("Paddle 2");
+        }
+    }
+
+    /// <summary>
+    /// Re-enable VR when this script is disabled (since it is disabled on moving into next scene).
+    /// </summary>
+    void OnDisable()
+    {
+        UnityEngine.XR.XRSettings.enabled = true;
+    }
+    #endregion
+
     #region GenericInformation
-    [SerializeField] private TMP_Dropdown nbPaddlesDropdown;
-    [SerializeField] private TMP_Dropdown environmentDropdown;
+    [SerializeField] private TMP_Dropdown nbPaddles;
+    [SerializeField] private TMP_Dropdown environment;
 
     /// <summary>
     /// Records an alphanumeric participant ID. Hit enter to record. May be entered multiple times
@@ -84,25 +103,25 @@ public class MenuController : MonoBehaviour {
         globalControl.participantID = arg0;
     }
 
-    public void RecordNbPaddlesDropdown(int _value)
+    public void RecordNbPaddles(int _value)
     {
         globalControl.nbPaddles = _value + 1;  // 0-based
-        SaveNbPaddlesDropdown(_value);
+        SaveNbPaddles(_value);
     }
-    private void SetNbPaddlesDropdown(int _value)
+    private void SetNbPaddles(int _value)
     {
-        nbPaddlesDropdown.value =_value;
+        nbPaddles.value =_value;
     }
-    private int GetNbPaddlesDropdown()
+    private int GetNbPaddles()
     {
-        return nbPaddlesDropdown.value;
+        return nbPaddles.value;
     }
-    private void SaveNbPaddlesDropdown(int _value)
+    private void SaveNbPaddles(int _value)
     {
         PlayerPrefs.SetInt("nbPaddles", _value);
         PlayerPrefs.Save();
     }
-    private void LoadNbPaddlesDropdownToMenu(bool resetToDefault)
+    private void LoadNbPaddlesToMenu(bool resetToDefault)
     {
         int _value;
         if (resetToDefault)
@@ -112,29 +131,29 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordNbPaddlesDropdown(_value);
-        SetNbPaddlesDropdown(_value);
+        RecordNbPaddles(_value);
+        SetNbPaddles(_value);
     }
 
-    public void RecordEnvironmentDropdown(int _value)
+    public void RecordEnvironment(int _value)
     {
         globalControl.environmentIndex = _value;
-        SaveEnvironmentDropdown(_value);
+        SaveEnvironment(_value);
     }
-    private void SetEnvironmentDropdown(int _value)
+    private void SetEnvironment(int _value)
     {
-        environmentDropdown.value = _value;
+        environment.value = _value;
     }
-    private int GetEnvironmentDropdown()
+    private int GetEnvironment()
     {
-        return environmentDropdown.value;
+        return environment.value;
     }
-    private void SaveEnvironmentDropdown(int _value)
+    private void SaveEnvironment(int _value)
     {
         PlayerPrefs.SetInt("environment", _value);
         PlayerPrefs.Save();
     }
-    private void LoadEnvironmentDropdownToMenu(bool resetToDefault)
+    private void LoadEnvironmentToMenu(bool resetToDefault)
     {
         int _value;
         if (resetToDefault)
@@ -144,13 +163,13 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordEnvironmentDropdown(_value);
-        SetEnvironmentDropdown(_value);
+        RecordEnvironment(_value);
+        SetEnvironment(_value);
     }
     #endregion
 
     #region SessionType
-    [SerializeField] private TMP_Dropdown sessionDropdown;
+    [SerializeField] private TMP_Dropdown session;
     // Records the Session from the dropdown menu
     public void RecordSession(int _value)
     {
@@ -160,11 +179,11 @@ public class MenuController : MonoBehaviour {
     }
     private void SetRecordSession(int _value)
     {
-        sessionDropdown.value = _value;
+        session.value = _value;
     }
     private int GetRecordSession()
     {
-        return sessionDropdown.value;
+        return session.value;
     }
     public void SaveSession(int menuInt)
     {
@@ -187,20 +206,20 @@ public class MenuController : MonoBehaviour {
     #endregion
 
     #region TrialTime
-    [SerializeField] private TMP_Dropdown practiseTotalTimeDropdown;
-    [SerializeField] private TMP_Dropdown showcaseTimePerTrialDropdown;
+    [SerializeField] private TMP_Dropdown practiseTotalTime;
+    [SerializeField] private TMP_Dropdown showcaseTimePerTrial;
     public void RecordPractiseTotalTime(int _value)
     {
         globalControl.practiseMaxTrialTime = _value;
         SavePractiseTotalTime(_value);
     }
-    private void SetPractiseTotalTimeDropdown(int _value)
+    private void SetPractiseTotalTime(int _value)
     {
-        practiseTotalTimeDropdown.value = _value;
+        practiseTotalTime.value = _value;
     }
-    private int GetPractiseTotalTimeDropdown()
+    private int GetPractiseTotalTime()
     {
-        return practiseTotalTimeDropdown.value;
+        return practiseTotalTime.value;
     }
     private void SavePractiseTotalTime(int _value)
     {
@@ -218,7 +237,7 @@ public class MenuController : MonoBehaviour {
             return;
 
         RecordPractiseTotalTime(_value);
-        SetPractiseTotalTimeDropdown(_value);
+        SetPractiseTotalTime(_value);
     }
 
     public void RecordShowcaseTimePerTrial(int _value)
@@ -226,13 +245,13 @@ public class MenuController : MonoBehaviour {
         globalControl.showcaseTimePerCondition = _value;
         SaveShowcaseTimePerTrial(_value);
     }
-    private void SetShowcaseTimePerTrialDropdown(int _value)
+    private void SetShowcaseTimePerTrial(int _value)
     {
-        showcaseTimePerTrialDropdown.value = _value;
+        showcaseTimePerTrial.value = _value;
     }
-    private int GetShowcaseTimePerTrialDropdown()
+    private int GetShowcaseTimePerTrial()
     {
-        return showcaseTimePerTrialDropdown.value;
+        return showcaseTimePerTrial.value;
     }
     private void SaveShowcaseTimePerTrial(int _value)
     {
@@ -250,7 +269,7 @@ public class MenuController : MonoBehaviour {
             return;
 
         RecordShowcaseTimePerTrial(_value);
-        SetShowcaseTimePerTrialDropdown(_value);
+        SetShowcaseTimePerTrial(_value);
     }
 
     private void ShowProperSessionCanvas()
@@ -275,26 +294,32 @@ public class MenuController : MonoBehaviour {
     #endregion
 
     #region Level
-    [SerializeField] private TMP_Dropdown practiseLevelDropdown;
-    public void RecordPractiseLevel(int _value)
+    [SerializeField] private Slider practiseStartingLevel;
+    [SerializeField] private TextMeshProUGUI practiseStartingLevelText;
+    public void RecordPractiseStartingLevel(float _value)
     {
-        globalControl.level = _value;
-        SavePractiseLevel(_value);
+        globalControl.level = (int)_value;
+        UpdatePractiseStartingLevelText((int)_value);
+        SavePractiseStartingLevel((int)_value);
     }
-    private void SetPractiseLevelDropdown(int _value)
+    private void UpdatePractiseStartingLevelText(int _value)
     {
-        practiseLevelDropdown.value = _value;
+        practiseStartingLevelText.text = $"Level {_value}";
     }
-    private int GetPractiseLevelDropdown()
+    private void SetPractiseStartingLevel(int _value)
     {
-        return practiseLevelDropdown.value;
+        practiseStartingLevel.value = _value;
     }
-    private void SavePractiseLevel(int _value)
+    private int GetPractiseStartingLevel()
+    {
+        return (int)practiseStartingLevel.value;
+    }
+    private void SavePractiseStartingLevel(int _value)
     {
         PlayerPrefs.SetInt("practise_level", _value);
         PlayerPrefs.Save();
     }
-    private void LoadPractiseLevelToMenu(bool resetToDefault)
+    private void LoadPractiseStartingLevelToMenu(bool resetToDefault)
     {
         int _value;
         if (resetToDefault)
@@ -304,32 +329,32 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordPractiseLevel(_value);
-        SetPractiseLevelDropdown(_value);
+        RecordPractiseStartingLevel(_value);
+        SetPractiseStartingLevel(_value);
     }
     #endregion
 
     #region VideoTutorial
-    [SerializeField] private Toggle showcaseVideoToggle;
-    public void RecordShowcaseVideoToggle(bool _value)
+    [SerializeField] private Toggle showcaseVideo;
+    public void RecordShowcaseVideo(bool _value)
     {
         globalControl.playVideo = _value;
-        SaveShowcaseVideoToggle(_value);
+        SaveShowcaseVideo(_value);
     }
-    private void SetShowcaseVideoToggle(bool _value)
+    private void SetShowcaseVideo(bool _value)
     {
-        showcaseVideoToggle.isOn = _value;
+        showcaseVideo.isOn = _value;
     }
-    private bool GetShowcaseVideoToggle()
+    private bool GetShowcaseVideo()
     {
-        return showcaseVideoToggle.isOn;
+        return showcaseVideo.isOn;
     }
-    private void SaveShowcaseVideoToggle(bool _value)
+    private void SaveShowcaseVideo(bool _value)
     {
         PlayerPrefs.SetInt("showcase_toggleVideo", _value ? 1 : 0);
         PlayerPrefs.Save();
     }
-    private void LoadShowcaseVideoToggleToMenu(bool resetToDefault)
+    private void LoadShowcaseVideoToMenu(bool resetToDefault)
     {
         bool _value;
         if (resetToDefault)
@@ -339,35 +364,35 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordShowcaseVideoToggle(_value);
-        SetShowcaseVideoToggle(_value);
+        RecordShowcaseVideo(_value);
+        SetShowcaseVideo(_value);
     }
     #endregion
 
     #region Target
-    [SerializeField] private TMP_Dropdown targetHeightDropdown;
-    [SerializeField] private Slider targetWidthSlider;
+    [SerializeField] private TMP_Dropdown targetHeight;
+    [SerializeField] private Slider targetWidth;
     [SerializeField] private TextMeshProUGUI targetWidthText;
     const float INCHES_PER_METER = 39.37f;
-    public void RecordTargetHeightDropdown(int _value)
+    public void RecordTargetHeight(int _value)
     {
         globalControl.targetHeightPreference = (TaskType.TargetHeight)_value;
-        SaveTargetHeightDropdown(_value);
+        SaveTargetHeight(_value);
     }
-    private void SetTargetHeightDropdown(int _value)
+    private void SetTargetHeight(int _value)
     {
-        targetHeightDropdown.value = _value;
+        targetHeight.value = _value;
     }
-    private int GetTargetHeightDropdown()
+    private int GetTargetHeight()
     {
-        return targetHeightDropdown.value;
+        return targetHeight.value;
     }
-    private void SaveTargetHeightDropdown(int _value)
+    private void SaveTargetHeight(int _value)
     {
         PlayerPrefs.SetInt("targetHeight", _value);
         PlayerPrefs.Save();
     }
-    private void LoadTargetHeightDropdownToMenu(bool resetToDefault)
+    private void LoadTargetHeightToMenu(bool resetToDefault)
     {
         int _value;
         if (resetToDefault)
@@ -377,15 +402,15 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordTargetHeightDropdown(_value);
-        SetTargetHeightDropdown(_value);
+        RecordTargetHeight(_value);
+        SetTargetHeight(_value);
     }
 
-    public void RecordTargetWidthSlider(float _value)
+    public void RecordTargetWidth(float _value)
     {
         globalControl.targetWidth = ComputeTargetWidthInMeter(_value);
         UpdateTargetWidthText(_value);
-        SaveTargetWidthSlider(_value);
+        SaveTargetWidth(_value);
     }
     private void UpdateTargetWidthText(float _value)
     {
@@ -401,20 +426,20 @@ public class MenuController : MonoBehaviour {
     {
         return ComputeTargetWidthInInches(_value) / INCHES_PER_METER;
     }
-    private void SetTargetWidthSlider(float _value)
+    private void SetTargetWidth(float _value)
     {
-        targetWidthSlider.value = _value;
+        targetWidth.value = _value;
     }
-    private float GetTargetWidthSlider()
+    private float GetTargetWidth()
     {
-        return targetWidthSlider.value;
+        return targetWidth.value;
     }
-    private void SaveTargetWidthSlider(float _value)
+    private void SaveTargetWidth(float _value)
     {
         PlayerPrefs.SetFloat("targetWidth", _value);
         PlayerPrefs.Save();
     }
-    private void LoadTargetWidthSliderToMenu(bool resetToDefault)
+    private void LoadTargetWidthToMenu(bool resetToDefault)
     {
         float _value;
         if (resetToDefault)
@@ -424,40 +449,39 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordTargetWidthSlider(_value);
-        SetTargetWidthSlider(_value);
-        UpdateTargetWidthText(_value);
+        RecordTargetWidth(_value);
+        SetTargetWidth(_value);
     }
     #endregion
 
     #region Ball
-    [SerializeField] private Slider ballHoverTimeSlider;
+    [SerializeField] private Slider ballHoverTime;
     [SerializeField] private TextMeshProUGUI ballHoverTimeText;
    
-    public void RecordBallHoverTimeSlider(float _value)
+    public void RecordBallHoverTime(float _value)
     {
         globalControl.ballResetHoverSeconds = (int)_value;
         UpdateBallHoverTimeText(_value);
-        SaveBallHoverTimeSlider(_value);
+        SaveBallHoverTime(_value);
     }
     private void UpdateBallHoverTimeText(float _value)
     {
         ballHoverTimeText.text = $"{_value} seconds";
     }
-    private void SetBallHoverTimeSlider(float _value)
+    private void SetBallHoverTime(float _value)
     {
-        ballHoverTimeSlider.value = _value;
+        ballHoverTime.value = _value;
     }
-    private float GetBallHoverTimeSlider()
+    private float GetBallHoverTime()
     {
-        return ballHoverTimeSlider.value;
+        return ballHoverTime.value;
     }
-    private void SaveBallHoverTimeSlider(float _value)
+    private void SaveBallHoverTime(float _value)
     {
         PlayerPrefs.SetFloat("hoverTime", _value);
         PlayerPrefs.Save();
     }
-    private void LoadBallHoverTimeSliderToMenu(bool resetToDefault)
+    private void LoadBallHoverTimeToMenu(bool resetToDefault)
     {
         float _value;
         if (resetToDefault)
@@ -467,29 +491,9 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordBallHoverTimeSlider(_value);
-        SetBallHoverTimeSlider(_value);
-        UpdateBallHoverTimeText(_value);
+        RecordBallHoverTime(_value);
+        SetBallHoverTime(_value);
     }
     #endregion
 
-    public void NextScene()
-    {
-        if (globalControl.nbPaddles == 1)
-        {
-            SceneManager.LoadScene("Paddle");
-        }
-        else
-        {
-            SceneManager.LoadScene("Paddle 2");
-        }  
-    }
-
-    /// <summary>
-    /// Re-enable VR when this script is disabled (since it is disabled on moving into next scene).
-    /// </summary>
-    void OnDisable()
-    {
-        UnityEngine.XR.XRSettings.enabled = true;
-    }
 }
