@@ -17,16 +17,6 @@ public class MenuPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetFloat("hovertime", sliderValue);
         PlayerPrefs.Save();
     }
-    public void SaveTargetRadius(float sliderValue)
-    {
-        PlayerPrefs.SetFloat("targetradius", sliderValue);
-        PlayerPrefs.Save();
-    }
-    public void SaveTargetHeight(int menuInt)
-    {
-        PlayerPrefs.SetInt("targetheight", menuInt);
-        PlayerPrefs.Save();
-    }
     public void SaveNumPaddles(int menuInt)
     {
         PlayerPrefs.SetInt("numpaddles", menuInt);
@@ -43,21 +33,7 @@ public class MenuPlayerPrefs : MonoBehaviour
             menuController.UpdateHoverTime(PlayerPrefs.GetFloat("hovertime"));
         }
     }
-    private void LoadTargetRadiusToMenu()
-    {
-        if (PlayerPrefs.HasKey("maxtrials"))
-        {
-            menuController.UpdateTargetRadius(PlayerPrefs.GetFloat("targetradius"));
-        }
-    }
 
-    private void LoadTargetHeightToMenu()
-    {
-        if (PlayerPrefs.HasKey("targetheight"))
-        {
-            menuController.RecordTargetHeight(PlayerPrefs.GetInt("targetheight"));
-        }
-    }
     
 
 
