@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System;
+
 
 /// <summary>
 /// Holds functions for responding to and recording preferences on menu.
@@ -37,15 +37,15 @@ public class MenuController : MonoBehaviour {
     public void LoadAllPreferences()
     {
         string[] preferenceList = {
-            //"dof",
+            //"numpaddles"
+            "session",
             "practise_totaltime",
             "practise_level",
             "showcase_timePerTrial",
+            "showcase_toggleVideo",
             "hovertime",
             "targetradius",
-            "session",
             "targetheight",
-            //"numpaddles"
         };
 
 
@@ -56,23 +56,26 @@ public class MenuController : MonoBehaviour {
             {
                 switch (pref)
                 {
+                    case "session":
+                        LoadSessionToMenu();
+                        break;
                     case "practise_totaltime":
                         LoadPractiseTotalTimeToMenu();
+                        break;
+                    case "practise_level":
+                        LoadPractiseLevelToMenu();
                         break;
                     case "showcase_timePerTrial":
                         LoadShowcaseTimePerTrialToMenu();
                         break;
-                    case "practise_level":
-                        LoadPractiseLevelToMenu();
+                    case "showcase_toggleVideo":
+                        LoadShowcaseVideoToggle();
                         break;
                     case "hovertime":
                         //LoadHoverTimeToMenu();
                         break;
                     case "targetradius":
                         //LoadTargetRadiusToMenu();
-                        break;
-                    case "session":
-                        LoadSessionToMenu();
                         break;
                     case "targetheight":
                         //LoadTargetHeightToMenu();
@@ -90,6 +93,7 @@ public class MenuController : MonoBehaviour {
 	}
     #endregion
 
+    #region GenericInformation
     /// <summary>
     /// Records an alphanumeric participant ID. Hit enter to record. May be entered multiple times
     /// but only last submission is used. Called using a dynamic function in the inspector
@@ -100,6 +104,7 @@ public class MenuController : MonoBehaviour {
     {
         globalControl.participantID = arg0;
     }
+    #endregion
 
     #region SessionType
     // Records the Session from the dropdown menu
@@ -236,6 +241,34 @@ public class MenuController : MonoBehaviour {
     }
     #endregion
 
+    #region VideoTutorial
+    [SerializeField] private Toggle showcaseVideoToggle;
+    public void RecordShowcaseVideoToggle(bool _value)
+    {
+        globalControl.playVideo = _value;
+        SaveShowcaseVideoToggle(_value);
+    }
+    private void SetShowcaseVideoToggle(bool _value)
+    {
+        showcaseVideoToggle.isOn = _value;
+    }
+    private void SaveShowcaseVideoToggle(bool _value)
+    {
+        PlayerPrefs.SetInt("showcase_toggleVideo", _value ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+    private void LoadShowcaseVideoToggle()
+    {
+        if (PlayerPrefs.HasKey("showcase_toggleVideo"))
+        {
+            RecordShowcaseVideoToggle(
+                PlayerPrefs.GetInt("showcase_toggleVideo") == 1 ? true : false
+            );
+            SetShowcaseVideoToggle(globalControl.playVideo);
+        }
+    }
+    #endregion
+
     #region Target
     // Records the Target Line height preference from the dropdown menu
     public void RecordTargetHeight(int arg0)
@@ -313,12 +346,6 @@ public class MenuController : MonoBehaviour {
         // GetComponent<MenuPlayerPrefs>().SaveNumPaddles(arg0);
     }
 
-
-    public void RecordPlayVideo(bool arg0)
-	{
-        globalControl.playVideo = arg0;
-        globalControl.recordingData = !arg0;
-	}
 
     public void RecordEnvironment(int arg0)
 	{

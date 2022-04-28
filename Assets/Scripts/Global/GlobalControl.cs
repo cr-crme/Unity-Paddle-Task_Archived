@@ -61,10 +61,7 @@ public class GlobalControl : MonoBehaviour
 
     // all environment prefabs
     public List<GameObject> environments = new List<GameObject>();
-
-    // sometimes data should not be recorded, tracked here.
-    public bool recordingData = true;
-    
+        
     // some conditions affect this offset
     [NonSerialized]
     public float targetLineHeightOffset = 0;

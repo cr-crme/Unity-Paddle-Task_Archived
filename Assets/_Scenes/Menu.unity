@@ -8677,7 +8677,6 @@ MonoBehaviour:
   environments:
   - {fileID: 684842116218577282, guid: b3ebcc9afc85e4e47964153dc3609475, type: 3}
   - {fileID: 7130670092410527548, guid: 315b40b3aa8269f47b92e4ffc06cf33a, type: 3}
-  recordingData: 1
 --- !u!4 &1434758229
 Transform:
   m_ObjectHideFlags: 0
@@ -9504,7 +9503,7 @@ GameObject:
   - component: {fileID: 1544649605}
   - component: {fileID: 1544649606}
   m_Layer: 0
-  m_Name: Video TickBox
+  m_Name: Video Toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9575,7 +9574,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1554919718}
-        m_MethodName: RecordPlayVideo
+        m_MethodName: RecordShowcaseVideoToggle
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9639,6 +9638,7 @@ MonoBehaviour:
   practiseTotalTimeDropdown: {fileID: 1458637076}
   showcaseTimePerTrialDropdown: {fileID: 720513924}
   practiseLevelDropdown: {fileID: 890606250}
+  showcaseVideoToggle: {fileID: 1544649606}
 --- !u!114 &1554919719
 MonoBehaviour:
   m_ObjectHideFlags: 0
