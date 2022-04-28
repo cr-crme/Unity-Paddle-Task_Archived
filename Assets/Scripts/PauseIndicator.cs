@@ -15,7 +15,7 @@ public class PauseIndicator : MonoBehaviour
 		{
             quad.SetActive(visibleOverrideValue);
 		}
-        else if (GlobalControl.Instance.paused/* && !GlobalControl.Instance.recordingData*/)
+        else if (GlobalControl.Instance.paused)
         {
             quad.SetActive(true);
         }

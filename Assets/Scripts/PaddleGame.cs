@@ -136,7 +136,6 @@ public class PaddleGame : MonoBehaviour
 
 		if(globalControl.session == TaskType.Session.SHOWCASE)
 		{
-			globalControl.recordingData = false;
 			globalControl.maxTrialTime = 0;
 		}
 	
@@ -311,11 +310,6 @@ public class PaddleGame : MonoBehaviour
 		// Initialize Condition and Visit types
 		session = globalControl.session;
 		degreesOfFreedom = globalControl.degreesOfFreedom;
-
-		//if (globalControl.recordingData)
-		//{
-		//	StartRecording();
-		//}
 
 		if (!sessionManager.hasTarget) targetLine.SetActive(false);
 
@@ -621,14 +615,6 @@ public class PaddleGame : MonoBehaviour
 		//// Record data for final bounce in trial
 		//GatherBounceData();
 
-		//if (globalControl.recordingData)
-		//{
-		//	// Record Trial Data from last trial
-		//	dataHandler.recordTrial(degreesOfFreedom, Time.time, _trialTimer, trialNum, numBounces, numAccurateBounces, sessionManager.currentDifficulty, difficulty);
-		//	// CheckDifficulty();
-		//	trialData[difficultyEvaluationIndex].datas.Add(new TrialData(degreesOfFreedom, Time.time, _trialTimer, trialNum, numBounces, numAccurateBounces, difficulty));
-
-		//}
 
 		if (!final && trialNum != 0 && trialNum % 10 == 0)
 		{
@@ -908,11 +894,6 @@ public class PaddleGame : MonoBehaviour
 	//		//Record Data from last bounce
 	//		Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
-	//		if (globalControl.recordingData)
-	//		{
-	//			dataHandler.recordBounce(degreesOfFreedom, Time.time, cbm, trialNum, numBounces, numTotalBounces, apexTargetError, apexSuccess, paddleBounceVelocity, paddleBounceAccel, sessionManager.currentDifficulty);
-
-	//		}
 
 	//		bounceHeightList = new List<float>();
 	//	}
@@ -927,10 +908,6 @@ public class PaddleGame : MonoBehaviour
 
 	//		Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
 
-	//		if (globalControl.recordingData)
-	//		{
-	//			dataHandler.recordContinuous(degreesOfFreedom, Time.time, cbm, globalControl.paused, ballVelocity, paddleVelocity, paddleAccel, sessionManager.currentDifficulty);
-	//		}
 	//	}
 	//	// Initialize paddle information to be recorded upon next bounce
 	//	private void SetUpPaddleData()
@@ -987,20 +964,6 @@ public class PaddleGame : MonoBehaviour
 		SetTargetLineHeight(sessionManager.targetHeightOffset);
 		SetTargetLineWidth(globalControl.targetRadius);
 		difficultyDisplay.text = sessionManager.currentLevel.ToString();
-
-		// record difficulty values change
-		if (globalControl.recordingData)
-		{
-			// TODO: FIX THAT
-			//dataHandler.recordDifficulty(
-			//	sessionManager.ballSpeed, 
-			//	sessionManager.hasTarget, 
-			//	sessionManager.targetHeightOffset,
-			//	sessionManager.targetWidth, 
-			//	Time.time, 
-			//	sessionManager.currentLevel
-			//);
-		}
 
 		if (sessionManager.isSessionOver)
 		{

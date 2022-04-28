@@ -100,13 +100,11 @@ public class DataHandler : MonoBehaviour
 		System.DateTime now = System.DateTime.Now;
 		pid = GlobalControl.Instance.participantID + "_" + now.Month.ToString() + "-" + now.Day.ToString() + "-" + now.Year + "_" + now.Hour + "-" + now.Minute + "-" + now.Second; // + "_" + pid;
 
-		if (GlobalControl.Instance.recordingData)
-		{
-			WriteTrialFile();
-			WriteBounceFile();
-			WriteContinuousFile();
-			WriteDifficultyFile();
-		}
+		// TODO: If should write the file
+		WriteTrialFile();
+		WriteBounceFile();
+		WriteContinuousFile();
+		WriteDifficultyFile();
 	}
 
 	//public List<TrialData> GetTrialData(DifficultyEvaluation difficultyEvaluation)
