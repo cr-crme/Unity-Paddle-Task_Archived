@@ -39,11 +39,10 @@ public class MenuController : MonoBehaviour {
         string[] preferenceList = {
             //"dof",
             "practise_totaltime",
-            "showcase_timePerTrial",
             "practise_level",
+            "showcase_timePerTrial",
             "hovertime",
             "targetradius",
-            "expcondition",
             "session",
             "targetheight",
             //"numpaddles"
@@ -71,9 +70,6 @@ public class MenuController : MonoBehaviour {
                         break;
                     case "targetradius":
                         //LoadTargetRadiusToMenu();
-                        break;
-                    case "expcondition":
-                        //LoadExpConditionToMenu();
                         break;
                     case "session":
                         LoadSessionToMenu();
@@ -297,41 +293,6 @@ public class MenuController : MonoBehaviour {
 
         GetComponent<MenuPlayerPrefs>().SaveTargetRadius(value);
     }
-    
-    // Records the Condition from the dropdown menu
-    public void RecordExpCond(int arg0)
-    {
-        TMP_Dropdown d = GameObject.Find("ExpCondition Dropdown").GetComponent<TMP_Dropdown>();
-        d.value = arg0;
-
-        switch (arg0)
-        {
-            case 0:
-                globalControl.expCondition = TaskType.ExpCondition.RANDOM;
-                break;
-            case 1:
-                globalControl.expCondition = TaskType.ExpCondition.LIGHTEST;
-                break;
-            case 2:
-                globalControl.expCondition = TaskType.ExpCondition.LIGHTER;
-                break;
-            case 3:
-                globalControl.expCondition = TaskType.ExpCondition.NORMAL;
-                break;
-            case 4:
-                globalControl.expCondition = TaskType.ExpCondition.HEAVIER;
-                break;
-            case 5:
-                globalControl.expCondition = TaskType.ExpCondition.HEAVIEST;
-                break;
-            default:
-                globalControl.expCondition = TaskType.ExpCondition.RANDOM;
-                break;
-        }
-
-        GetComponent<MenuPlayerPrefs>().SaveExpCondition(arg0);
-    }
-
     
 
     // Records the number of paddles from the dropdown nmenu

@@ -22,11 +22,6 @@ public class MenuPlayerPrefs : MonoBehaviour
         PlayerPrefs.SetFloat("targetradius", sliderValue);
         PlayerPrefs.Save();
     }
-    public void SaveExpCondition(int menuInt)
-    {
-        PlayerPrefs.SetInt("expcondition", menuInt);
-        PlayerPrefs.Save();
-    }
     public void SaveTargetHeight(int menuInt)
     {
         PlayerPrefs.SetInt("targetheight", menuInt);
@@ -56,13 +51,6 @@ public class MenuPlayerPrefs : MonoBehaviour
         }
     }
 
-    private void LoadExpConditionToMenu()
-    {
-        if (PlayerPrefs.HasKey("expcondition"))
-        {
-            menuController.RecordExpCond(PlayerPrefs.GetInt("expcondition"));
-        }
-    }
     private void LoadTargetHeightToMenu()
     {
         if (PlayerPrefs.HasKey("targetheight"))

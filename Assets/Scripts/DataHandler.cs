@@ -142,9 +142,9 @@ public class DataHandler : MonoBehaviour
 		difficultyDatas[difficultyEvaluationIndex].datas.Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time, difficulty));
 	}
 
-	public void recordHeaderInfo(TaskType.ExpCondition ec, TaskType.Session s, int maxtime, float htime, float tradius)
+	public void recordHeaderInfo(TaskType.Session s, int maxtime, float htime, float tradius)
 	{
-		headerData = new HeaderData(ec, s, maxtime, htime, tradius);
+		headerData = new HeaderData(s, maxtime, htime, tradius);
 	}
 
 	private void WriteHeaderInfo(CsvFileWriter writer)
