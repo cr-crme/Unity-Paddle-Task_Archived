@@ -136,7 +136,7 @@ public class PaddleGame : MonoBehaviour
 
 		if(globalControl.session == TaskType.Session.SHOWCASE)
 		{
-			globalControl.maxTrialTime = 0;
+			globalControl.practiseMaxTrialTime = 0;
 		}
 	
 		Initialize(true);
