@@ -90,7 +90,6 @@ public class PaddleGame : MonoBehaviour
 	public float degreesOfFreedom;
 
 	// This session information
-	private TaskType.ExpCondition expCondition;
 	private TaskType.Session session;
 
 
@@ -310,7 +309,6 @@ public class PaddleGame : MonoBehaviour
 
 		dataHandler.dataWritten = false;
 		// Initialize Condition and Visit types
-		expCondition = globalControl.expCondition;
 		session = globalControl.session;
 		degreesOfFreedom = globalControl.degreesOfFreedom;
 

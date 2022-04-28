@@ -19,9 +19,6 @@ public class GlobalControl : MonoBehaviour
     // The number of paddles that the player is using. Usually 1 or 2.
     public int numPaddles = 1;
 
-    // The Exploration condition of this instance (controls randomized physics)
-    public TaskType.ExpCondition expCondition = TaskType.ExpCondition.NORMAL;
-
     // Target Line Height
     public TaskType.TargetHeight targetHeightPreference = TaskType.TargetHeight.EYE_LEVEL;
 
