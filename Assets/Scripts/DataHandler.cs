@@ -140,9 +140,9 @@ public class DataHandler : MonoBehaviour
 		difficultyDatas[difficultyEvaluationIndex].datas.Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time, difficulty));
 	}
 
-	public void recordHeaderInfo(TaskType.Session s, int maxtime, float htime, float tradius)
+	public void recordHeaderInfo(TaskType.Session s, int maxtime, float htime, float twidth)
 	{
-		headerData = new HeaderData(s, maxtime, htime, tradius);
+		headerData = new HeaderData(s, maxtime, htime, twidth);
 	}
 
 	private void WriteHeaderInfo(CsvFileWriter writer)
@@ -160,8 +160,8 @@ public class DataHandler : MonoBehaviour
 		hovertime.Add(headerData.hoverTime.ToString());
 
 		CsvRow trad = new CsvRow();
-		trad.Add("Target Line Success Radius (m)");
-		trad.Add(headerData.targetRadius.ToString());
+		trad.Add("Target Line Acceptance Width (m)");
+		trad.Add(headerData.targetWidth.ToString());
 
 		writer.WriteRow(s);
 		writer.WriteRow(maxtime);

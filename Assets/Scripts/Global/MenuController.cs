@@ -13,7 +13,6 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private GameObject sessionObject;
     [SerializeField] private GameObject practiseCanvas;
     [SerializeField] private GameObject showcaseCanvas;
-    [SerializeField] private GameObject targetHeightObject;
 
     #region Initialization
     /// <summary>
@@ -45,9 +44,9 @@ public class MenuController : MonoBehaviour {
             "practise_level",
             "showcase_timePerTrial",
             "showcase_toggleVideo",
+            "targetHeight",
+            "targetWidth",
             "hovertime",
-            "targetradius",
-            "targetheight",
         };
 
 
@@ -79,14 +78,14 @@ public class MenuController : MonoBehaviour {
                     case "showcase_toggleVideo":
                         LoadShowcaseVideoToggle();
                         break;
+                    case "targetHeight":
+                        LoadTargetHeightDropdownToMenu();
+                        break;
+                    case "targetWidth":
+                        LoadTargetWidthSliderToMenu();
+                        break;
                     case "hovertime":
                         //LoadHoverTimeToMenu();
-                        break;
-                    case "targetradius":
-                        //LoadTargetRadiusToMenu();
-                        break;
-                    case "targetheight":
-                        //LoadTargetHeightToMenu();
                         break;
                     default:
                         break;
@@ -326,31 +325,62 @@ public class MenuController : MonoBehaviour {
     #endregion
 
     #region Target
-    // Records the Target Line height preference from the dropdown menu
-    public void RecordTargetHeight(int arg0)
+    const float INCHES_PER_METER = 39.37f;
+    [SerializeField] private TMP_Dropdown targetHeightDropdown;
+    [SerializeField] private Slider targetWidthSlider;
+    [SerializeField] private TextMeshProUGUI targetWidthText;
+    public void RecordTargetHeightDropdown(int _value)
     {
-        targetHeightObject.GetComponent<TMP_Dropdown>().value = arg0;
+        globalControl.targetHeightPreference = (TaskType.TargetHeight)_value;
+        SaveTargetHeightDropdown(_value);
+    }
+    private void SetTargetHeightDropdown(int _value)
+    {
+        targetHeightDropdown.value = _value;
+    }
+    private void SaveTargetHeightDropdown(int _value)
+    {
+        PlayerPrefs.SetInt("targetHeight", _value);
+        PlayerPrefs.Save();
+    }
+    private void LoadTargetHeightDropdownToMenu()
+    {
+        if (PlayerPrefs.HasKey("targetHeight"))
+        {
+            RecordTargetHeightDropdown(PlayerPrefs.GetInt("targetHeight"));
+            SetTargetHeightDropdown((int)globalControl.targetHeightPreference);
+        }
+    }
 
-        if (arg0 == 0)
+    public void RecordTargetWidthSlider(float _value)
+    {
+        float targetThresholdInches = _value * 0.5f;  // each notch is 0.5 inches 
+        float targetThresholdMeters = targetThresholdInches / INCHES_PER_METER;
+        targetWidthText.text = $"+/- {targetThresholdInches.ToString("0.0")} in.\n" +
+            $"({_value.ToString("0.0")} in. total)";
+        targetWidthSlider.value = _value;
+        globalControl.targetWidth = targetThresholdMeters;
+        SaveTargetWidthSlider(_value);
+    }
+    private void SetTargetWidthSlider(float _value)
+    {
+        targetWidthSlider.value = _value;
+    }
+    private void SaveTargetWidthSlider(float _value)
+    {
+        PlayerPrefs.SetFloat("targetWidth", _value);
+        PlayerPrefs.Save();
+    }
+    private void LoadTargetWidthSliderToMenu()
+    {
+        if (PlayerPrefs.HasKey("targetWidth"))
         {
-            globalControl.targetHeightPreference = TaskType.TargetHeight.EYE_LEVEL;
+            RecordTargetWidthSlider(PlayerPrefs.GetFloat("targetWidth"));
+            SetTargetWidthSlider(globalControl.targetWidth * INCHES_PER_METER / 0.5f);
         }
-        else if (arg0 == 1)
-        {
-            globalControl.targetHeightPreference = TaskType.TargetHeight.LOWERED;
-        }
-        else if (arg0 == 2)
-        {
-            globalControl.targetHeightPreference = TaskType.TargetHeight.RAISED;
-        }
-        else
-        {
-            Debug.LogError("Wrong target height");
-        }
-
-        GetComponent<MenuPlayerPrefs>().SaveTargetHeight(arg0);
     }
     #endregion
+
 
     // Record how many seconds the ball should hover for upon reset
     public void UpdateHoverTime(float value)
@@ -364,26 +394,6 @@ public class MenuController : MonoBehaviour {
 
         GetComponent<MenuPlayerPrefs>().SaveHoverTime(value);
     }
-
-    // Set the window for how far the ball can be from the target line and still count as a success
-    public void UpdateTargetRadius(float value)
-    {
-        const float INCHES_PER_METER = 39.37f;
-        const float METERS_PER_INCH = 0.0254f;
-
-        Slider s = GameObject.Find("Success Threshold Slider").GetComponent<Slider>();
-        TextMeshProUGUI sliderText = GameObject.Find("Width Indicator").GetComponent<TextMeshProUGUI>();
-
-        float targetThresholdInches = value * 0.5f;
-        float targetThresholdMeters = targetThresholdInches * METERS_PER_INCH; // each notch is 0.5 inches 
-        sliderText.text = "+/- " + targetThresholdInches.ToString("0.0") + " in.\n(" + value.ToString("0.0") + " in. total)";
-        s.value = value;
-        globalControl.targetRadius = targetThresholdMeters;
-
-        GetComponent<MenuPlayerPrefs>().SaveTargetRadius(value);
-    }
-    
-
 
     /// <summary>
     /// Loads next scene if wii is connected and participant ID was entered.

@@ -22,8 +22,8 @@ public class GlobalControl : MonoBehaviour
     // Target Line Height
     public TaskType.TargetHeight targetHeightPreference = TaskType.TargetHeight.EYE_LEVEL;
 
-    // Target Line Success Threshold
-    public float targetRadius = 0.05f;
+    // Target Line Width Acceptance Threshold
+    public float targetWidth = 0.05f;
 
     // Test period of this instance
     public TaskType.Session session = TaskType.Session.PRACTISE;

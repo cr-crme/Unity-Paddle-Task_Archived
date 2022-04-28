@@ -127,7 +127,7 @@ public class PaddleGame : MonoBehaviour
 
 		// Calibrate the target line to be at the player's eye level
 		SetTargetLineHeight(globalControl.targetLineHeightOffset);
-		SetTargetLineWidth(globalControl.targetRadius);
+		SetTargetLineWidth(globalControl.targetWidth);
 
 
 		PopulateScoreEffects();
@@ -388,7 +388,7 @@ public class PaddleGame : MonoBehaviour
 
 	private void SetTargetLineWidth(float width)
     {
-		targetLine.transform.localScale = new Vector3(targetLine.transform.localScale.x, globalControl.targetRadius * 2f, targetLine.transform.localScale.z);
+		targetLine.transform.localScale = new Vector3(targetLine.transform.localScale.x, globalControl.targetWidth * 2f, targetLine.transform.localScale.z);
 	}
 
 	private void toggleTargetLine()
@@ -819,8 +819,8 @@ public class PaddleGame : MonoBehaviour
 		if (!sessionManager.hasTarget) return false;
 
 		float targetHeight = targetLine.transform.position.y;
-		float lowerLimit = targetHeight - globalControl.targetRadius;
-		float upperLimit = targetHeight + globalControl.targetRadius;
+		float lowerLimit = targetHeight - globalControl.targetWidth;
+		float upperLimit = targetHeight + globalControl.targetWidth;
 
 		return (height > lowerLimit) && (height < upperLimit);
 	}
@@ -867,7 +867,7 @@ public class PaddleGame : MonoBehaviour
 	//	{
 	//		// Record session data
 	//		dataHandler.recordHeaderInfo(
-	//			condition, expCondition, session, globalControl.maxTrialTime, globalControl.ballResetHoverSeconds, globalControl.targetRadius
+	//			condition, expCondition, session, globalControl.maxTrialTime, globalControl.ballResetHoverSeconds, globalControl.targetWidth
 	//		);
 	//	}
 
@@ -950,7 +950,7 @@ public class PaddleGame : MonoBehaviour
 		Debug.Log("Setting Difficulty: " + sessionManager.currentLevel);
 		GlobalControl globalControl = GlobalControl.Instance;
 		globalControl.targetLineHeightOffset = sessionManager.targetHeightOffset;
-		globalControl.targetRadius = sessionManager.hasTarget ? sessionManager.targetWidth / 2f : 0;
+		globalControl.targetWidth = sessionManager.hasTarget ? sessionManager.targetWidth / 2f : 0;
 		globalControl.timescale = sessionManager.ballSpeed;
 
 		// Reset trial
@@ -962,7 +962,7 @@ public class PaddleGame : MonoBehaviour
 
 		toggleTargetLine();
 		SetTargetLineHeight(sessionManager.targetHeightOffset);
-		SetTargetLineWidth(globalControl.targetRadius);
+		SetTargetLineWidth(globalControl.targetWidth);
 		difficultyDisplay.text = sessionManager.currentLevel.ToString();
 
 		if (sessionManager.isSessionOver)
