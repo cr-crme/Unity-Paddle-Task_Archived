@@ -24,19 +24,6 @@ public class MenuPlayerPrefs : MonoBehaviour
     }
 
 
-    // Private methods to load PlayerPrefs into the menu. 
-
-    private void LoadHoverTimeToMenu()
-    {
-        if (PlayerPrefs.HasKey("hovertime"))
-        {
-            menuController.UpdateHoverTime(PlayerPrefs.GetFloat("hovertime"));
-        }
-    }
-
-    
-
-
     
 
     // Clears all saved main menu preferences

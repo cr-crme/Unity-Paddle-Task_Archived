@@ -9093,7 +9093,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1554919718}
-        m_MethodName: UpdateHoverTime
+        m_MethodName: RecordBallHoverTimeSlider
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9631,11 +9631,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10b56b6b5023fa14fb6bf0699fb4fd42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sessionObject: {fileID: 1845413353}
   practiseCanvas: {fileID: 75102140}
   showcaseCanvas: {fileID: 792992381}
   nbPaddlesDropdown: {fileID: 1537809546}
   environmentDropdown: {fileID: 1683081206}
+  sessionDropdown: {fileID: 1845413355}
   practiseTotalTimeDropdown: {fileID: 1458637076}
   showcaseTimePerTrialDropdown: {fileID: 720513924}
   practiseLevelDropdown: {fileID: 890606250}
@@ -9643,6 +9643,8 @@ MonoBehaviour:
   targetHeightDropdown: {fileID: 805336998}
   targetWidthSlider: {fileID: 186625439}
   targetWidthText: {fileID: 1771609500}
+  ballHoverTimeSlider: {fileID: 1460945078}
+  ballHoverTimeText: {fileID: 2075882120}
 --- !u!114 &1554919719
 MonoBehaviour:
   m_ObjectHideFlags: 0

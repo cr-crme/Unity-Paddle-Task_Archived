@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -10,7 +11,6 @@ using TMPro;
 public class MenuController : MonoBehaviour {
 
     private GlobalControl globalControl;
-    [SerializeField] private GameObject sessionObject;
     [SerializeField] private GameObject practiseCanvas;
     [SerializeField] private GameObject showcaseCanvas;
 
@@ -33,64 +33,25 @@ public class MenuController : MonoBehaviour {
         UpdateConditionalUIObjects();
     }
     // Loads all saved preferences to the main menu
+    private delegate void LoadCallback();
     public void LoadAllPreferences()
     {
-        string[] preferenceList = {
-            //"numpaddles"
-            "session",
-            "nbPaddles",
-            "environment",
-            "practise_totaltime",
-            "practise_level",
-            "showcase_timePerTrial",
-            "showcase_toggleVideo",
-            "targetHeight",
-            "targetWidth",
-            "hovertime",
+        Dictionary<string, LoadCallback> preferenceList
+            = new Dictionary<string, LoadCallback>(){
+                { "nbPaddles", LoadNbPaddlesDropdownToMenu },
+                { "environment", LoadEnvironmentDropdownToMenu },
+                { "session", LoadSessionToMenu },
+                { "practise_totalTime", LoadPractiseTotalTimeToMenu },
+                { "showcase_timePerTrial", LoadShowcaseTimePerTrialToMenu },
+                { "practise_level", LoadPractiseLevelToMenu },
+                { "showcase_toggleVideo", LoadShowcaseVideoToggle },
+                { "targetHeight", LoadTargetHeightDropdownToMenu },
+                { "targetWidth", LoadTargetWidthSliderToMenu },
+                { "hoverTime", LoadBallHoverTimeSliderToMenu }, 
         };
-
-
-        // TODO why not just (Key of PlayerPrefs)?
-        foreach (string pref in preferenceList)
+        foreach (KeyValuePair<string, LoadCallback> callback in preferenceList)
         {
-            if (PlayerPrefs.HasKey(pref))
-            {
-                switch (pref)
-                {
-                    case "session":
-                        LoadSessionToMenu();
-                        break;
-                    case "nbPaddles":
-                        LoadNbPaddlesDropdownToMenu();
-                        break;
-                    case "environment":
-                        LoadEnvironmentDropdownToMenu();
-                        break;
-                    case "practise_totaltime":
-                        LoadPractiseTotalTimeToMenu();
-                        break;
-                    case "practise_level":
-                        LoadPractiseLevelToMenu();
-                        break;
-                    case "showcase_timePerTrial":
-                        LoadShowcaseTimePerTrialToMenu();
-                        break;
-                    case "showcase_toggleVideo":
-                        LoadShowcaseVideoToggle();
-                        break;
-                    case "targetHeight":
-                        LoadTargetHeightDropdownToMenu();
-                        break;
-                    case "targetWidth":
-                        LoadTargetWidthSliderToMenu();
-                        break;
-                    case "hovertime":
-                        //LoadHoverTimeToMenu();
-                        break;
-                    default:
-                        break;
-                }
-            }
+            callback.Value();
         }
     }
 
@@ -101,6 +62,8 @@ public class MenuController : MonoBehaviour {
     #endregion
 
     #region GenericInformation
+    [SerializeField] private TMP_Dropdown nbPaddlesDropdown;
+
     /// <summary>
     /// Records an alphanumeric participant ID. Hit enter to record. May be entered multiple times
     /// but only last submission is used. Called using a dynamic function in the inspector
@@ -112,7 +75,6 @@ public class MenuController : MonoBehaviour {
         globalControl.participantID = arg0;
     }
 
-    [SerializeField] private TMP_Dropdown nbPaddlesDropdown;
     public void RecordNbPaddlesDropdown(int _value)
     {
         globalControl.nbPaddles = _value + 1;  // 0-based
@@ -120,7 +82,7 @@ public class MenuController : MonoBehaviour {
     }
     private void SetNbPaddlesDropdown(int _value)
     {
-        nbPaddlesDropdown.value = _value;
+        nbPaddlesDropdown.value = _value; 
     }
     private void SaveNbPaddlesDropdown(int _value)
     {
@@ -131,8 +93,9 @@ public class MenuController : MonoBehaviour {
     {
         if (PlayerPrefs.HasKey("nbPaddles"))
         {
-            RecordNbPaddlesDropdown(PlayerPrefs.GetInt("nbPaddles"));
-            SetNbPaddlesDropdown(globalControl.nbPaddles - 1);  // 1-based
+            int _value = PlayerPrefs.GetInt("nbPaddles");
+            RecordNbPaddlesDropdown(_value);
+            SetNbPaddlesDropdown(_value);
         }
     }
 
@@ -140,11 +103,8 @@ public class MenuController : MonoBehaviour {
     public void RecordEnvironmentDropdown(int _value)
     {
         globalControl.environmentIndex = _value;
-        SaveEnvironmentDropdown(_value);
-    }
-    private void SetEnvironmentDropdown(int _value)
-    {
         environmentDropdown.value = _value;
+        SaveEnvironmentDropdown(_value);
     }
     private void SaveEnvironmentDropdown(int _value)
     {
@@ -156,43 +116,36 @@ public class MenuController : MonoBehaviour {
         if (PlayerPrefs.HasKey("environment"))
         {
             RecordEnvironmentDropdown(PlayerPrefs.GetInt("environment"));
-            SetEnvironmentDropdown(globalControl.environmentIndex); 
         }
     }
     #endregion
 
     #region SessionType
+    [SerializeField] private TMP_Dropdown sessionDropdown;
     // Records the Session from the dropdown menu
-    public void RecordSession(int arg0)
+    public void RecordSession(int _value)
     {
-        sessionObject.GetComponent<TMP_Dropdown>().value = arg0;
-
-        if (arg0 == 0)
-        {
-            globalControl.session = TaskType.Session.PRACTISE;
-        }
-        else if (arg0 == 1)
-        {
-            globalControl.session = TaskType.Session.SHOWCASE;
-        }
-        else
-        {
-            Debug.LogError("Not implemented Session");
-        }
-        SaveSession(arg0);
+        globalControl.session = (TaskType.Session)_value;
+        SaveSession(_value);
         UpdateConditionalUIObjects();
     }
-    private void LoadSessionToMenu()
+    private void SetRecordSession(int _value)
     {
-        if (PlayerPrefs.HasKey("session"))
-        {
-            RecordSession(PlayerPrefs.GetInt("session"));
-        }
+        sessionDropdown.value = _value;
     }
     public void SaveSession(int menuInt)
     {
         PlayerPrefs.SetInt("session", menuInt);
         PlayerPrefs.Save();
+    }
+    private void LoadSessionToMenu()
+    {
+        if (PlayerPrefs.HasKey("session"))
+        {
+            int _value = PlayerPrefs.GetInt("session");
+            RecordSession(_value);
+            SetRecordSession(_value);
+        }
     }
     #endregion
 
@@ -201,7 +154,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private TMP_Dropdown showcaseTimePerTrialDropdown;
     public void RecordPractiseTotalTime(int _value)
     {
-        globalControl.maxTrialTime = _value;
+        globalControl.practiseMaxTrialTime = _value;
         SavePractiseTotalTime(_value);
     }
     private void SetPractiseTotalTimeDropdown(int _value)
@@ -210,21 +163,22 @@ public class MenuController : MonoBehaviour {
     }
     private void SavePractiseTotalTime(int _value)
     {
-        PlayerPrefs.SetInt("practise_totaltime", _value);
+        PlayerPrefs.SetInt("practise_totalTime", _value);
         PlayerPrefs.Save();
     }
     private void LoadPractiseTotalTimeToMenu()
     {
-        if (PlayerPrefs.HasKey("practise_totaltime"))
+        if (PlayerPrefs.HasKey("practise_totalTime"))
         {
-            RecordPractiseTotalTime(PlayerPrefs.GetInt("practise_totaltime"));
-            SetPractiseTotalTimeDropdown(globalControl.maxTrialTime);
+            int _value = PlayerPrefs.GetInt("practise_totalTime");
+            RecordPractiseTotalTime(_value);
+            SetPractiseTotalTimeDropdown(_value);
         }
     }
 
     public void RecordShowcaseTimePerTrial(int _value)
     {
-        globalControl.maxTrialTime = _value;
+        globalControl.showcaseTimePerCondition = _value;
         SaveShowcaseTimePerTrial(_value);
     }
     private void SetShowcaseTimePerTrialDropdown(int _value)
@@ -240,8 +194,9 @@ public class MenuController : MonoBehaviour {
     {
         if (PlayerPrefs.HasKey("showcase_timePerTrial"))
         {
-            RecordShowcaseTimePerTrial(PlayerPrefs.GetInt("showcase_timePerTrial"));
-            SetShowcaseTimePerTrialDropdown(globalControl.maxTrialTime);
+            int _value = PlayerPrefs.GetInt("showcase_timePerTrial");
+            RecordShowcaseTimePerTrial(_value);
+            SetShowcaseTimePerTrialDropdown(_value);
         }
     }
 
@@ -250,16 +205,12 @@ public class MenuController : MonoBehaviour {
         if (globalControl.session == TaskType.Session.PRACTISE)
         {
             practiseCanvas.SetActive(true);
-            RecordPractiseTotalTime(practiseTotalTimeDropdown.value);
-
             showcaseCanvas.SetActive(false);
 
         }
         else if (globalControl.session == TaskType.Session.SHOWCASE)
         {
             showcaseCanvas.SetActive(true);
-            RecordShowcaseTimePerTrial(showcaseTimePerTrialDropdown.value);
-
             practiseCanvas.SetActive(false);
 
         }
@@ -290,8 +241,9 @@ public class MenuController : MonoBehaviour {
     {
         if (PlayerPrefs.HasKey("practise_level"))
         {
-            RecordPractiseLevel(PlayerPrefs.GetInt("practise_level"));
-            SetPractiseLevelDropdown(globalControl.level);
+            int _value = PlayerPrefs.GetInt("practise_level");
+            RecordPractiseLevel(_value);
+            SetPractiseLevelDropdown(_value);
         }
     }
     #endregion
@@ -316,19 +268,18 @@ public class MenuController : MonoBehaviour {
     {
         if (PlayerPrefs.HasKey("showcase_toggleVideo"))
         {
-            RecordShowcaseVideoToggle(
-                PlayerPrefs.GetInt("showcase_toggleVideo") == 1 ? true : false
-            );
-            SetShowcaseVideoToggle(globalControl.playVideo);
+            bool _value = PlayerPrefs.GetInt("showcase_toggleVideo") == 1 ? true : false;
+            RecordShowcaseVideoToggle(_value);
+            SetShowcaseVideoToggle(_value);
         }
     }
     #endregion
 
     #region Target
-    const float INCHES_PER_METER = 39.37f;
     [SerializeField] private TMP_Dropdown targetHeightDropdown;
     [SerializeField] private Slider targetWidthSlider;
     [SerializeField] private TextMeshProUGUI targetWidthText;
+    const float INCHES_PER_METER = 39.37f;
     public void RecordTargetHeightDropdown(int _value)
     {
         globalControl.targetHeightPreference = (TaskType.TargetHeight)_value;
@@ -347,20 +298,31 @@ public class MenuController : MonoBehaviour {
     {
         if (PlayerPrefs.HasKey("targetHeight"))
         {
-            RecordTargetHeightDropdown(PlayerPrefs.GetInt("targetHeight"));
-            SetTargetHeightDropdown((int)globalControl.targetHeightPreference);
+            int _value = PlayerPrefs.GetInt("targetHeight");
+            RecordTargetHeightDropdown(_value);
+            SetTargetHeightDropdown(_value);
         }
     }
 
     public void RecordTargetWidthSlider(float _value)
     {
-        float targetThresholdInches = _value * 0.5f;  // each notch is 0.5 inches 
-        float targetThresholdMeters = targetThresholdInches / INCHES_PER_METER;
-        targetWidthText.text = $"+/- {targetThresholdInches.ToString("0.0")} in.\n" +
-            $"({_value.ToString("0.0")} in. total)";
-        targetWidthSlider.value = _value;
-        globalControl.targetWidth = targetThresholdMeters;
+        globalControl.targetWidth = ComputeTargetWidthInMeter(_value);
+        UpdateTargetWidthText(_value);
         SaveTargetWidthSlider(_value);
+    }
+    private void UpdateTargetWidthText(float _value)
+    {
+        targetWidthText.text =
+            $"+/- {ComputeTargetWidthInInches(_value).ToString("0.0")} in.\n" +
+            $"({_value.ToString("0.0")} in. total)";
+    }
+    private float ComputeTargetWidthInInches(float _value)
+    {
+        return _value * 0.5f;  // each notch is 0.5 inches 
+    }
+    private float ComputeTargetWidthInMeter(float _value)
+    {
+        return ComputeTargetWidthInInches(_value) / INCHES_PER_METER;
     }
     private void SetTargetWidthSlider(float _value)
     {
@@ -375,25 +337,48 @@ public class MenuController : MonoBehaviour {
     {
         if (PlayerPrefs.HasKey("targetWidth"))
         {
-            RecordTargetWidthSlider(PlayerPrefs.GetFloat("targetWidth"));
-            SetTargetWidthSlider(globalControl.targetWidth * INCHES_PER_METER / 0.5f);
+            float _value = PlayerPrefs.GetFloat("targetWidth");
+            RecordTargetWidthSlider(_value);
+            SetTargetWidthSlider(_value);
+            UpdateTargetWidthText(_value);
         }
     }
     #endregion
 
-
-    // Record how many seconds the ball should hover for upon reset
-    public void UpdateHoverTime(float value)
+    #region Ball
+    [SerializeField] private Slider ballHoverTimeSlider;
+    [SerializeField] private TextMeshProUGUI ballHoverTimeText;
+   
+    public void RecordBallHoverTimeSlider(float _value)
     {
-        Slider s = GameObject.Find("Ball Respawn Time Slider").GetComponent<Slider>();
-        TextMeshProUGUI sliderText = GameObject.Find("Time Indicator").GetComponent<TextMeshProUGUI>();
-
-        sliderText.text = value + " seconds";
-        s.value = value;
-        globalControl.ballResetHoverSeconds = (int)value;
-
-        GetComponent<MenuPlayerPrefs>().SaveHoverTime(value);
+        globalControl.ballResetHoverSeconds = (int)_value;
+        UpdateBallHoverTimeText(_value);
+        SaveBallHoverTimeSlider(_value);
     }
+    private void UpdateBallHoverTimeText(float _value)
+    {
+        ballHoverTimeText.text = $"{_value} seconds";
+    }
+    private void SetBallHoverTimeSlider(float _value)
+    {
+        ballHoverTimeSlider.value = _value;
+    }
+    private void SaveBallHoverTimeSlider(float _value)
+    {
+        PlayerPrefs.SetFloat("hoverTime", _value);
+        PlayerPrefs.Save();
+    }
+    private void LoadBallHoverTimeSliderToMenu()
+    {
+        if (PlayerPrefs.HasKey("hoverTime"))
+        {
+            float _value = PlayerPrefs.GetFloat("hoverTime");
+            RecordBallHoverTimeSlider(_value);
+            SetBallHoverTimeSlider(_value);
+            UpdateBallHoverTimeText(_value);
+        }
+    }
+    #endregion
 
     /// <summary>
     /// Loads next scene if wii is connected and participant ID was entered.

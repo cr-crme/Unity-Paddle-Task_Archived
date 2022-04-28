@@ -31,8 +31,11 @@ public class GlobalControl : MonoBehaviour
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;
 
-    // Time limit in minutes after beginning, after which the game will end
-    public int maxTrialTime = 0;
+    // Time limit for practise condition
+    public int practiseMaxTrialTime = 0;
+
+    // Time per level for showcase condition
+    public int showcaseTimePerCondition = 0;
 
     // Time elapsed while game is not paused, in seconds 
     public float timeElapsed = 0;
@@ -108,7 +111,7 @@ public class GlobalControl : MonoBehaviour
     
     public float GetTimeLimitSeconds()
     {
-        return maxTrialTime * 60.0f;
+        return practiseMaxTrialTime * 60.0f;
     }
 
     public float GetTimeElapsed()
