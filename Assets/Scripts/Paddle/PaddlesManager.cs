@@ -13,7 +13,7 @@ public class PaddlesManager : MonoBehaviour
     private Paddle rightPaddle;
 
     bool currentPaddleIsLeft = false;
-    public int NbPaddles { get { return globalControl.numPaddles; } }
+    public int NbPaddles { get { return globalControl.nbPaddles; } }
 
     GlobalControl globalControl;
 
@@ -21,7 +21,7 @@ public class PaddlesManager : MonoBehaviour
     {
         globalControl = GlobalControl.Instance;
 
-        if (globalControl.numPaddles > 1)
+        if (globalControl.nbPaddles > 1)
         {
             rightPaddle.EnablePaddle();
             rightPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);

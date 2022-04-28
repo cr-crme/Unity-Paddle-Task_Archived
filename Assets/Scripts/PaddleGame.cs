@@ -123,7 +123,7 @@ public class PaddleGame : MonoBehaviour
 		dataHandler = GetComponent<DataHandler>();
 		sessionManager = new SessionManager(paddlesManager);
 
-		Instantiate(globalControl.environments[globalControl.environmentOption]);
+		Instantiate(globalControl.environments[globalControl.environmentIndex]);
 
 		// Calibrate the target line to be at the player's eye level
 		SetTargetLineHeight(globalControl.targetLineHeightOffset);

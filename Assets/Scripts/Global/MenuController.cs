@@ -25,7 +25,7 @@ public class MenuController : MonoBehaviour {
 
         // disable VR settings for menu scene
         UnityEngine.XR.XRSettings.enabled = false;
-        globalControl.numPaddles = 1;
+        globalControl.nbPaddles = 1;
         globalControl.participantID = "";
 
         // Load saved preferences
@@ -39,6 +39,8 @@ public class MenuController : MonoBehaviour {
         string[] preferenceList = {
             //"numpaddles"
             "session",
+            "nbPaddles",
+            "environment",
             "practise_totaltime",
             "practise_level",
             "showcase_timePerTrial",
@@ -58,6 +60,12 @@ public class MenuController : MonoBehaviour {
                 {
                     case "session":
                         LoadSessionToMenu();
+                        break;
+                    case "nbPaddles":
+                        LoadNbPaddlesDropdownToMenu();
+                        break;
+                    case "environment":
+                        LoadEnvironmentDropdownToMenu();
                         break;
                     case "practise_totaltime":
                         LoadPractiseTotalTimeToMenu();
@@ -103,6 +111,54 @@ public class MenuController : MonoBehaviour {
     public void RecordID(string arg0)
     {
         globalControl.participantID = arg0;
+    }
+
+    [SerializeField] private TMP_Dropdown nbPaddlesDropdown;
+    public void RecordNbPaddlesDropdown(int _value)
+    {
+        globalControl.nbPaddles = _value + 1;  // 0-based
+        SaveNbPaddlesDropdown(_value);
+    }
+    private void SetNbPaddlesDropdown(int _value)
+    {
+        nbPaddlesDropdown.value = _value;
+    }
+    private void SaveNbPaddlesDropdown(int _value)
+    {
+        PlayerPrefs.SetInt("nbPaddles", _value);
+        PlayerPrefs.Save();
+    }
+    private void LoadNbPaddlesDropdownToMenu()
+    {
+        if (PlayerPrefs.HasKey("nbPaddles"))
+        {
+            RecordNbPaddlesDropdown(PlayerPrefs.GetInt("nbPaddles"));
+            SetNbPaddlesDropdown(globalControl.nbPaddles - 1);  // 1-based
+        }
+    }
+
+    [SerializeField] private TMP_Dropdown environmentDropdown;
+    public void RecordEnvironmentDropdown(int _value)
+    {
+        globalControl.environmentIndex = _value;
+        SaveEnvironmentDropdown(_value);
+    }
+    private void SetEnvironmentDropdown(int _value)
+    {
+        environmentDropdown.value = _value;
+    }
+    private void SaveEnvironmentDropdown(int _value)
+    {
+        PlayerPrefs.SetInt("environment", _value);
+        PlayerPrefs.Save();
+    }
+    private void LoadEnvironmentDropdownToMenu()
+    {
+        if (PlayerPrefs.HasKey("environment"))
+        {
+            RecordEnvironmentDropdown(PlayerPrefs.GetInt("environment"));
+            SetEnvironmentDropdown(globalControl.environmentIndex); 
+        }
     }
     #endregion
 
@@ -328,36 +384,13 @@ public class MenuController : MonoBehaviour {
     }
     
 
-    // Records the number of paddles from the dropdown nmenu
-    public void RecordNumPaddles(int arg0)
-    {
-        TMP_Dropdown d = GameObject.Find("Num Paddle Dropdown").GetComponent<TMP_Dropdown>();
-        d.value = arg0;
-
-        if (arg0 == 0)
-        {
-            globalControl.numPaddles = 1;
-        }
-        else
-        {
-            globalControl.numPaddles = 2;
-        }
-
-        // GetComponent<MenuPlayerPrefs>().SaveNumPaddles(arg0);
-    }
-
-
-    public void RecordEnvironment(int arg0)
-	{
-        globalControl.environmentOption = arg0;
-	}
 
     /// <summary>
     /// Loads next scene if wii is connected and participant ID was entered.
     /// </summary>
     public void NextScene()
     {
-        if (globalControl.numPaddles == 1)
+        if (globalControl.nbPaddles == 1)
         {
             SceneManager.LoadScene("Paddle");
         }

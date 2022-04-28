@@ -8662,7 +8662,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   participantID: 
-  numPaddles: 1
+  nbPaddles: 1
   targetHeightPreference: 0
   targetRadius: 0.05
   session: 0
@@ -8673,7 +8673,7 @@ MonoBehaviour:
   paused: 1
   level: 1
   playVideo: 0
-  environmentOption: 0
+  environmentIndex: 0
   environments:
   - {fileID: 684842116218577282, guid: b3ebcc9afc85e4e47964153dc3609475, type: 3}
   - {fileID: 7130670092410527548, guid: 315b40b3aa8269f47b92e4ffc06cf33a, type: 3}
@@ -9342,7 +9342,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1554919718}
-        m_MethodName: RecordNumPaddles
+        m_MethodName: RecordNbPaddlesDropdown
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9635,6 +9635,8 @@ MonoBehaviour:
   practiseCanvas: {fileID: 75102140}
   showcaseCanvas: {fileID: 792992381}
   targetHeightObject: {fileID: 805336996}
+  nbPaddlesDropdown: {fileID: 1537809546}
+  environmentDropdown: {fileID: 1683081206}
   practiseTotalTimeDropdown: {fileID: 1458637076}
   showcaseTimePerTrialDropdown: {fileID: 720513924}
   practiseLevelDropdown: {fileID: 890606250}
@@ -10710,7 +10712,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1554919718}
-        m_MethodName: RecordEnvironment
+        m_MethodName: RecordEnvironmentDropdown
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

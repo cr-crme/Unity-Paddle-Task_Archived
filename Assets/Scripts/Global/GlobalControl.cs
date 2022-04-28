@@ -17,7 +17,7 @@ public class GlobalControl : MonoBehaviour
     public string participantID = "";
 
     // The number of paddles that the player is using. Usually 1 or 2.
-    public int numPaddles = 1;
+    public int nbPaddles = 1;
 
     // Target Line Height
     public TaskType.TargetHeight targetHeightPreference = TaskType.TargetHeight.EYE_LEVEL;
@@ -56,8 +56,8 @@ public class GlobalControl : MonoBehaviour
     // Play video at the start
     public bool playVideo = false;
 
-    // Selected enviornment
-    public int environmentOption = 0;
+    // Selected environment
+    public int environmentIndex = 0;
 
     // all environment prefabs
     public List<GameObject> environments = new List<GameObject>();
