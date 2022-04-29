@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -82,7 +81,7 @@ public class Effect : MonoBehaviour
 		timer = 0;
 	}
 
-	public  EffectParticle GetEffectParticle(Effect effect)
+	public EffectParticle GetEffectParticle(Effect effect)
 	{
 		foreach (var particle in effectParticles)
 		{

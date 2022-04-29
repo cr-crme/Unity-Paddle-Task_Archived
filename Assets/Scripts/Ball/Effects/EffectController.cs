@@ -10,6 +10,7 @@ using UnityEngine.Experimental.AI;
 public class EffectController : MonoBehaviour
 {
 	public Effect dissolve, respawn, fire, blueFire, embers, blueEmbers;
+	Dictionary<Effect, EffectParticle> particules;
 
 	public Effect effectTarget;
 	Effect activeShaderEffect;
@@ -39,21 +40,17 @@ public class EffectController : MonoBehaviour
 
 	void InitializeParticleEffect(Effect effect)
 	{
-		EffectParticle effectParticle = effect.GetEffectParticle(effect);
-		if (effectParticle == null)
+        EffectParticle effectParticle = effect.GetEffectParticle(effect);
+        if (effectParticle == null)
 		{
 			return;
 		}
 
 		GameObject particleParent = effectParticle.particleParent;
-
 		if (particleParent)
 		{
-			Vector3 localScale = particleParent.transform.localScale;
-			particleParent.transform.SetParent(effectTarget.transform);
-			particleParent.transform.localPosition = effect.localOffset;
-			particleParent.transform.localScale = localScale;
-			effectTarget.effectParticles.Add(new EffectParticle(effect, particleParent));
+            particleParent.transform.SetParent(effectTarget.transform);
+            effectTarget.effectParticles.Add(new EffectParticle(effect, particleParent));
 		}
 	}
 
@@ -95,13 +92,12 @@ public class EffectController : MonoBehaviour
 		EffectParticle effectParticle = effectTarget.GetEffectParticle(effect);
 		if (effectParticle == null)
 		{
-			Debug.Log("particle effect not found");
+			Debug.LogError("particle effect not found");
 			return;
 		}
 
 		var particleParent = effectParticle.particleParent;
 		particleParent.gameObject.SetActive(true);
-
 	}
 
 	public void StopParticleEffect(Effect effect)
