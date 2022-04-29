@@ -72,18 +72,6 @@ public class Paddle : MonoBehaviour
         return paddleCollider.activeInHierarchy;
     }
 
-    // Gets velocity of paddle
-    public Vector3 GetVelocity()
-    {
-        return paddleCollider.GetComponent<VelocityNoRigidBody>().GetVelocity();
-    }
-
-    // Gets acceleration of paddle
-    public Vector3 GetAcceleration()
-    {
-        return paddleCollider.GetComponent<VelocityNoRigidBody>().GetAcceleration();
-    }
-
     // Set up this paddle as the left or right paddle
     public void SetPaddleIdentifier(PaddleIdentifier paddleId)
     {
