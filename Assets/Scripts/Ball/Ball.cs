@@ -96,9 +96,9 @@ public class Ball : MonoBehaviour
 
     // Returns the default spawn position of the ball:
     // 10cm above the target line, 50cm in front of the 0 
-    public Vector3 ComputeSpawnPosition(Target targetLine)
+    public Vector3 SpawnPosition
     {
-        return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
+        get { return new Vector3(0.0f, target.transform.position.y + 0.1f, 0.5f); }
     }
 
     public IEnumerator Respawning(GlobalPauseHandler pauseHandler)
