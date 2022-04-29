@@ -13,14 +13,9 @@ public class VideoControl : MonoBehaviour
     public AudioSource audioSource;
     public float postVideoDelay = 3f;
     public GameObject renderTarget;
-    public bool editorTesting = false;
     public PaddleGame paddleGame;
-    public List<VideoPracticeData> practiceDatas = new List<VideoPracticeData>();
     public List<VideoData> videoDatas = new List<VideoData>();
     
-
-    // VideoClip video;
-    // Coroutine playbackFinished;
     GlobalControl globalControl;
     GlobalPauseHandler globalPauseHandler;
     float playedTime = 0f;
@@ -29,68 +24,20 @@ public class VideoControl : MonoBehaviour
     {
         globalControl = GlobalControl.Instance;
 
-        // TODO populate with real times and pause times. 
-        //practiceDatas = new List<VideoPracticeData>()
-        //{
-        //    new VideoPracticeData(5f, 5f, new UnityAction(() => 
-        //    { 
-        //        globalControl.timescale = .5f; 
-
-        //    }))
-        //};
-
         if (GlobalControl.Instance.playVideo)
 		{
             globalPauseHandler = GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>();
             globalPauseHandler.Pause();
             globalPauseHandler.SetIndicatorVisibility(false);
 
-
-#if UNITY_EDITOR
-            if (editorTesting)
-		    {
-    //            foreach(VideoData videoData in videoDatas)
-				//{
-    //                videoData.
-				//}
-    //            float appStartDelay = (float)video.length + postVideoDelay;
-    //            appStartDelay = 10f;
-    //            // playbackFinished = 
-    //            StartCoroutine(PlaybackFinished(appStartDelay));
-		    }
-#else
-        editorTesting = false;
-#endif
-
-            //         float total = 0;
-            //         for (int i = 0; i < practiceDatas.Count; i++)
-            //{
-            //             total += practiceDatas[i].playbackDuration;
-            //             StartCoroutine(PracticeTime(total, practiceDatas[i].practiceDuration, practiceDatas[i].practiceChanges));
-            //             total += practiceDatas[i].practiceDuration;
-            //}
-
-            //         if (!editorTesting)
-            //{
-            //             playbackFinished = StartCoroutine(PlaybackFinished(total));
-            //}
-
             float total = 0;
             for (int i = 0; i < videoDatas.Count; i++)
             {
                 StartCoroutine(PracticeTime(total, videoDatas[i]));
-                // total += (float)videoDatas[i].videoClip.length;
                 float duration = (float)videoDatas[i].videoClip.length + videoDatas[i].postClipTime; 
                 total += duration;
             }
-
-            if (!editorTesting)
-            {
-                // playbackFinished = 
-                StartCoroutine(PlaybackFinished(total + .2f));
-            }
-
-            // player.Play();
+            StartCoroutine(PlaybackFinished(total + .2f));
 		}
 		else
 		{
