@@ -30,7 +30,7 @@ public class PaddleGame : MonoBehaviour
 
 	[Tooltip("The line that denotes where the ball should be bounced ideally")]
 	[SerializeField]
-	private GameObject targetLine;
+	private Target targetLine;
 
 	[Tooltip("The canvas that displays score information to the user")]
 	[SerializeField]
@@ -130,8 +130,7 @@ public class PaddleGame : MonoBehaviour
 		var kinematics = ball.GetComponent<Kinematics>();
 		if (kinematics)
 		{
-			kinematics.storedPosition = 
-				ball.GetComponent<Ball>().ComputeSpawnPosition(targetLine.GetComponent<Target>());
+			kinematics.storedPosition = ball.GetComponent<Ball>().SpawnPosition;
 		}
 
 
@@ -506,9 +505,7 @@ public class PaddleGame : MonoBehaviour
 
 		ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
 		ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-		ball.transform.position = ball.GetComponent<Ball>().ComputeSpawnPosition(
-			targetLine.GetComponent<Target>()
-		);
+		ball.transform.position = ball.GetComponent<Ball>().SpawnPosition;
 		ball.transform.rotation = Quaternion.identity;
 
 		Time.timeScale = 1f;
@@ -901,7 +898,7 @@ public class PaddleGame : MonoBehaviour
 		scoreEffectTarget = 0;
 		maxScoreEffectReached = false;
 
-		targetLine.GetComponent<Target>().UpdateCondition();
+		targetLine.UpdateCondition();
 		difficultyDisplay.text = sessionManager.currentLevel.ToString();
 
 		if (sessionManager.isSessionOver)
