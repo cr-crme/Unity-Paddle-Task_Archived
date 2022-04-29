@@ -64,10 +64,6 @@ public class GlobalControl : MonoBehaviour
 
     // all environment prefabs
     public List<GameObject> environments = new List<GameObject>();
-        
-    // some conditions affect this offset
-    [NonSerialized]
-    public float targetLineHeightOffset = 0;
 
     /// <summary>
     /// Assign instance to this, or destroy it if Instance already exits and is not this instance.

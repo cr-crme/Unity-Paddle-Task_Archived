@@ -25,14 +25,6 @@ public class InputManager : MonoBehaviour
             GameObject.Find("Debugger Display").GetComponent<DebuggerDisplay>().ToggleDisplay();
         }
 
-        // Re-calibrate target line height
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            GameObject.Find("[SteamVR]").GetComponent<Target>().SetHeight(
-                GlobalControl.Instance.targetLineHeightOffset
-            );
-        }
-
         // Toggle slow mode 
         if (Input.GetKeyDown(KeyCode.T))
         {

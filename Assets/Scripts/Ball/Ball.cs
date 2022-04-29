@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public class Ball : MonoBehaviour
@@ -13,6 +13,9 @@ public class Ball : MonoBehaviour
 
     [SerializeField, Tooltip("Handles the ball coloring")] 
     private BallColorManager ballColorManager;
+
+    [SerializeField, Tooltip("The target the ball should reach")]
+    private Target target;
 
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
@@ -152,17 +155,14 @@ public class Ball : MonoBehaviour
     {
         yield return new WaitWhile( () => !kinematics.ReachedApex());
 
-        float apexHeight = kinematics.GetCurrentHeight();
-        bool successfulBounce = gameScript.GetHeightInsideTargetWindow(apexHeight);
-
-        if (successfulBounce) { 
-            IndicateSuccessBall();       // Flash ball green 
+        if (target.IsInsideTarget(kinematics.GetCurrentPosition())) { 
+            IndicateSuccessBall();  // Flash ball green 
         }
     }
 
-    // Turns ball green briefly and plays success sound.
     public void IndicateSuccessBall()
     {
+        // Turns ball green briefly and plays success sound.
         ballSoundManager.PlaySuccessSound();
         ballColorManager.IndicateSuccess();
     }

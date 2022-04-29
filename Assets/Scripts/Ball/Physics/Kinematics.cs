@@ -49,9 +49,9 @@ public class Kinematics : MonoBehaviour
         }
     }
 
-    public float GetCurrentHeight()
+    public Vector3 GetCurrentPosition()
     {
-        return rigidBody.position.y;
+        return rigidBody.position;
     }
 
     public void AddToVelocity(Vector3 vector)
