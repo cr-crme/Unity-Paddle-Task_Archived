@@ -28,7 +28,9 @@ public class InputManager : MonoBehaviour
         // Re-calibrate target line height
         if (Input.GetKeyDown(KeyCode.C))
         {
-            GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().SetTargetLineHeight(GlobalControl.Instance.targetLineHeightOffset);
+            GameObject.Find("[SteamVR]").GetComponent<Target>().SetHeight(
+                GlobalControl.Instance.targetLineHeightOffset
+            );
         }
 
         // Toggle slow mode 

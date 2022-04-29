@@ -12,6 +12,10 @@ public class PaddleGame : MonoBehaviour
 	private float _trialTimer;
 	private bool _isInTrial;
 
+	// Manage the current task to perform
+	[SerializeField, Tooltip("The main manager for the game")]
+	private SessionManager sessionManager;
+
 	[Tooltip("The head mounted display")]
 	[SerializeField]
 	private GameObject hmd;
@@ -61,8 +65,6 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	List<DifficultyAudioClip> difficultyAudioClips;
 
-	// Manage the current task to perform
-	SessionManager sessionManager;
 
 	// Current number of bounces that the player has acheieved in this trial
 	private int numBounces = 0;
@@ -121,13 +123,18 @@ public class PaddleGame : MonoBehaviour
 	{
 		globalControl = GlobalControl.Instance;
 		dataHandler = GetComponent<DataHandler>();
-		sessionManager = new SessionManager(paddlesManager);
 
 		Instantiate(globalControl.environments[globalControl.environmentIndex]);
 
 		// Calibrate the target line to be at the player's eye level
-		SetTargetLineHeight(globalControl.targetLineHeightOffset);
-		SetTargetLineWidth(globalControl.targetWidth);
+		targetLine.GetComponent<Target>().SetHeight(globalControl.targetLineHeightOffset);
+		targetLine.GetComponent<Target>().SetWidth(globalControl.targetWidth);
+		var kinematics = ball.GetComponent<Kinematics>();
+		if (kinematics)
+		{
+			kinematics.storedPosition = 
+				ball.GetComponent<Ball>().ComputeSpawnPosition(targetLine.GetComponent<Target>());
+		}
 
 
 		PopulateScoreEffects();
@@ -138,10 +145,10 @@ public class PaddleGame : MonoBehaviour
 		{
 			globalControl.practiseMaxTrialTime = 0;
 		}
-	
+
+		SetTrialLevel(globalControl.level);
 		Initialize(true);
 
-		SetTrialLevel(sessionManager.currentLevel);
 
         // difficulty shifts timescale, so pause it again
         Time.timeScale = 0;
@@ -367,52 +374,12 @@ public class PaddleGame : MonoBehaviour
 		Debug.Log("Initialized");
 	}
 
-	// Sets Target Line height based on HMD eye level and target position preference
-	public void SetTargetLineHeight(float offset)
-	{
-		Vector3 tlPosn = targetLine.transform.position;
+	
 
-		float x = tlPosn.x;
-		float z = tlPosn.z;
-		float y = ApplyInstanceTargetHeightPref(GetHmdHeight()) + offset;
-
-		targetLine.transform.position = new Vector3(x, y, z);
-
-		var kinematics = ball.GetComponent<Kinematics>();
-		if (kinematics)
-		{
-			kinematics.storedPosition = Ball.SpawnPosition(targetLine);
-		}
-		// ball.transform.position = Ball.spawnPosition(targetLine);
-	}
-
-	private void SetTargetLineWidth(float width)
-    {
-		targetLine.transform.localScale = new Vector3(targetLine.transform.localScale.x, globalControl.targetWidth * 2f, targetLine.transform.localScale.z);
-	}
 
 	private void toggleTargetLine()
     {
 		targetLine.SetActive(sessionManager.hasTarget);
-	}
-
-	private float ApplyInstanceTargetHeightPref(float y)
-	{
-		switch (globalControl.targetHeightPreference)
-		{
-			case SessionType.TargetHeight.RAISED:
-				y *= 1.1f;
-				break;
-			case SessionType.TargetHeight.LOWERED:
-				y *= 0.9f;
-				break;
-			case SessionType.TargetHeight.EYE_LEVEL:
-				break;
-			default:
-				Debug.LogError("Error: Invalid Target Height Preference");
-				break;
-		}
-		return y;
 	}
 
 	/// <summary>
@@ -550,7 +517,7 @@ public class PaddleGame : MonoBehaviour
 
 		ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
 		ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-		ball.transform.position = Ball.SpawnPosition(targetLine);
+		ball.transform.position = ball.GetComponent<Ball>().ComputeSpawnPosition(targetLine.GetComponent<Target>());
 		ball.transform.rotation = Quaternion.identity;
 
 		Time.timeScale = 1f;
@@ -808,10 +775,6 @@ public class PaddleGame : MonoBehaviour
 		}
 	}
 
-	private float GetHmdHeight()
-	{
-		return hmd.transform.position.y;
-	}
 
 	// Returns true if the ball is within the target line boundaries.
 	public bool GetHeightInsideTargetWindow(float height)
@@ -961,8 +924,8 @@ public class PaddleGame : MonoBehaviour
 		maxScoreEffectReached = false;
 
 		toggleTargetLine();
-		SetTargetLineHeight(sessionManager.targetHeightOffset);
-		SetTargetLineWidth(globalControl.targetWidth);
+		targetLine.GetComponent<Target>().SetHeight(sessionManager.targetHeightOffset);
+		targetLine.GetComponent<Target>().SetWidth(sessionManager.targetWidth);
 		difficultyDisplay.text = sessionManager.currentLevel.ToString();
 
 		if (sessionManager.isSessionOver)
@@ -974,7 +937,7 @@ public class PaddleGame : MonoBehaviour
 
 #endregion // Difficulty
 
-#region Exploration Mode
+	#region Exploration Mode
 
 	// Toggles the timescale to make the game slower 
 	public void ToggleTimescale()
