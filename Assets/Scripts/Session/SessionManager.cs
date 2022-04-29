@@ -3,20 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class SessionManager
+public class SessionManager : MonoBehaviour
 {
-    public SessionManager(PaddlesManager _paddlesManager)
-    {
-        paddlesManager = _paddlesManager;
-    }
-
-    PaddlesManager paddlesManager;
-
+    [SerializeField, Tooltip("The paddles manager")]
+    private PaddlesManager paddlesManager;
 
     #region Interface
     public int nbOfBounceRequired { get { return currentDifficulty.nbOfBounceRequired; } }
     public int nbOfAccurateBounceRequired { get { return currentDifficulty.nbOfAccurateBounceRequired; } }
     public bool hasTarget { get { return currentDifficulty.shouldShowTarget(currentLevel); } }
+    public SessionType.TargetHeight targetHeight { get { return GlobalControl.Instance.targetHeightPreference; } }
     public float targetHeightOffset { get { return currentDifficulty.targetHeightOffset(currentLevel); } }
     public float targetWidth { get { return currentDifficulty.targetWidth(currentLevel); } }
     public float ballSpeed { get { return currentDifficulty.ballSpeed(currentLevel); } }
