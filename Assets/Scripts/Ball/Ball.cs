@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Unity.Labs.SuperScience;
 
 public class Ball : MonoBehaviour
 {
@@ -145,7 +143,7 @@ public class Ball : MonoBehaviour
 
             CheckApexSuccess();
             DeclareBounce();
-            GetComponent<BounceSoundPlayer>().PlayBounceSound();
+            ballSoundPlayer.PlayBounceSound();
         }
     }
 
