@@ -127,8 +127,6 @@ public class PaddleGame : MonoBehaviour
 		Instantiate(globalControl.environments[globalControl.environmentIndex]);
 
 		// Calibrate the target line to be at the player's eye level
-		targetLine.GetComponent<Target>().SetHeight(globalControl.targetLineHeightOffset);
-		targetLine.GetComponent<Target>().SetWidth(globalControl.targetWidth);
 		var kinematics = ball.GetComponent<Kinematics>();
 		if (kinematics)
 		{
@@ -318,8 +316,6 @@ public class PaddleGame : MonoBehaviour
 		session = globalControl.session;
 		degreesOfFreedom = globalControl.degreesOfFreedom;
 
-		if (!sessionManager.hasTarget) targetLine.SetActive(false);
-
 		ball.GetComponent<EffectController>().dissolve.effectTime = globalControl.ballResetHoverSeconds;
 		ball.GetComponent<EffectController>().respawn.effectTime = globalControl.ballResetHoverSeconds;
 
@@ -374,13 +370,6 @@ public class PaddleGame : MonoBehaviour
 		Debug.Log("Initialized");
 	}
 
-	
-
-
-	private void toggleTargetLine()
-    {
-		targetLine.SetActive(sessionManager.hasTarget);
-	}
 
 	/// <summary>
 	/// note that score exists as a vestige. it is tracked internally to allow for these effects but will not be shown to the user
@@ -517,7 +506,9 @@ public class PaddleGame : MonoBehaviour
 
 		ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
 		ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-		ball.transform.position = ball.GetComponent<Ball>().ComputeSpawnPosition(targetLine.GetComponent<Target>());
+		ball.transform.position = ball.GetComponent<Ball>().ComputeSpawnPosition(
+			targetLine.GetComponent<Target>()
+		);
 		ball.transform.rotation = Quaternion.identity;
 
 		Time.timeScale = 1f;
@@ -776,18 +767,6 @@ public class PaddleGame : MonoBehaviour
 	}
 
 
-	// Returns true if the ball is within the target line boundaries.
-	public bool GetHeightInsideTargetWindow(float height)
-	{
-		if (!sessionManager.hasTarget) return false;
-
-		float targetHeight = targetLine.transform.position.y;
-		float lowerLimit = targetHeight - globalControl.targetWidth;
-		float upperLimit = targetHeight + globalControl.targetWidth;
-
-		return (height > lowerLimit) && (height < upperLimit);
-	}
-
 	public TrialCondition GetDifficultyCondition(DifficultyChoice evaluation)
 	{
 		if (evaluation == DifficultyChoice.BASE)
@@ -912,7 +891,6 @@ public class PaddleGame : MonoBehaviour
 		// TODO: This should be done by GlobalControl itself
 		Debug.Log("Setting Difficulty: " + sessionManager.currentLevel);
 		GlobalControl globalControl = GlobalControl.Instance;
-		globalControl.targetLineHeightOffset = sessionManager.targetHeightOffset;
 		globalControl.targetWidth = sessionManager.hasTarget ? sessionManager.targetWidth / 2f : 0;
 		globalControl.timescale = sessionManager.ballSpeed;
 
@@ -923,9 +901,7 @@ public class PaddleGame : MonoBehaviour
 		scoreEffectTarget = 0;
 		maxScoreEffectReached = false;
 
-		toggleTargetLine();
-		targetLine.GetComponent<Target>().SetHeight(sessionManager.targetHeightOffset);
-		targetLine.GetComponent<Target>().SetWidth(sessionManager.targetWidth);
+		targetLine.GetComponent<Target>().UpdateCondition();
 		difficultyDisplay.text = sessionManager.currentLevel.ToString();
 
 		if (sessionManager.isSessionOver)
