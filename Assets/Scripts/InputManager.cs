@@ -25,12 +25,6 @@ public class InputManager : MonoBehaviour
             GameObject.Find("Debugger Display").GetComponent<DebuggerDisplay>().ToggleDisplay();
         }
 
-        // Toggle slow mode 
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            GameObject.Find("[SteamVR]").GetComponent<PaddleGame>().ToggleTimescale();
-        }
-
         // Quit application
         if (Input.GetKeyDown(KeyCode.Escape))
         {

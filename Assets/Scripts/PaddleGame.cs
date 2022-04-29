@@ -910,22 +910,5 @@ public class PaddleGame : MonoBehaviour
 
 #endregion // Difficulty
 
-	#region Exploration Mode
-
-	// Toggles the timescale to make the game slower 
-	public void ToggleTimescale()
-	{
-		slowtime = !slowtime;
-
-		if (slowtime)
-		{
-			Time.timeScale = globalControl.timescale; // 0.7f;
-		}
-		else
-		{
-			Time.timeScale = 1.0f;
-		}
-	}
-#endregion // Exploration Mode
 
 }
