@@ -3,19 +3,6 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-    [Tooltip("The normal ball color")]
-    [SerializeField]
-    private Material ballMat;
-
-    [Tooltip("The ball color when it is in the target height range")]
-    [SerializeField]
-    private Material greenBallMat;
-
-    [Tooltip("Auxilliary color materials")]
-    [SerializeField]
-    private Material redBallMat;
-    [SerializeField]
-    private Material blueBallMat;
 
     [Tooltip("The script that handles the game logic")]
     [SerializeField]
@@ -24,8 +11,13 @@ public class Ball : MonoBehaviour
     [SerializeField, Tooltip("Handles the ball sound effects")]
     private BallSoundManager ballSoundManager;
 
+    [SerializeField, Tooltip("Handles the ball coloring")] 
+    private BallColorManager ballColorManager;
+
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
+
+    private SphereCollider sphereCollider;
 
     // This is true when the player is currently paddling the ball. If the 
     // player stops paddling the ball, set to false.
@@ -37,8 +29,6 @@ public class Ball : MonoBehaviour
     // A reference to this ball's rigidbody and collider
     private Kinematics kinematics; 
 
-    // For Green/White IEnumerator coroutine 
-    bool inTurnBallWhiteCR = false;
 
 
     // Variables to keep track of resetting the ball after dropping to the ground
@@ -56,6 +46,8 @@ public class Ball : MonoBehaviour
         kinematics = GetComponent<Kinematics>();
         ballSoundManager = GetComponent<BallSoundManager>();
         effectController = GetComponent<EffectController>();
+
+        sphereCollider = GetComponent<SphereCollider>();
 
         // Physics for ball is disabled until Space is pressed
         kinematics.TriggerPause();
@@ -80,7 +72,7 @@ public class Ball : MonoBehaviour
 
     public void SimulateOnCollisionEnterWithPaddle(Vector3 paddleVelocity, Vector3 cpNormal)
     {
-        if (GetComponent<SphereCollider>().enabled)
+        if (IsCollisionEnabled)
         {
             BounceBall(paddleVelocity, cpNormal);
         }
@@ -100,7 +92,7 @@ public class Ball : MonoBehaviour
     }
 
     // Returns the default spawn position of the ball (10cm above the target line) 
-    public static Vector3 spawnPosition(GameObject targetLine)
+    public static Vector3 SpawnPosition(GameObject targetLine)
     {
         return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
     }
@@ -120,7 +112,7 @@ public class Ball : MonoBehaviour
         pauseHandler.Pause();
         effectController.StartEffect(effectController.respawn);
         yield return new WaitForSeconds(ballRespawnSeconds);
-        TurnBallWhite();
+        ballColorManager.SetToNormalColor();
         Debug.Log("Respawning finished " + Time.timeScale);
     }
 
@@ -171,9 +163,7 @@ public class Ball : MonoBehaviour
     public void IndicateSuccessBall()
     {
         ballSoundManager.PlaySuccessSound();
-
-        TurnBallGreen();
-        StartCoroutine(TurnBallWhiteCR(0.3f));
+        ballColorManager.IndicateSuccess();
     }
 
     
@@ -207,7 +197,7 @@ public class Ball : MonoBehaviour
     // Ball has been reset. Reset the trial as well.
     public void ResetBall()
     {
-        TurnBallWhite();
+        ballColorManager.SetToNormalColor();
         gameScript.ResetTrial();
     }
 
@@ -227,7 +217,12 @@ public class Ball : MonoBehaviour
         inHoverResetCoroutine = false;
         inPlayDropSoundRoutine = false;
 
-        GetComponent<SphereCollider>().enabled = true;
+        IsCollisionEnabled = true;
+    }
+
+    public bool IsCollisionEnabled { 
+        get { return sphereCollider.enabled; }
+        set { sphereCollider.enabled = value; } 
     }
 
     // Play drop sound
@@ -257,43 +252,4 @@ public class Ball : MonoBehaviour
         return currentBounceModification;
     }
 
-    public void TurnBallGreen()
-    {
-        GetComponent<MeshRenderer>().material = greenBallMat;
-    }
-
-    public void TurnBallRed()
-    {
-        GetComponent<MeshRenderer>().material = redBallMat;
-    }
-
-    public void TurnBallBlue()
-    {
-        GetComponent<MeshRenderer>().material = blueBallMat;
-    }
-
-    public void TurnBallWhite()
-    {
-        GetComponent<MeshRenderer>().material = ballMat;
-    }
-
-    public IEnumerator TurnBallWhiteCR(float time = 0.0f)
-    {
-        if (inTurnBallWhiteCR)
-        {
-            yield break;
-        }
-        yield return new WaitForSeconds(time);
-        inTurnBallWhiteCR = true;
-
-        TurnBallWhite();
-
-        inTurnBallWhiteCR = false;
-    }
-
-    public IEnumerator TurnBallGreenCR(float time = 0.0f)
-    {
-        yield return new WaitForSeconds(time);
-        TurnBallGreen();
-    }
 }
