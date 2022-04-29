@@ -35,7 +35,7 @@ public class Ball : MonoBehaviour
     private bool justBounced = false;
 
     // A reference to this ball's rigidbody and collider
-    private Rigidbody rigidBody;
+    private Kinematics kinematics; 
 
     // For Green/White IEnumerator coroutine 
     bool inTurnBallWhiteCR = false;
@@ -53,14 +53,12 @@ public class Ball : MonoBehaviour
 
     void Awake()
     {
-        rigidBody = GetComponent<Rigidbody>();
+        kinematics = GetComponent<Kinematics>();
         ballSoundPlayer = GetComponent<BallSoundPlayer>();
         effectController = GetComponent<EffectController>();
 
         // Physics for ball is disabled until Space is pressed
-        rigidBody.velocity = Vector3.zero;
-        rigidBody.useGravity = false;
-        rigidBody.detectCollisions = false;
+        kinematics.TriggerPause();
     }
 
     void OnCollisionEnter(Collision c)
@@ -97,7 +95,7 @@ public class Ball : MonoBehaviour
         if (c.gameObject.tag == "Paddle")
         {
             float pVySlice = Paddle.GetPaddleFromCollider(c).Velocity.y / 8.0f;    // 8 is a good divisor
-            rigidBody.velocity += new Vector3(0, pVySlice, 0);
+            kinematics.AddToVelocity(new Vector3(0, pVySlice, 0));
         }
     }
 
@@ -128,9 +126,9 @@ public class Ball : MonoBehaviour
 
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
-        Vector3 Vin = GetComponent<Kinematics>().storedVelocity;
+        Vector3 Vin = kinematics.storedVelocity;
         
-        ApplyBouncePhysics(paddleVelocity, cpNormal, Vin);
+        kinematics.ApplyBouncePhysics(paddleVelocity, cpNormal, Vin);
 
         // Determine if collision should be counted as an active bounce
         if (paddleVelocity.magnitude < 0.05f)
@@ -159,9 +157,9 @@ public class Ball : MonoBehaviour
 
     IEnumerator CheckForApex()
     {
-        yield return new WaitWhile( () => !GetComponent<Kinematics>().ReachedApex());
+        yield return new WaitWhile( () => !kinematics.ReachedApex());
 
-        float apexHeight = rigidBody.position.y;
+        float apexHeight = kinematics.GetCurrentHeight();
         bool successfulBounce = gameScript.GetHeightInsideTargetWindow(apexHeight);
 
         if (successfulBounce) { 
@@ -178,39 +176,7 @@ public class Ball : MonoBehaviour
         StartCoroutine(TurnBallWhiteCR(0.3f));
     }
 
-    // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
-    void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 cpNormal, Vector3 Vin)
-    {
-        // Reduce the effects of the paddle tilt so the ball doesn't bounce everywhere
-        Vector3 reducedNormal = ProvideLeewayFromUp(cpNormal);
-
-        // Get reflected bounce, with energy transfer
-        Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, reducedNormal, 0.8f);
-        //TODO: if (...reduce energy transfer)
-        //    Vreflected = LimitDeviationFromUp(Vreflected, GlobalControl.Instance.degreesOfFreedom);
-
-        // Apply paddle velocity
-        //TODO: if (... reduce velocity transfer)
-        //    Vreflected = new Vector3(0, Vreflected.y + (1.25f * paddleVelocity.y), 0);
-        Vreflected += new Vector3(0, paddleVelocity.y, 0);
-        
-        rigidBody.velocity = Vreflected;
-    }
-
-    Vector3 ProvideLeewayFromUp(Vector3 n)
-    {
-        float degreesOfTilt = Vector3.Angle(Vector3.up, n);
-        float limit = 2.0f; // feels pretty realistic through testing
-        if (degreesOfTilt < limit)
-        {
-            degreesOfTilt /= limit;
-        }
-        else
-        {
-            degreesOfTilt -= limit;
-        }
-        return LimitDeviationFromUp(n, degreesOfTilt);
-    }
+    
 
     // Try to declare that the ball has been bounced. If the ball
     // was bounced too recently, then this declaration will fail.
@@ -277,23 +243,7 @@ public class Ball : MonoBehaviour
         ballSoundPlayer.PlayDropSound();
     }
 
-    // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction
-    // but with adjusted height so that the angle does not exceed the desired degrees of freedom
-    public Vector3 LimitDeviationFromUp(Vector3 v, float degreesOfFreedom)
-    {
-        if (Vector3.Angle(Vector3.up, v) <= degreesOfFreedom)
-        {
-            return v;
-        }
-
-        float bounceMagnitude = v.magnitude;
-        float yReduced = bounceMagnitude * Mathf.Cos(degreesOfFreedom * Mathf.Deg2Rad);
-        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin(degreesOfFreedom * Mathf.Deg2Rad);
-        Vector3 xzReduced = new Vector3(v.x, 0, v.z).normalized * xzReducedMagnitude;
-
-        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
-        return modifiedBounceVelocity;
-    }
+    
 
     // Modifies the bounce for this forced exploration game
     public void SetBounceModification(Vector3 modification)
