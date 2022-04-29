@@ -11,7 +11,7 @@
 public class Kinematics : MonoBehaviour
 {
     // Reference to this GameObject's rigidbody
-    private Rigidbody rigidBody;
+    [SerializeField] private Rigidbody rigidBody;
     
     public Vector3 storedPosition;
     public Vector3 storedVelocity;
