@@ -9,20 +9,16 @@ using UnityEngine.Experimental.AI;
 /// </summary>
 public class EffectController : MonoBehaviour
 {
-	public Effect dissolve, respawn, /*sparks,*/ fire, blueFire, embers, blueEmbers;
+	public Effect dissolve, respawn, fire, blueFire, embers, blueEmbers;
 
 	public Effect effectTarget;
 	Effect activeShaderEffect;
-	new Rigidbody rigidbody;
-
-	float respawnTimer = 5f;
 
 
 	void Start()
 	{
 		dissolve?.gameObject.SetActive(false);
 		respawn?.gameObject.SetActive(false);
-		// sparks?.gameObject.SetActive(false);
 		fire?.gameObject.SetActive(false);
 		blueFire?.gameObject.SetActive(false);
 		embers?.gameObject.SetActive(false);
@@ -31,40 +27,8 @@ public class EffectController : MonoBehaviour
 		Initialize();
 	}
 
-	void Update()
-	{
-		// leaving for testing
-		//if (Input.GetKeyDown(KeyCode.Y))
-		//{
-		//	// StartEffect(sparks);
-		//}
-		//if (Input.GetKeyDown(KeyCode.U))
-		//{
-		//	StopParticleEffect(blueFire);
-		//	StartEffect(fire);
-		//}
-		//if (Input.GetKeyDown(KeyCode.I))
-		//{
-		//	StopParticleEffect(fire);
-		//	StartEffect(blueFire);
-		//}
-		//if (Input.GetKeyDown(KeyCode.J))
-		//{
-		//	StartEffect(embers);
-		//}
-		//if (Input.GetKeyDown(KeyCode.K))
-		//{
-		//	StartEffect(blueEmbers);
-		//}
-		//if (Input.GetKeyDown(KeyCode.O))
-		//{
-		//	rigidbody.useGravity = !rigidbody.useGravity;
-		//}
-	}
-
 	void Initialize()
 	{
-		// very close to turning this into a list of data satructures. 
 		InitializeParticleEffect(dissolve);
 		InitializeParticleEffect(respawn);
 		InitializeParticleEffect(fire);
@@ -111,7 +75,13 @@ public class EffectController : MonoBehaviour
 		if (activeShaderEffect == null || activeShaderEffect != effect)
 		{
 			activeShaderEffect = effect;
-			effectTarget.SetEffect(effect.effectTime, effect.fadeIn, effect.material, effect.ps, effect.shaderProperty);
+			effectTarget.SetEffect(
+				effect.effectTime, 
+				effect.fadeIn, 
+				effect.material,
+				effect.ps,
+				effect.shaderProperty
+			);
 		}
 
 		if (effect.material != null)

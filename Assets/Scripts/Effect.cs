@@ -35,7 +35,13 @@ public class Effect : MonoBehaviour
 		}
 	}
 
-	public void SetEffect(float effectTimeVar, AnimationCurve fadeInVar, Material materialVar, ParticleSystem psVar, int shaderPropertyVar)
+	public void SetEffect(
+		float effectTimeVar, 
+		AnimationCurve fadeInVar,
+		Material materialVar, 
+		ParticleSystem psVar, 
+		int shaderPropertyVar
+	)
 	{
 		effectTime = effectTimeVar;
 		fadeIn = fadeInVar;
@@ -57,13 +63,14 @@ public class Effect : MonoBehaviour
 				// ResetEffect();
 			}
 
-			renderer.material.SetFloat(shaderProperty, fadeIn.Evaluate(Mathf.InverseLerp(0, effectTime, timer)));
+			renderer.material.SetFloat(
+				shaderProperty, fadeIn.Evaluate(Mathf.InverseLerp(0, effectTime, timer))
+			);
 		}
 	}
 
 	public void ResetEffect()
 	{
-
 		playing = false;
 		timer = 0;
 	}
@@ -84,7 +91,6 @@ public class Effect : MonoBehaviour
 				return particle;
 			}
 		}
-
 		return null;
 	}
 
