@@ -140,7 +140,7 @@ public class DataHandler : MonoBehaviour
 		difficultyDatas[difficultyEvaluationIndex].datas.Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time, difficulty));
 	}
 
-	public void recordHeaderInfo(TaskType.Session s, int maxtime, float htime, float twidth)
+	public void recordHeaderInfo(SessionType.Session s, int maxtime, float htime, float twidth)
 	{
 		headerData = new HeaderData(s, maxtime, htime, twidth);
 	}
