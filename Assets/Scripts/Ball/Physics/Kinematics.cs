@@ -91,6 +91,9 @@ public class Kinematics : MonoBehaviour
     {
         // Hold rb still
         rigidBody.position = storedPosition;
+        rigidBody.velocity = storedVelocity;
+        rigidBody.angularVelocity = storedAngularVelocity;
+        rigidBody.rotation = storedRotation;
     }
 
     // Handles the enabled (regular) physics state.

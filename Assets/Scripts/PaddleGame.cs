@@ -381,7 +381,7 @@ public class PaddleGame : MonoBehaviour
 		var kinematics = ball.GetComponent<Kinematics>();
 		if (kinematics)
 		{
-			kinematics.storedPosition = Ball.spawnPosition(targetLine);
+			kinematics.storedPosition = Ball.SpawnPosition(targetLine);
 		}
 		// ball.transform.position = Ball.spawnPosition(targetLine);
 	}
@@ -539,7 +539,7 @@ public class PaddleGame : MonoBehaviour
 
 		timeToDropQuad.SetActive(true);
 
-		ball.GetComponent<SphereCollider>().enabled = false;
+		ball.GetComponent<Ball>().IsCollisionEnabled = false;
 
 		// Hover ball at target line for a second
 		StartCoroutine(ball.GetComponent<Ball>().PlayDropSound(globalControl.ballResetHoverSeconds - 0.15f));
@@ -550,7 +550,7 @@ public class PaddleGame : MonoBehaviour
 
 		ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
 		ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-		ball.transform.position = Ball.spawnPosition(targetLine);
+		ball.transform.position = Ball.SpawnPosition(targetLine);
 		ball.transform.rotation = Quaternion.identity;
 
 		Time.timeScale = 1f;
