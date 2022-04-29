@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BallSoundPlayer : MonoBehaviour {
+public class BallSoundManager : MonoBehaviour {
     
     public AudioSource dropSound;
     public AudioSource successSound;

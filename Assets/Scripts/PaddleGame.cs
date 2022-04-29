@@ -90,7 +90,7 @@ public class PaddleGame : MonoBehaviour
 	public float degreesOfFreedom;
 
 	// This session information
-	private TaskType.Session session;
+	private SessionType.Session session;
 
 
 	// Variables for countdown timer display
@@ -134,7 +134,7 @@ public class PaddleGame : MonoBehaviour
 
 		//InitializeTrialConditions();
 
-		if(globalControl.session == TaskType.Session.SHOWCASE)
+		if(globalControl.session == SessionType.Session.SHOWCASE)
 		{
 			globalControl.practiseMaxTrialTime = 0;
 		}
@@ -194,7 +194,7 @@ public class PaddleGame : MonoBehaviour
 			);
 			sessionManager.EvaluatePerformance(globalControl.GetTimeElapsed());
 			if (
-				session == TaskType.Session.SHOWCASE || sessionManager.isSessionOver
+				session == SessionType.Session.SHOWCASE || sessionManager.isSessionOver
 			)
 			{
 				// over once end time is reached.
@@ -253,7 +253,7 @@ public class PaddleGame : MonoBehaviour
 		}
 		if (Input.GetKeyDown(KeyCode.L))
 		{
-			if (session == TaskType.Session.PRACTISE)
+			if (session == SessionType.Session.PRACTISE)
 			{
 				numBounces += sessionManager.nbOfBounceRequired * 7;
 				numAccurateBounces += sessionManager.nbOfAccurateBounceRequired * 7;
@@ -318,7 +318,7 @@ public class PaddleGame : MonoBehaviour
 
 		curScore = 0;
 
-		if (globalControl.session == TaskType.Session.PRACTISE)
+		if (globalControl.session == SessionType.Session.PRACTISE)
 		{
 			difficultyDisplay.text = sessionManager.currentLevel.ToString();
 			//trialData.Add(new DifficultyEvaluationData<TrialData>(
@@ -329,7 +329,7 @@ public class PaddleGame : MonoBehaviour
 			//);
 
 		}
-		else if (globalControl.session == TaskType.Session.SHOWCASE)
+		else if (globalControl.session == SessionType.Session.SHOWCASE)
 		{
 			sessionManager.currentLevel = 2;
 			StartShowcase();
@@ -400,13 +400,13 @@ public class PaddleGame : MonoBehaviour
 	{
 		switch (globalControl.targetHeightPreference)
 		{
-			case TaskType.TargetHeight.RAISED:
+			case SessionType.TargetHeight.RAISED:
 				y *= 1.1f;
 				break;
-			case TaskType.TargetHeight.LOWERED:
+			case SessionType.TargetHeight.LOWERED:
 				y *= 0.9f;
 				break;
-			case TaskType.TargetHeight.EYE_LEVEL:
+			case SessionType.TargetHeight.EYE_LEVEL:
 				break;
 			default:
 				Debug.LogError("Error: Invalid Target Height Preference");
@@ -499,7 +499,7 @@ public class PaddleGame : MonoBehaviour
 			yield return new WaitForSeconds(.1f);
 		}
 
-		var audioClip = GetDifficiultyAudioClip(sessionManager.currentLevel);
+		var audioClip = GetDifficultyAudioClip(sessionManager.currentLevel);
 		if (audioClip != null)
 		{
 			difficultySource.PlayOneShot(audioClip);
@@ -684,7 +684,7 @@ public class PaddleGame : MonoBehaviour
 				ball.GetComponent<EffectController>().StopParticleEffect(disableEffect);
 			}
 			ball.GetComponent<EffectController>().StartEffect(scoreEffects[scoreEffectTarget].effect);
-			ball.GetComponent<BallSoundPlayer>().PlayEffectSound(scoreEffects[scoreEffectTarget].audioClip);
+			ball.GetComponent<BallSoundManager>().PlayEffectSound(scoreEffects[scoreEffectTarget].audioClip);
 
 			if (scoreEffectTarget + 1 >= scoreEffects.Count)
 			{
@@ -705,7 +705,7 @@ public class PaddleGame : MonoBehaviour
 	/// </summary>
 	void CheckEndCondition(bool fromBounce = false)
 	{
-		if(session == TaskType.Session.SHOWCASE)
+		if(session == SessionType.Session.SHOWCASE)
 		{
 			return;
 		}
@@ -849,7 +849,7 @@ public class PaddleGame : MonoBehaviour
 		return trialTime != -1 ? trialTime * 60 : trialTime;
 	}
 
-	private AudioClip GetDifficiultyAudioClip(int difficulty)
+	private AudioClip GetDifficultyAudioClip(int difficulty)
 	{
 		foreach(var difficultyAudioClip in difficultyAudioClips)
 		{

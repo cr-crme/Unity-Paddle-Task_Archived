@@ -22,7 +22,7 @@ public class Ball : MonoBehaviour
     private PaddleGame gameScript;
 
     [SerializeField, Tooltip("Handles the ball sound effects")]
-    private BallSoundPlayer ballSoundPlayer;
+    private BallSoundManager ballSoundManager;
 
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
@@ -54,7 +54,7 @@ public class Ball : MonoBehaviour
     void Awake()
     {
         kinematics = GetComponent<Kinematics>();
-        ballSoundPlayer = GetComponent<BallSoundPlayer>();
+        ballSoundManager = GetComponent<BallSoundManager>();
         effectController = GetComponent<EffectController>();
 
         // Physics for ball is disabled until Space is pressed
@@ -141,7 +141,7 @@ public class Ball : MonoBehaviour
 
             CheckApexSuccess();
             DeclareBounce();
-            ballSoundPlayer.PlayBounceSound();
+            ballSoundManager.PlayBounceSound();
         }
     }
 
@@ -170,7 +170,7 @@ public class Ball : MonoBehaviour
     // Turns ball green briefly and plays success sound.
     public void IndicateSuccessBall()
     {
-        ballSoundPlayer.PlaySuccessSound();
+        ballSoundManager.PlaySuccessSound();
 
         TurnBallGreen();
         StartCoroutine(TurnBallWhiteCR(0.3f));
@@ -240,7 +240,7 @@ public class Ball : MonoBehaviour
         inPlayDropSoundRoutine = true;
         yield return new WaitForSeconds(time);
 
-        ballSoundPlayer.PlayDropSound();
+        ballSoundManager.PlayDropSound();
     }
 
     

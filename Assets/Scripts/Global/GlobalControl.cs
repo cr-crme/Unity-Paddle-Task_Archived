@@ -20,13 +20,13 @@ public class GlobalControl : MonoBehaviour
     public int nbPaddles = 1;
 
     // Target Line Height
-    public TaskType.TargetHeight targetHeightPreference = TaskType.TargetHeight.EYE_LEVEL;
+    public SessionType.TargetHeight targetHeightPreference = SessionType.TargetHeight.EYE_LEVEL;
 
     // Target Line Width Acceptance Threshold
     public float targetWidth = 0.05f;
 
     // Test period of this instance
-    public TaskType.Session session = TaskType.Session.PRACTISE;
+    public SessionType.Session session = SessionType.Session.PRACTISE;
 
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;

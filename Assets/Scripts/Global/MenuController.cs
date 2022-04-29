@@ -173,7 +173,7 @@ public class MenuController : MonoBehaviour {
     // Records the Session from the dropdown menu
     public void RecordSession(int _value)
     {
-        globalControl.session = (TaskType.Session)_value;
+        globalControl.session = (SessionType.Session)_value;
         SaveSession(_value);
         UpdateConditionalUIObjects();
     }
@@ -287,13 +287,13 @@ public class MenuController : MonoBehaviour {
 
     private void ShowProperSessionCanvas()
     {
-        if (globalControl.session == TaskType.Session.PRACTISE)
+        if (globalControl.session == SessionType.Session.PRACTISE)
         {
             practiseCanvas.SetActive(true);
             showcaseCanvas.SetActive(false);
 
         }
-        else if (globalControl.session == TaskType.Session.SHOWCASE)
+        else if (globalControl.session == SessionType.Session.SHOWCASE)
         {
             showcaseCanvas.SetActive(true);
             practiseCanvas.SetActive(false);
@@ -389,7 +389,7 @@ public class MenuController : MonoBehaviour {
     const float INCHES_PER_METER = 39.37f;
     public void RecordTargetHeight(int _value)
     {
-        globalControl.targetHeightPreference = (TaskType.TargetHeight)_value;
+        globalControl.targetHeightPreference = (SessionType.TargetHeight)_value;
         SaveTargetHeight(_value);
     }
     private void SetTargetHeight(int _value)
