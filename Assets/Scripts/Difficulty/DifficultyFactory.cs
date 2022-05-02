@@ -61,7 +61,7 @@ public class DifficultyFactory
                     new RandomizableFloat(0.0325f),
                     new RandomizableFloat(0.03f)
                 },
-                (int _currentLevel, TrialData _trialData, DifficultyDefinition _difficultyDefinition) => {
+                (int _currentLevel, Trial _trialData, DifficultyDefinition _difficultyDefinition) => {
                     // Reminder 0 if bounces < required as they are int
                     return _trialData.nbBounces >= _difficultyDefinition.nbOfBounceRequired;
                 }
@@ -118,7 +118,7 @@ public class DifficultyFactory
                     new RandomizableFloat(0.0325f),
                     new RandomizableFloat(0.03f)
                 },
-                (int _currentLevel, TrialData _trialData, DifficultyDefinition _difficultyDefinition) =>
+                (int _currentLevel, Trial _trialData, DifficultyDefinition _difficultyDefinition) =>
                 {
                     // Reminder 0 if bounces < required as they are int
                     if (_difficultyDefinition.hasTarget(_currentLevel)) 
@@ -178,7 +178,7 @@ public class DifficultyFactory
                     new RandomizableFloat(0.0325f),
                     new RandomizableFloat(0.03f)
                 },
-                (int _currentLevel, TrialData _trialData, DifficultyDefinition _difficultyDefinition) =>
+                (int _currentLevel, Trial _trialData, DifficultyDefinition _difficultyDefinition) =>
                 {
                     // Reminder 0 if bounces < required as they are int
                     return _trialData.nbAccurateBounces >= _difficultyDefinition.nbOfAccurateBounceRequired;

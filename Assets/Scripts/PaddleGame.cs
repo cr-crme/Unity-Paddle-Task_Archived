@@ -16,6 +16,11 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField, Tooltip("The main manager for the game difficulty")]
 	private DifficultyManager difficultyManager;
 
+	// Manage the current task to perform
+	[SerializeField, Tooltip("The main trial manager for the game")]
+	private TrialsManager trialsManager;
+
+
 	[SerializeField]
 	[Tooltip("The paddles in the game")]
 	PaddlesManager paddlesManager;
@@ -86,10 +91,6 @@ public class PaddleGame : MonoBehaviour
 	// Degrees of freedom, how many degrees in x-z directions ball can bounce after hitting paddle
 	// 0 degrees: ball can only bounce in y direction, 90 degrees: no reduction in range
 	public float degreesOfFreedom;
-
-	// This session information
-	private SessionType.Session session;
-
 
 	// Variables for countdown timer display
 	private bool inCoutdownCoroutine = false;
@@ -176,15 +177,15 @@ public class PaddleGame : MonoBehaviour
 		ManageInputs();
 
 
-		if (difficultyManager.isTimeOver(globalControl.GetTimeElapsed()))
+		if (trialsManager.isTimeOver(globalControl.GetTimeElapsed()))
 		{
 			Debug.Log(
 				$"time elapsed {globalControl.GetTimeElapsed()} greater " +
                 $"than max trial time {difficultyManager.maximumTrialTime}"
 			);
-			difficultyManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
+			trialsManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
 			if (
-				session == SessionType.Session.SHOWCASE || difficultyManager.isSessionOver
+				globalControl.session == SessionType.Session.SHOWCASE || trialsManager.isSessionOver
 			)
 			{
 				// over once end time is reached.
@@ -243,7 +244,7 @@ public class PaddleGame : MonoBehaviour
 		}
 		if (Input.GetKeyDown(KeyCode.L))
 		{
-			if (session == SessionType.Session.PRACTISE)
+			if (globalControl.session == SessionType.Session.PRACTISE)
 			{
 				numBounces += difficultyManager.nbOfBounceRequired * 7;
 				numAccurateBounces += difficultyManager.nbOfAccurateBounceRequired * 7;
@@ -295,7 +296,6 @@ public class PaddleGame : MonoBehaviour
 		}
 
 		// Initialize Condition and Visit types
-		session = globalControl.session;
 		degreesOfFreedom = globalControl.degreesOfFreedom;
 
 		ball.GetComponent<EffectController>().dissolve.effectTime = globalControl.ballResetHoverSeconds;
@@ -492,8 +492,7 @@ public class PaddleGame : MonoBehaviour
         if (trialNum < 1 /*|| numBounces < 1*/)
         {
             trialNum++;
-            CheckEndCondition();
-            return;
+			return;
         }
 
         if (!_isInTrial)
@@ -529,7 +528,11 @@ public class PaddleGame : MonoBehaviour
 		if (!final)
 		{
 			// Check if game should end or evaluation set change
-			CheckEndCondition();
+			if (trialsManager.isSessionOver)
+			{
+				QuitTask();
+				return;
+			}
 			Initialize(false);
 		}
 	}
@@ -577,28 +580,18 @@ public class PaddleGame : MonoBehaviour
 			}
 		}
 
-		CheckEndCondition();
-	}
-
-	/// <summary>
-	/// if the evaluation does not end, checks all other conditions
-	/// </summary>
-	void CheckEndCondition()
-	{
-		if(session == SessionType.Session.SHOWCASE) 
-			return;
-
- 		if (difficultyManager.AreTrialConditionsMet())
+		if (trialsManager.CheckIfTrialIsOver())
 		{
 			feedbackSource.PlayOneShot(successfulTrialSound);
 		}
 
-		if (difficultyManager.isSessionOver)
+		if (trialsManager.isSessionOver)
 		{
 			QuitTask();
 			return;
 		}
 	}
+
 
 	void UpdateHighestBounceDisplay()
 	{
@@ -639,7 +632,7 @@ public class PaddleGame : MonoBehaviour
 	#region Difficulty
 	void EvaluatePerformance()
     {
-		double _score = difficultyManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
+		double _score = trialsManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
 
 		// each are evaluating for the next difficulty
 		int _newLevel = difficultyManager.ScoreToLevel(_score);
@@ -672,7 +665,7 @@ public class PaddleGame : MonoBehaviour
 		targetLine.UpdateCondition();
 		difficultyDisplay.text = difficultyManager.currentLevel.ToString();
 
-		if (difficultyManager.isSessionOver)
+		if (trialsManager.isSessionOver)
 		{
 			// all difficulties recored
 			QuitTask();
