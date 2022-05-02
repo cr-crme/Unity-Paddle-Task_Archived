@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class SessionManager : MonoBehaviour
+public class DifficultyManager : MonoBehaviour
 {
     #region Functions to move out of the file
     public bool isTimeOver(double elapsedTime) { return elapsedTime > currentDifficulty.maximumTrialTime; }
@@ -119,6 +119,7 @@ public class SessionManager : MonoBehaviour
 
 
 
+    // Difficulty is a specific set of level conditions
     #region Difficulty
     public string difficultyName { get { return currentDifficulty.name; } }
     private List<DifficultyChoice> difficultyOverSession = new List<DifficultyChoice>()

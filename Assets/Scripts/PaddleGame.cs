@@ -13,8 +13,8 @@ public class PaddleGame : MonoBehaviour
 	private bool _isInTrial;
 
 	// Manage the current task to perform
-	[SerializeField, Tooltip("The main manager for the game")]
-	private SessionManager sessionManager;
+	[SerializeField, Tooltip("The main manager for the game difficulty")]
+	private DifficultyManager difficultyManager;
 
 	[Tooltip("The head mounted display")]
 	[SerializeField]
@@ -185,15 +185,15 @@ public class PaddleGame : MonoBehaviour
 		ManageInputs();
 
 
-		if (sessionManager.isTimeOver(globalControl.GetTimeElapsed()))
+		if (difficultyManager.isTimeOver(globalControl.GetTimeElapsed()))
 		{
 			Debug.Log(
 				$"time elapsed {globalControl.GetTimeElapsed()} greater " +
-                $"than max trial time {sessionManager.maximumTrialTime}"
+                $"than max trial time {difficultyManager.maximumTrialTime}"
 			);
-			sessionManager.EvaluatePerformance(globalControl.GetTimeElapsed());
+			difficultyManager.EvaluatePerformance(globalControl.GetTimeElapsed());
 			if (
-				session == SessionType.Session.SHOWCASE || sessionManager.isSessionOver
+				session == SessionType.Session.SHOWCASE || difficultyManager.isSessionOver
 			)
 			{
 				// over once end time is reached.
@@ -254,8 +254,8 @@ public class PaddleGame : MonoBehaviour
 		{
 			if (session == SessionType.Session.PRACTISE)
 			{
-				numBounces += sessionManager.nbOfBounceRequired * 7;
-				numAccurateBounces += sessionManager.nbOfAccurateBounceRequired * 7;
+				numBounces += difficultyManager.nbOfBounceRequired * 7;
+				numAccurateBounces += difficultyManager.nbOfAccurateBounceRequired * 7;
 			}
 		}
 		if (Input.GetKeyDown(KeyCode.B))
@@ -314,7 +314,7 @@ public class PaddleGame : MonoBehaviour
 
 		if (globalControl.session == SessionType.Session.PRACTISE)
 		{
-			difficultyDisplay.text = sessionManager.currentLevel.ToString();
+			difficultyDisplay.text = difficultyManager.currentLevel.ToString();
 			//trialData.Add(new DifficultyEvaluationData<TrialData>(
 			//	difficultyEvaluationOrder[difficultyEvaluationIndex], new List<TrialData>())
 			//);
@@ -322,12 +322,12 @@ public class PaddleGame : MonoBehaviour
 		}
 		else if (globalControl.session == SessionType.Session.SHOWCASE)
 		{
-			sessionManager.currentLevel = 2;
+			difficultyManager.currentLevel = 2;
 			StartShowcase();
 		}
 		else
 		{
-			sessionManager.currentLevel = globalControl.level;
+			difficultyManager.currentLevel = globalControl.level;
 			//trialData.Add(new DifficultyEvaluationData<TrialData>(TrialDifficultyPreset.CUSTOM, new List<TrialData>()));
 			pauseHandler.Pause();
 			// difficulty shifts timescale, so pause it again
@@ -429,7 +429,7 @@ public class PaddleGame : MonoBehaviour
 	void StartShowcase()
 	{
 		pauseHandler.Resume();
-		SetTrialLevel(sessionManager.currentLevel);
+		SetTrialLevel(difficultyManager.currentLevel);
 		StartCoroutine(StartDifficultyDelayed(difficultyExampleTime, true));
 	}
 
@@ -441,7 +441,7 @@ public class PaddleGame : MonoBehaviour
 			yield return new WaitForSeconds(.1f);
 		}
 
-		var audioClip = GetDifficultyAudioClip(sessionManager.currentLevel);
+		var audioClip = GetDifficultyAudioClip(difficultyManager.currentLevel);
 		if (audioClip != null)
 		{
 			difficultySource.PlayOneShot(audioClip);
@@ -451,16 +451,16 @@ public class PaddleGame : MonoBehaviour
 		yield return new WaitForSecondsRealtime(delay);
 
 		// reset ball, change difficulty level, possible audio announcement.
-		if (sessionManager.currentLevel >= 10)
+		if (difficultyManager.currentLevel >= 10)
 		{
 			// finish up the difficulty showcase, quit application
 			QuitTask();
 		}
 		else
 		{
-			SetTrialLevel(sessionManager.currentLevel + 2);
+			SetTrialLevel(difficultyManager.currentLevel + 2);
 			StartCoroutine(StartDifficultyDelayed(difficultyExampleTime));
-			if (sessionManager.currentLevel > 10) // OG ==
+			if (difficultyManager.currentLevel > 10) // OG ==
 			{
 				// yield return new WaitForSecondsRealtime(delay);
 			}
@@ -561,7 +561,7 @@ public class PaddleGame : MonoBehaviour
 		if (!final && trialNum != 0 && trialNum % 10 == 0)
 		{
 			// some difficulty effects are regenerated every 10 trials
-			SetTrialLevel(sessionManager.currentLevel);
+			SetTrialLevel(difficultyManager.currentLevel);
 		}
 			
 
@@ -607,7 +607,7 @@ public class PaddleGame : MonoBehaviour
 		numTotalBounces++;
 
 		// If there are two paddles, switch the active one
-		if (sessionManager.mustSwitchPaddleAfterHitting)
+		if (difficultyManager.mustSwitchPaddleAfterHitting)
 		{
 			StartCoroutine(paddlesManager.WaitThenSwitchPaddles());
 		}
@@ -654,8 +654,8 @@ public class PaddleGame : MonoBehaviour
 
  		if (CheckScoreCondition())
 		{
-			sessionManager.EvaluatePerformance(globalControl.GetTimeElapsed());
-			if (sessionManager.isSessionOver)
+			difficultyManager.EvaluatePerformance(globalControl.GetTimeElapsed());
+			if (difficultyManager.isSessionOver)
             {
 				QuitTask();
 				return;
@@ -739,7 +739,7 @@ public class PaddleGame : MonoBehaviour
 		string bounces = highestBounces.ToString();
 		highestBouncesDisplay.text = $"{bounces} bounces in a row!";
 	
-		if (sessionManager.hasTarget)
+		if (difficultyManager.hasTarget)
 		{
 			string accurateBounces = highestAccurateBounces.ToString();
 			highestAccurateBouncesDisplay.text = $"{accurateBounces} target hits!";
@@ -771,7 +771,7 @@ public class PaddleGame : MonoBehaviour
 
 	public int GetMaxDifficultyTrialTime()
 	{
-		int trialTime = (int)sessionManager.maximumTrialTime;
+		int trialTime = (int)difficultyManager.maximumTrialTime;
 		return trialTime != -1 ? trialTime * 60 : trialTime;
 	}
 
@@ -792,10 +792,10 @@ public class PaddleGame : MonoBehaviour
 	#region Difficulty
 	void EvaluatePerformance()
     {
-		double _score = sessionManager.EvaluatePerformance(globalControl.GetTimeElapsed());
+		double _score = difficultyManager.EvaluatePerformance(globalControl.GetTimeElapsed());
 
 		// each are evaluating for the next difficulty
-		int _newLevel = sessionManager.ScoreToLevel(_score);
+		int _newLevel = difficultyManager.ScoreToLevel(_score);
 
 		SetTrialLevel(_newLevel);
 
@@ -805,18 +805,18 @@ public class PaddleGame : MonoBehaviour
 		difficultyEvaluationIndex++;
 		Debug.Log(
 			$"Increased Difficulty Evaluation to {difficultyEvaluationIndex} with new difficulty " +
-			$"evaluation difficulty evaluation: {sessionManager.difficultyName}"
+			$"evaluation difficulty evaluation: {difficultyManager.difficultyName}"
 		);
 	}
 	private void SetTrialLevel(int _newLevel)
     {
-		sessionManager.currentLevel = _newLevel;
+		difficultyManager.currentLevel = _newLevel;
 
 		// TODO: This should be done by GlobalControl itself
-		Debug.Log("Setting Difficulty: " + sessionManager.currentLevel);
+		Debug.Log("Setting Difficulty: " + difficultyManager.currentLevel);
 		GlobalControl globalControl = GlobalControl.Instance;
-		globalControl.targetWidth = sessionManager.hasTarget ? sessionManager.targetWidth / 2f : 0;
-		globalControl.timescale = sessionManager.ballSpeed;
+		globalControl.targetWidth = difficultyManager.hasTarget ? difficultyManager.targetWidth / 2f : 0;
+		globalControl.timescale = difficultyManager.ballSpeed;
 
 		// Reset trial
 		numBounces = 0;
@@ -826,9 +826,9 @@ public class PaddleGame : MonoBehaviour
 		maxScoreEffectReached = false;
 
 		targetLine.UpdateCondition();
-		difficultyDisplay.text = sessionManager.currentLevel.ToString();
+		difficultyDisplay.text = difficultyManager.currentLevel.ToString();
 
-		if (sessionManager.isSessionOver)
+		if (difficultyManager.isSessionOver)
 		{
 			// all difficulties recored
 			QuitTask();

@@ -9,7 +9,7 @@ public class Target : MonoBehaviour
 	private Camera hmd;
 
 	[SerializeField]
-	private SessionManager sessionManager;
+	private DifficultyManager difficultyManager;
 
     private void Start()
     {
@@ -30,7 +30,7 @@ public class Target : MonoBehaviour
 
 		float x = oldPosition.x;
 		float z = oldPosition.z;
-		float y = ComputeTargetHeight(GetHmdHeight()) + sessionManager.targetHeightOffset;
+		float y = ComputeTargetHeight(GetHmdHeight()) + difficultyManager.targetHeightOffset;
 
 		transform.position = new Vector3(x, y, z);
 	}
@@ -39,18 +39,18 @@ public class Target : MonoBehaviour
 	{
 		transform.localScale = new Vector3(
 			transform.localScale.x, 
-			sessionManager.targetWidth * 2f,
+			difficultyManager.targetWidth * 2f,
 			transform.localScale.z
 		);
 	}
 	private void UpdateToggle()
 	{
-		gameObject.SetActive(sessionManager.hasTarget);
+		gameObject.SetActive(difficultyManager.hasTarget);
 	}
 
 	private float ComputeTargetHeight(float eyeLevel)
 	{
-		switch (sessionManager.targetHeight)
+		switch (difficultyManager.targetHeight)
 		{
 			case TargetEnum.Height.RAISED:
 				return eyeLevel * 1.1f;
@@ -67,11 +67,11 @@ public class Target : MonoBehaviour
 	// Returns true if the ball is within the target line boundaries.
 	public bool IsInsideTarget(Vector3 height)
 	{
-		if (!sessionManager.hasTarget) return false;
+		if (!difficultyManager.hasTarget) return false;
 
 		float targetHeight = transform.position.y;
-		float lowerLimit = targetHeight - sessionManager.targetWidth;
-		float upperLimit = targetHeight + sessionManager.targetWidth;
+		float lowerLimit = targetHeight - difficultyManager.targetWidth;
+		float upperLimit = targetHeight + difficultyManager.targetWidth;
 
 		return (height.y > lowerLimit) && (height.y < upperLimit);
 	}
