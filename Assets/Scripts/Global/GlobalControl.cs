@@ -1,6 +1,4 @@
-﻿// using NUnit.Framework.Internal;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -25,11 +23,14 @@ public class GlobalControl : MonoBehaviour
     // Target Line Width Acceptance Threshold
     public float targetWidth = 0.05f;
 
-    // Test period of this instance
+    // The current session
     public SessionType.Session session = SessionType.Session.PRACTISE;
 
     // Degrees of Freedom for ball bounce for this instance
     public float degreesOfFreedom = 90;
+
+    // Test period of this instance
+    public DifficultyChoice practiseDifficulty;
 
     // Time limit for practise condition
     public int practiseMaxTrialTime = 0;

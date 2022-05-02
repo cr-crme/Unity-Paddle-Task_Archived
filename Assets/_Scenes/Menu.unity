@@ -367,8 +367,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1458637075}
   - {fileID: 446172989}
+  - {fileID: 1458637075}
   - {fileID: 1010782345}
   m_Father: {fileID: 1878849404}
   m_RootOrder: 1
@@ -2314,7 +2314,7 @@ RectTransform:
   - {fileID: 2146851258}
   - {fileID: 860586242}
   m_Father: {fileID: 75102141}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -5483,7 +5483,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: No Time Limit
+  m_text: BASE
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5552,10 +5552,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 922692090}
-    characterCount: 13
+    characterCount: 4
     spriteCount: 0
-    spaceCount: 2
-    wordCount: 3
+    spaceCount: 0
+    wordCount: 1
     linkCount: 0
     lineCount: 1
     pageCount: 1
@@ -6420,7 +6420,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -75}
+  m_AnchoredPosition: {x: 0, y: -150}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1010782346
@@ -8677,6 +8677,7 @@ MonoBehaviour:
   targetWidth: 0.05
   session: 0
   degreesOfFreedom: 90
+  practiseDifficulty: 0
   practiseMaxTrialTime: 0
   showcaseTimePerCondition: 0
   timeElapsed: 0
@@ -8787,12 +8788,12 @@ GameObject:
   - component: {fileID: 1458637077}
   - component: {fileID: 1458637076}
   m_Layer: 0
-  m_Name: Time Dropdown
+  m_Name: Difficulty Dropdown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1458637075
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8809,11 +8810,11 @@ RectTransform:
   - {fileID: 1540032927}
   - {fileID: 1651596375}
   m_Father: {fileID: 75102141}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -75}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1458637076
@@ -8861,33 +8862,17 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: No Time Limit
+    - m_Text: BASE
       m_Image: {fileID: 0}
-    - m_Text: 1 Minute
+    - m_Text: MODERATE
       m_Image: {fileID: 0}
-    - m_Text: 2 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 3 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 4 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 5 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 6 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 7 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 8 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 9 Minutes
-      m_Image: {fileID: 0}
-    - m_Text: 10 Minutes
+    - m_Text: MAXIMAL
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1554919718}
-        m_MethodName: RecordPractiseTotalTime
+        m_MethodName: RecordPractiseDifficulty
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9526,7 +9511,6 @@ GameObject:
   - component: {fileID: 1554919720}
   - component: {fileID: 1554919719}
   - component: {fileID: 1554919718}
-  - component: {fileID: 1554919717}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -9534,18 +9518,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1554919717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1554919716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b88b6cd4432dbd94da2436a1e59c3464, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1554919718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9566,6 +9538,7 @@ MonoBehaviour:
   practiseTotalTime: {fileID: 446172990}
   practiseTotalTimeText: {fileID: 860586243}
   showcaseTimePerTrial: {fileID: 720513924}
+  practiseDifficulty: {fileID: 1458637076}
   practiseStartingLevel: {fileID: 1010782346}
   practiseStartingLevelText: {fileID: 644513729}
   showcaseVideo: {fileID: 1544649606}
@@ -10591,7 +10564,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Total time
+  m_text: Difficulty
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -10662,8 +10635,8 @@ MonoBehaviour:
     textComponent: {fileID: 1651596376}
     characterCount: 10
     spriteCount: 0
-    spaceCount: 1
-    wordCount: 2
+    spaceCount: 0
+    wordCount: 1
     linkCount: 0
     lineCount: 1
     pageCount: 1

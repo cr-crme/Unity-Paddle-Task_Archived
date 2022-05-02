@@ -32,6 +32,7 @@ public class MenuController : MonoBehaviour {
             { "session", (GetRecordSession(), LoadSessionToMenu) },
             { "practise_totalTime", (GetPractiseTotalTime(), LoadPractiseTotalTimeToMenu) },
             { "showcase_timePerTrial", (GetShowcaseTimePerTrial(), LoadShowcaseTimePerTrialToMenu) },
+            { "practise_difficulty", (GetPractiseDifficulty(), LoadPractiseDifficulty) },
             { "practise_level", (GetPractiseStartingLevel(), LoadPractiseStartingLevelToMenu) },
             { "showcase_toggleVideo", (GetShowcaseVideo(), LoadShowcaseVideoToMenu) },
             { "targetHeight", (GetTargetHeight(), LoadTargetHeightToMenu) },
@@ -303,6 +304,42 @@ public class MenuController : MonoBehaviour {
         {
             Debug.LogError("Not implemented Session");
         }
+    }
+    #endregion
+
+
+    #region Difficulty
+    [SerializeField] private TMP_Dropdown practiseDifficulty;
+    public void RecordPractiseDifficulty(int _value)
+    {
+        globalControl.practiseDifficulty = (DifficultyChoice)_value;
+        SavePractiseDifficulty(_value);
+    }
+    private void SetPractiseDifficulty(int _value)
+    {
+        practiseDifficulty.value = _value;
+    }
+    private int GetPractiseDifficulty()
+    {
+        return practiseDifficulty.value;
+    }
+    private void SavePractiseDifficulty(int _value)
+    {
+        PlayerPrefs.SetInt("practise_difficulty", _value);
+        PlayerPrefs.Save();
+    }
+    private void LoadPractiseDifficulty(bool resetToDefault)
+    {
+        int _value;
+        if (resetToDefault)
+            _value = (int)preferenceList["practise_difficulty"].Item1;
+        else if (PlayerPrefs.HasKey("practise_difficulty"))
+            _value = PlayerPrefs.GetInt("practise_difficulty");
+        else
+            return;
+
+        RecordPractiseDifficulty(_value);
+        SetPractiseDifficulty(_value);
     }
     #endregion
 

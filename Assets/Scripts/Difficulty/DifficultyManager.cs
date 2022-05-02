@@ -3,12 +3,6 @@ using UnityEngine;
 
 public class DifficultyManager : MonoBehaviour
 {
-    #region Functions to move out of the file
-
-    #endregion
-
-
-
     [SerializeField, Tooltip("The paddles manager")]
     private PaddlesManager paddlesManager;
 

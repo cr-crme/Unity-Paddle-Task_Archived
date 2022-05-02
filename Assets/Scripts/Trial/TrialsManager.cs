@@ -7,16 +7,42 @@ public class TrialsManager : MonoBehaviour
     [SerializeField]
     private DifficultyManager difficultyManager;
 
-    public bool isTimeOver(double elapsedTime) { return elapsedTime > difficultyManager.maximumTrialTime; }
-    public bool isSessionOver { get { return difficultyManager.AreAllDifficultiesDone; } }
+    private void Start()
+    {
 
-    public List<Trial> allTrialsData { get; protected set; } = new List<Trial>();
+        if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
+        {
+            difficultyManager.AddDifficultyToSessionList(DifficultyChoice.BASE);
+            difficultyManager.AddDifficultyToSessionList(DifficultyChoice.MODERATE);
+            difficultyManager.AddDifficultyToSessionList(DifficultyChoice.MAXIMAL);
+        } else
+        {
+            difficultyManager.AddDifficultyToSessionList(GlobalControl.Instance.practiseDifficulty);
+        }
+    }
+
+
+    #region One specific trial
     private Trial currentTrial { get { return allTrialsData.Last(); } }
-
-    public void AddBounceToCurrentResults(bool _isAccurate)
+    public void AddBounceToCurrentTrial(bool _isAccurate)
     {
         currentTrial.AddBounce(_isAccurate);
     }
+    public bool CheckIfTrialIsOver()
+    {
+        if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
+            return false;
+
+        return difficultyManager.AreTrialConditionsMet(currentTrial);
+    }
+    #endregion
+
+    #region All trials
+    public bool isTimeOver(double elapsedTime) { return elapsedTime > difficultyManager.maximumTrialTime; }
+    public bool isSessionOver { get { return difficultyManager.AreAllDifficultiesDone; } }
+    private List<Trial> allTrialsData = new List<Trial>();
+    public void StartNewTrial() { allTrialsData.Add(new Trial(GlobalControl.Instance.GetTimeElapsed())); }
+
     public double EvaluateSessionPerformance(
         double _elapsedTime
     )
@@ -54,12 +80,5 @@ public class TrialsManager : MonoBehaviour
             (float)((_averageBounces + _averageAccurateBounces + _timeScalar) / _targetHeightModifier)
         );
     }
-
-    public bool CheckIfTrialIsOver()
-    {
-        if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
-            return false;
-
-        return difficultyManager.AreTrialConditionsMet(currentTrial);
-    }
+    #endregion
 }
