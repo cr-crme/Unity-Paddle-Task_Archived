@@ -18,13 +18,6 @@ public class DataHandler : MonoBehaviour
 	//    { DifficultyEvaluation.MAXIMAL, new List<TrialData>() },
 	//    { DifficultyEvaluation.CUSTOM, new List<TrialData>() },
 	//};
-	List<DifficultyEvaluationData<DifficultyData>> difficultyDatas = new List<DifficultyEvaluationData<DifficultyData>>();
-	//{
-	//	{ DifficultyEvaluation.BASE, new List<DifficultyData>() },
-	//	{ DifficultyEvaluation.MODERATE, new List<DifficultyData>() },
-	//	{ DifficultyEvaluation.MAXIMAL, new List<DifficultyData>() },
-	//	{ DifficultyEvaluation.CUSTOM, new List<DifficultyData>() },
-	//};
 
 	HeaderData headerData;
 
@@ -39,7 +32,6 @@ public class DataHandler : MonoBehaviour
 	public void InitializeDifficultyEvaluationData(DifficultyDefinition difficultyEvaluation)
 	{
 		trialDatas.Add(new DifficultyEvaluationData<TrialResults>(difficultyEvaluation, new List<TrialResults>()));
-		difficultyDatas.Add(new DifficultyEvaluationData<DifficultyData>(difficultyEvaluation, new List<DifficultyData>()));
 		difficultyEvaluationIndex++;
 	}
 
@@ -84,20 +76,12 @@ public class DataHandler : MonoBehaviour
 		System.DateTime now = System.DateTime.Now;
 		pid = GlobalControl.Instance.participantID + "_" + now.Month.ToString() + "-" + now.Day.ToString() + "-" + now.Year + "_" + now.Hour + "-" + now.Minute + "-" + now.Second; // + "_" + pid;
 
-		// TODO: If should write the file
-		WriteDifficultyFile();
 	}
 
     // Records trial data into the data list
     public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, DifficultyChoice difficultyEvaluation, int difficulty)
 	{
 		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialResults(time, numBounces, numAccurateBounces));
-	}
-
-
-	public void recordDifficulty(float ballSpeed, bool targetLineActive, float targetLineHeightOffset, float targetLineWidth, float time, int difficulty)
-	{
-		difficultyDatas[difficultyEvaluationIndex].datas.Add(new DifficultyData(ballSpeed, targetLineActive, targetLineHeightOffset, targetLineWidth, time, difficulty));
 	}
 
 	public void recordHeaderInfo(SessionType.Session s, int maxtime, float htime, float twidth)
@@ -131,61 +115,6 @@ public class DataHandler : MonoBehaviour
 	}
 
 
-	/// <summary>
-	/// Writes the Difficulty file to a CSV
-	/// </summary>
-	private void WriteDifficultyFile()
-	{
-		// Write all entries in data list to file
-		string directory = "Data/" + pid;
-		Directory.CreateDirectory(@directory);
-
-		if (difficultyDatas.Count <= 0) return;
-
-		using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + "DifficultyData_" + pid + ".csv"))
-		{
-			Debug.Log("Writing diffiuclty data to file");
-
-			// write session data
-			WriteHeaderInfo(writer);
-
-			// write header
-			CsvRow header = new CsvRow();
-			header.Add("Difficulty Evaluation");
-			header.Add("Difficulty");
-			header.Add("Participant ID");
-			header.Add("Timestamp");
-			header.Add("Ball Speed");
-			header.Add("Target Line Active");
-			header.Add("Target Line Height Offset");
-			header.Add("Target Line Width");
-
-			writer.WriteRow(header);
-
-			foreach (var difficultyData in difficultyDatas)
-			{
-				// var evaluation = GetEvaluationsIteration(difficultyData.difficultyEvaluation);
-
-				// write each line of data
-				foreach (DifficultyData d in difficultyData.datas)
-				{
-					CsvRow row = new CsvRow();
-
-					row.Add(difficultyData.difficultyEvaluation.ToString());
-					row.Add(d.difficulty.ToString());
-					row.Add(pid);
-					row.Add(d.time.ToString());
-					row.Add(d.ballSpeed.ToString());
-					row.Add(d.targetLineActive.ToString());
-					row.Add(d.targetLineHeightOffset.ToString());
-					row.Add(d.targetLineWidth.ToString());
-
-					writer.WriteRow(row);
-				}
-			}
-		}
-		// ResetEvaluationsIteration();
-	}
 
 	// utility functions --------------------------------------------
 
