@@ -52,11 +52,11 @@ public class Target : MonoBehaviour
 	{
 		switch (sessionManager.targetHeight)
 		{
-			case SessionType.TargetHeight.RAISED:
+			case TargetEnum.Height.RAISED:
 				return eyeLevel * 1.1f;
-			case SessionType.TargetHeight.LOWERED:
+			case TargetEnum.Height.LOWERED:
 				return eyeLevel * 0.9f;
-			case SessionType.TargetHeight.EYE_LEVEL:
+			case TargetEnum.Height.EYE_LEVEL:
 				return eyeLevel;
 			default:
 				Debug.LogError("Error: Invalid Target Height Preference");
