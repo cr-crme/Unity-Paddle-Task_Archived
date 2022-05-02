@@ -64,7 +64,7 @@ public class PaddleGame : MonoBehaviour
 	/// list of the audio clips played at the beginning of difficulties in some cases
 	/// </summary>
 	[SerializeField]
-	List<DifficultyAudioClip> difficultyAudioClips;
+	List<DifficultyAudioClip> difficultyAudioClips = new List<DifficultyAudioClip>();
 
 
 	// Current number of bounces that the player has acheieved in this trial
@@ -82,12 +82,6 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField]
 	private GlobalPauseHandler pauseHandler;
 
-	// The paddle bounce height, velocity, and acceleration to be recorded on each bounce.
-	// These are the values on the *paddle*, NOT the ball
-	private float paddleBounceHeight;
-	private Vector3 paddleBounceVelocity;
-	private Vector3 paddleBounceAccel;
-
 	// Degrees of freedom, how many degrees in x-z directions ball can bounce after hitting paddle
 	// 0 degrees: ball can only bounce in y direction, 90 degrees: no reduction in range
 	public float degreesOfFreedom;
@@ -99,12 +93,8 @@ public class PaddleGame : MonoBehaviour
 	public bool slowtime = false;
 	private List<float> bounceHeightList = new List<float>();
 
-	private List<ScoreEffect> scoreEffects = new List<ScoreEffect>();
 	
 	private int difficultyEvaluationIndex = 0;
-
-	int scoreEffectTarget = 0;
-	bool maxScoreEffectReached = false;
 
 	float difficultyExampleTime = 30f;
 
@@ -115,6 +105,23 @@ public class PaddleGame : MonoBehaviour
 	void Start()
 	{
 		globalControl = GlobalControl.Instance;
+		difficultyManager = GetComponent<DifficultyManager>();
+		trialsManager = GetComponent<TrialsManager>();
+		paddlesManager = GetComponent<PaddlesManager>();
+		ball = GetComponent<GameObject>();
+		targetLine = GetComponent<Target>();
+		feedbackCanvas = GetComponent<FeedbackCanvas>();
+		timeToDropQuad = GetComponent<GameObject>();
+		timeToDropText = GetComponent<Text>();
+		successfulTrialSound = GetComponent<AudioClip>();
+		feedbackSource = GetComponent<AudioSource>();
+		difficultySource = GetComponent<AudioSource>();
+		difficultyDisplay = GetComponent<TextMeshPro>();
+		highestBouncesDisplay = GetComponent<TextMeshPro>();
+		highestAccurateBouncesDisplay = GetComponent<TextMeshPro>();
+		pauseHandler = GetComponent<GlobalPauseHandler>();
+
+
 
 		Instantiate(globalControl.environments[globalControl.environmentIndex]);
 
@@ -124,9 +131,6 @@ public class PaddleGame : MonoBehaviour
 		{
 			kinematics.storedPosition = ball.GetComponent<Ball>().SpawnPosition;
 		}
-
-
-		PopulateScoreEffects();
 
 		if(globalControl.session == SessionType.Session.SHOWCASE)
 		{
@@ -341,35 +345,6 @@ public class PaddleGame : MonoBehaviour
 	}
 
 
-	/// <summary>
-	/// note that score exists as a vestige. it is tracked internally to allow for these effects but will not be shown to the user
-	/// </summary>
-	private void PopulateScoreEffects()
-	{
-		// enter score effects in ascending order of the score needed to trigger them
-		scoreEffects.Add(new ScoreEffect(25, ball.GetComponent<EffectController>().embers, null));
-		scoreEffects.Add(new ScoreEffect(50, ball.GetComponent<EffectController>().fire, null));
-		scoreEffects.Add(new ScoreEffect(75, ball.GetComponent<EffectController>().blueEmbers, null, new List<Effect>() { ball.GetComponent<EffectController>().embers }));
-		scoreEffects.Add(new ScoreEffect(100, ball.GetComponent<EffectController>().blueFire, null, new List<Effect>() { ball.GetComponent<EffectController>().fire }));
-
-
-		int highestScore = 0;
-		for(int i = 0; i < scoreEffects.Count; i++)
-		{
-			if (scoreEffects[i].score > highestScore)
-			{
-				highestScore = scoreEffects[i].score;
-			}
-			else
-			{
-				// could create a sorting algorithm but it's a bit more work to deal with the custom class. dev input in the correct order will be sufficient
-				Debug.LogErrorFormat("ERROR! Invalid Score order entered, must be in ascending order. Entry {0} had score {1}, lower than the minimum {2}", i, scoreEffects[i], highestScore);
-			}
-		}
-
-		scoreEffectTarget = 0;
-	}
-
 
     /// <summary>
     /// run through all diffiuclties in a short amount of time to get a feel for them
@@ -523,8 +498,6 @@ public class PaddleGame : MonoBehaviour
 		numBounces = 0;
 		numAccurateBounces = 0;
 		curScore = 0f;
-		scoreEffectTarget = 0;
-		maxScoreEffectReached = false;
 
 		if (!final)
 		{
@@ -554,32 +527,8 @@ public class PaddleGame : MonoBehaviour
 			StartCoroutine(paddlesManager.WaitThenSwitchPaddles());
 		}
 
-		if (!maxScoreEffectReached && curScore >= scoreEffects[scoreEffectTarget].score)
-		{
-			Debug.Log(
-				$"max score for effects not reached. current score " +
-                $"{curScore} is greater than the target {scoreEffectTarget} for effect " +
-                $"{scoreEffects[scoreEffectTarget].score}. startign effects, increasing " +
-                $"score target..."
-			);
+		ball.GetComponent<Ball>().SelectEffectDependingOnScore(curScore);
 
-			foreach (var disableEffect in scoreEffects[scoreEffectTarget].disableEffects)
-			{
-				ball.GetComponent<EffectController>().StopParticleEffect(disableEffect);
-			}
-			ball.GetComponent<EffectController>().StartEffect(scoreEffects[scoreEffectTarget].effect);
-			ball.GetComponent<BallSoundManager>().PlayEffectSound(scoreEffects[scoreEffectTarget].audioClip);
-
-			if (scoreEffectTarget + 1 >= scoreEffects.Count)
-			{
-				maxScoreEffectReached = true;
-				Debug.Log($"max effect score reached, score is {curScore} and score target was {scoreEffects[scoreEffectTarget].score}");
-			}
-			else
-			{
-				scoreEffectTarget++;
-			}
-		}
 
 		if (trialsManager.CheckIfTrialIsOver())
 		{
@@ -608,12 +557,6 @@ public class PaddleGame : MonoBehaviour
 		{
 			highestAccurateBouncesDisplay.text = "";
 		}
-	}
-
-	public int GetMaxDifficultyTrialTime()
-	{
-		int trialTime = (int)difficultyManager.maximumTrialTime;
-		return trialTime != -1 ? trialTime * 60 : trialTime;
 	}
 
 	private AudioClip GetDifficultyAudioClip(int difficulty)
@@ -660,8 +603,6 @@ public class PaddleGame : MonoBehaviour
 		numBounces = 0;
 		numAccurateBounces = 0;
 		curScore = 0f;
-		scoreEffectTarget = 0;
-		maxScoreEffectReached = false;
 
 		targetLine.UpdateCondition();
 		difficultyDisplay.text = difficultyManager.currentLevel.ToString();

@@ -47,6 +47,17 @@ public class Paddle : MonoBehaviour
         return c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>();
     }
 
+    private void Start()
+    {
+        opaquePaddleMat = GetComponent<Material>();
+        opaqueBacksideMat = GetComponent<Material>();
+        transparentPaddleMat = GetComponent<Material>();
+        transparentBacksideMat = GetComponent<Material>();
+        paddleCollider = GetComponent<GameObject>();
+        paddleModel = GetComponent<GameObject>();
+        backsideModel = GetComponent<GameObject>();   
+    }
+
     void Update()
     {
         // send updated information to physicstracker

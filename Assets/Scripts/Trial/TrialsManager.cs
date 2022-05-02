@@ -9,6 +9,7 @@ public class TrialsManager : MonoBehaviour
 
     private void Start()
     {
+        difficultyManager = GetComponent<DifficultyManager>();
 
         if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {

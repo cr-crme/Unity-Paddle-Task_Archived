@@ -20,6 +20,8 @@ public class PaddlesManager : MonoBehaviour
     void Start()
     {
         globalControl = GlobalControl.Instance;
+        leftPaddle = GetComponent<Paddle>();
+        rightPaddle = GetComponent<Paddle>();
 
         if (globalControl.nbPaddles > 1)
         {

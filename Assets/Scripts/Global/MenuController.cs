@@ -26,6 +26,25 @@ public class MenuController : MonoBehaviour {
     void Start()
     {
         globalControl = GlobalControl.Instance;
+        practiseCanvas = GetComponent<GameObject>();
+        showcaseCanvas = GetComponent<GameObject>();
+        nbPaddles = GetComponent<TMP_Dropdown>();
+        environment = GetComponent<TMP_Dropdown>();
+        session = GetComponent<TMP_Dropdown>();
+        practiseTotalTime = GetComponent<Slider>();
+        practiseTotalTimeText = GetComponent<TextMeshProUGUI>();
+        showcaseTimePerTrial = GetComponent<TMP_Dropdown>();
+        practiseDifficulty = GetComponent<TMP_Dropdown> ();
+        practiseStartingLevel = GetComponent<Slider>();
+        practiseStartingLevelText = GetComponent<TextMeshProUGUI>();
+        showcaseVideo = GetComponent<Toggle>();
+        targetHeight = GetComponent<TMP_Dropdown>();
+        targetWidth = GetComponent<Slider>();
+        targetWidthText = GetComponent<TextMeshProUGUI>();
+        ballHoverTime = GetComponent<Slider>();
+        ballHoverTimeText = GetComponent<TextMeshProUGUI>();
+
+
         preferenceList = new Dictionary<string, (object, LoadCallback)>(){
             { "nbPaddles", (GetNbPaddles(), LoadNbPaddlesToMenu) },
             { "environment", (GetEnvironment(), LoadEnvironmentToMenu) },

@@ -9,7 +9,7 @@ public class Rotation : MonoBehaviour
 {
     /// The game object that will rotate around a center point
     [SerializeField]
-    private GameObject game_object;
+    private GameObject _gameObject;
 
     /// The axis the object will rotate around - I.E. the axis that doesn't move.
     [SerializeField]
@@ -41,6 +41,12 @@ public class Rotation : MonoBehaviour
     /// </summary>
     void Start()
     {
+        _gameObject = GetComponent<GameObject>();
+        axis = GetComponent<RotationAxis>();
+        radius = GetComponent<float>();
+        clockwise = GetComponent<bool>();
+        secondsPerRotation = GetComponent<float>();
+
         updateCenterPosn();
         angle = 0;
         speed = (2 * Mathf.PI) / secondsPerRotation;
@@ -79,7 +85,7 @@ public class Rotation : MonoBehaviour
         }
 
         // set the new position
-        game_object.transform.position = new Vector3(posx, posy, posz);
+        _gameObject.transform.position = new Vector3(posx, posy, posz);
     }
 
     /// <summary>
