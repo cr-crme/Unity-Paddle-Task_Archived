@@ -18,13 +18,6 @@ public class DataHandler : MonoBehaviour
 	//    { DifficultyEvaluation.MAXIMAL, new List<TrialData>() },
 	//    { DifficultyEvaluation.CUSTOM, new List<TrialData>() },
 	//};
-	List<DifficultyEvaluationData<ContinuousData>> continuousDatas = new List<DifficultyEvaluationData<ContinuousData>>();
-	//{
-	//	{ DifficultyEvaluation.BASE, new List<ContinuousData>() },
-	//	{ DifficultyEvaluation.MODERATE, new List<ContinuousData>() },
-	//	{ DifficultyEvaluation.MAXIMAL, new List<ContinuousData>() },
-	//	{ DifficultyEvaluation.CUSTOM, new List<ContinuousData>() },
-	//};
 	List<DifficultyEvaluationData<DifficultyData>> difficultyDatas = new List<DifficultyEvaluationData<DifficultyData>>();
 	//{
 	//	{ DifficultyEvaluation.BASE, new List<DifficultyData>() },
@@ -46,7 +39,6 @@ public class DataHandler : MonoBehaviour
 	public void InitializeDifficultyEvaluationData(DifficultyDefinition difficultyEvaluation)
 	{
 		trialDatas.Add(new DifficultyEvaluationData<TrialResults>(difficultyEvaluation, new List<TrialResults>()));
-		continuousDatas.Add(new DifficultyEvaluationData<ContinuousData>(difficultyEvaluation, new List<ContinuousData>()));
 		difficultyDatas.Add(new DifficultyEvaluationData<DifficultyData>(difficultyEvaluation, new List<DifficultyData>()));
 		difficultyEvaluationIndex++;
 	}
@@ -93,31 +85,15 @@ public class DataHandler : MonoBehaviour
 		pid = GlobalControl.Instance.participantID + "_" + now.Month.ToString() + "-" + now.Day.ToString() + "-" + now.Year + "_" + now.Hour + "-" + now.Minute + "-" + now.Second; // + "_" + pid;
 
 		// TODO: If should write the file
-		WriteContinuousFile();
 		WriteDifficultyFile();
 	}
 
-	//public List<TrialData> GetTrialData(DifficultyEvaluation difficultyEvaluation)
-	//{
-	//	return trialData[difficultyEvaluation];
-	//}
-
-	//public Dictionary<DifficultyEvaluation, List<TrialData>> GetTrialData()
-	//{
-	//	return trialData;
-	//}
-
-	// Records trial data into the data list
-	public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, DifficultyChoice difficultyEvaluation, int difficulty)
+    // Records trial data into the data list
+    public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, DifficultyChoice difficultyEvaluation, int difficulty)
 	{
 		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialResults(time, numBounces, numAccurateBounces));
 	}
 
-	// Records continuous ball and paddle data into the data list
-	public void recordContinuous(float degreesOfFreedom, float time, Vector3 bouncemod, bool paused, Vector3 ballPos, Vector3 paddleVelocity, Vector3 paddleAccel, DifficultyChoice difficultyEvaluation)
-	{
-		continuousDatas[difficultyEvaluationIndex].datas.Add(new ContinuousData(degreesOfFreedom, time, bouncemod, paused, ballPos, paddleVelocity, paddleAccel));
-	}
 
 	public void recordDifficulty(float ballSpeed, bool targetLineActive, float targetLineHeightOffset, float targetLineWidth, float time, int difficulty)
 	{
@@ -154,73 +130,6 @@ public class DataHandler : MonoBehaviour
 		writer.WriteRow(new CsvRow());
 	}
 
-	/// <summary>
-	/// Writes the Trial File to a CSV
-	/// </summary>
-	private void WriteContinuousFile()
-	{
-		// Write all entries in data list to file
-		string directory = "Data/" + pid;
-		Directory.CreateDirectory(@directory);
-		foreach (var continuousData in continuousDatas)
-		{
-			var evaluation = GetEvaluationsIteration(continuousData.difficultyEvaluation);
-			if (continuousData.datas.Count <= 0) continue;
-
-
-			using (CsvFileWriter writer = new CsvFileWriter(@directory + "/" + continuousData.difficultyEvaluation.ToString() + "_" + evaluation.ToString() + "_" + pid + "Continuous.csv"))
-			{
-				Debug.Log("Writing continuous data to file");
-
-				// write session data
-				WriteHeaderInfo(writer);
-
-				// write header
-				CsvRow header = new CsvRow();
-				header.Add("Participant ID");
-				header.Add("Timestamp");
-				header.Add("Enhanced Y-velocity offset"); // bounce modification 
-				header.Add("Paused?");
-				header.Add("Ball Velocity X");
-				header.Add("Ball Velocity Y");
-				header.Add("Ball Velocity Z");
-				header.Add("Paddle Velocity Magnitude");
-				header.Add("Paddle Velocity X");
-				header.Add("Paddle Velocity Y");
-				header.Add("Paddle Velocity Z");
-				header.Add("Paddle Acceleration Magnitude");
-				header.Add("Paddle Acceleration X");
-				header.Add("Paddle Acceleration Y");
-				header.Add("Paddle Acceleration Z");
-
-				writer.WriteRow(header);
-
-				// write each line of data
-				foreach (ContinuousData d in continuousData.datas)
-				{
-					CsvRow row = new CsvRow();
-
-					row.Add(pid);
-					row.Add(d.time.ToString());
-					row.Add(d.paused ? "PAUSED" : "");
-					row.Add(d.ballPos.x.ToString());
-					row.Add(d.ballPos.y.ToString());
-					row.Add(d.ballPos.z.ToString());
-					row.Add(d.paddleVelocity.magnitude.ToString());
-					row.Add(d.paddleVelocity.x.ToString());
-					row.Add(d.paddleVelocity.y.ToString());
-					row.Add(d.paddleVelocity.z.ToString());
-					row.Add(d.paddleAccel.magnitude.ToString());
-					row.Add(d.paddleAccel.x.ToString());
-					row.Add(d.paddleAccel.y.ToString());
-					row.Add(d.paddleAccel.z.ToString());
-
-					writer.WriteRow(row);
-				}
-			}
-		}
-		ResetEvaluationsIteration();
-	}
 
 	/// <summary>
 	/// Writes the Difficulty file to a CSV
