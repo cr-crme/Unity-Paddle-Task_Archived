@@ -9,7 +9,7 @@ using System.Text;
 /// https://www.codeproject.com/Articles/415732/Reading-and-Writing-CSV-Files-in-Csharp
 /// 
 /// </summary>
-namespace ReadWriteCSV
+namespace FileIO_CSV
 {
     /// <summary>
     /// Class to store one CSV row
