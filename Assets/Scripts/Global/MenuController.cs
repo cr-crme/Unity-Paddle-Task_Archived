@@ -389,7 +389,7 @@ public class MenuController : MonoBehaviour {
     const float INCHES_PER_METER = 39.37f;
     public void RecordTargetHeight(int _value)
     {
-        globalControl.targetHeightPreference = (SessionType.TargetHeight)_value;
+        globalControl.targetHeightPreference = (TargetEnum.Height)_value;
         SaveTargetHeight(_value);
     }
     private void SetTargetHeight(int _value)

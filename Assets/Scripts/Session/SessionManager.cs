@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,7 +12,7 @@ public class SessionManager : MonoBehaviour
     public int nbOfBounceRequired { get { return currentDifficulty.nbOfBounceRequired; } }
     public int nbOfAccurateBounceRequired { get { return currentDifficulty.nbOfAccurateBounceRequired; } }
     public bool hasTarget { get { return currentDifficulty.shouldShowTarget(currentLevel); } }
-    public SessionType.TargetHeight targetHeight { get { return GlobalControl.Instance.targetHeightPreference; } }
+    public TargetEnum.Height targetHeight { get { return GlobalControl.Instance.targetHeightPreference; } }
     public float targetHeightOffset { get { return currentDifficulty.targetHeightOffset(currentLevel); } }
     public float targetWidth { get { return currentDifficulty.targetWidth(currentLevel); } }
     public float ballSpeed { get { return currentDifficulty.ballSpeed(currentLevel); } }

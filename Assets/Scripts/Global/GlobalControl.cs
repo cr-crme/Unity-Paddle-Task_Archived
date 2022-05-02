@@ -20,7 +20,7 @@ public class GlobalControl : MonoBehaviour
     public int nbPaddles = 1;
 
     // Target Line Height
-    public SessionType.TargetHeight targetHeightPreference = SessionType.TargetHeight.EYE_LEVEL;
+    public TargetEnum.Height targetHeightPreference = TargetEnum.Height.EYE_LEVEL;
 
     // Target Line Width Acceptance Threshold
     public float targetWidth = 0.05f;

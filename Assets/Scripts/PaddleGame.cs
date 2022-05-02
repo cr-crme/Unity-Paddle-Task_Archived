@@ -164,9 +164,6 @@ public class PaddleGame : MonoBehaviour
 			return;
 		}
 
-		// Data handler. Record continuous ball & paddle info
-		//GatherContinuousData();
-
 		// Update Canvas display
 		timeToDropQuad.SetActive(false);
 		feedbackCanvas.UpdateScoreText(curScore, numBounces);
