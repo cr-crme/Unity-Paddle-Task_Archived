@@ -10,9 +10,9 @@ public class EffectController : MonoBehaviour
     [SerializeField]
     private BallSoundManager soundManager;
 
-    public VisualEffect dissolve, respawn, fire, blueFire, embers, blueEmbers;
-    public VisualEffect effectTarget;
-    VisualEffect activeShaderEffect;
+    public VideoEffect dissolve, respawn, fire, blueFire, embers, blueEmbers;
+    public VideoEffect effectTarget;
+    VideoEffect activeShaderEffect;
 
     private List<Tuple<int, FullEffect>> scoreDependentEffects = new List<Tuple<int, FullEffect>>();
 
@@ -40,7 +40,7 @@ public class EffectController : MonoBehaviour
         InitializeParticleEffect(embers);
         InitializeParticleEffect(blueEmbers);
     }
-    void InitializeParticleEffect(VisualEffect effect)
+    void InitializeParticleEffect(VideoEffect effect)
     {
         EffectParticle effectParticle = effect.GetEffectParticle(effect);
         if (effectParticle == null)
@@ -61,8 +61,8 @@ public class EffectController : MonoBehaviour
         // Enter score effects in ascending order of the score needed to trigger them
         scoreDependentEffects.Add(new Tuple<int, FullEffect>(25, new FullEffect(embers, null, null)));
         scoreDependentEffects.Add(new Tuple<int, FullEffect>(50, new FullEffect(fire, null, null)));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(75, new FullEffect(blueEmbers, null, new List<VisualEffect>() { embers })));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(100, new FullEffect(blueFire, null, new List<VisualEffect>() { fire })));
+        scoreDependentEffects.Add(new Tuple<int, FullEffect>(75, new FullEffect(blueEmbers, null, new List<VideoEffect>() { embers })));
+        scoreDependentEffects.Add(new Tuple<int, FullEffect>(100, new FullEffect(blueFire, null, new List<VideoEffect>() { fire })));
 
         // Sanity check
         for (int i = 1; i < scoreDependentEffects.Count; i++)
@@ -112,7 +112,7 @@ public class EffectController : MonoBehaviour
         soundManager.PlayEffectSound(_audioClip);
     }
 
-    public void StartVisualEffect(VisualEffect effect)
+    public void StartVisualEffect(VideoEffect effect)
     {
         StartParticleEffect(effect);
         StartShaderEffect(effect);
@@ -125,7 +125,7 @@ public class EffectController : MonoBehaviour
         effectTarget.StopEffect();
     }
 
-    public void StartShaderEffect(VisualEffect effect)
+    public void StartShaderEffect(VideoEffect effect)
     {
         if (activeShaderEffect == null || activeShaderEffect != effect)
         {
@@ -145,7 +145,7 @@ public class EffectController : MonoBehaviour
         }
     }
 
-    public void StartParticleEffect(VisualEffect effect)
+    public void StartParticleEffect(VideoEffect effect)
     {
         EffectParticle effectParticle = effectTarget.GetEffectParticle(effect);
         if (effectParticle == null)
@@ -158,7 +158,7 @@ public class EffectController : MonoBehaviour
         particleParent.gameObject.SetActive(true);
     }
 
-    public void StopParticleEffect(VisualEffect effect)
+    public void StopParticleEffect(VideoEffect effect)
     {
         var effectParticle = effectTarget.GetEffectParticle(effect);
         if (effectParticle == null)

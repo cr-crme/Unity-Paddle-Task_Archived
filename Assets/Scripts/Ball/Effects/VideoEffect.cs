@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// contains necessary effect information and setup. can have a shader and a set of particle effects
 /// </summary>
-public class VisualEffect : MonoBehaviour
+public class VideoEffect : MonoBehaviour
 {
     public float effectTime = 4;
     public AnimationCurve fadeIn;
@@ -78,7 +78,7 @@ public class VisualEffect : MonoBehaviour
         timer = 0;
     }
 
-    public EffectParticle GetEffectParticle(VisualEffect effect)
+    public EffectParticle GetEffectParticle(VideoEffect effect)
     {
         foreach (var particle in effectParticles)
         {

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 public class FullEffect
 {
-    public VisualEffect visualEffect { get; private set; }
+    public VideoEffect visualEffect { get; private set; }
     public AudioClip audioClip { get; private set; }
-    public List<VisualEffect> disableEffects { get; private set; }
+    public List<VideoEffect> disableEffects { get; private set; }
 
-    public FullEffect(VisualEffect _visualEffet, AudioClip _audioEffect, List<VisualEffect> _disableEffects)
+    public FullEffect(VideoEffect _visualEffet, AudioClip _audioEffect, List<VideoEffect> _disableEffects)
     {
         visualEffect = _visualEffet;
         audioClip = _audioEffect;
-        disableEffects = _disableEffects != null ? _disableEffects : new List<VisualEffect>();
+        disableEffects = _disableEffects != null ? _disableEffects : new List<VideoEffect>();
     }
 }
