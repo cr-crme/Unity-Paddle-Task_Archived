@@ -15,7 +15,7 @@ public class DestroyAfterSeconds : MonoBehaviour {
 
     void Start()
     {
-        objectToDestroy = GetComponent<GameObject>();
+        objectToDestroy = objectToDestroy.gameObject;
         StartCoroutine(WaitToDestroy());
     }
 

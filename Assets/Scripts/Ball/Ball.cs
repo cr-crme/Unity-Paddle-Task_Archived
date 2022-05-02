@@ -46,13 +46,7 @@ public class Ball : MonoBehaviour
 
     void Awake()
     {
-        gameScript = GetComponent<PaddleGame>();
-        ballSoundManager = GetComponent<BallSoundManager>();
-        ballColorManager = GetComponent<BallColorManager>();
-        target = GetComponent<Target>();
-
         kinematics = GetComponent<Kinematics>();
-        ballSoundManager = GetComponent<BallSoundManager>();
         effectController = GetComponent<EffectController>();
 
         sphereCollider = GetComponent<SphereCollider>();

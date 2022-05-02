@@ -105,24 +105,6 @@ public class PaddleGame : MonoBehaviour
     void Start()
     {
         globalControl = GlobalControl.Instance;
-        difficultyManager = GetComponent<DifficultyManager>();
-        trialsManager = GetComponent<TrialsManager>();
-        paddlesManager = GetComponent<PaddlesManager>();
-        ball = GetComponent<GameObject>();
-        targetLine = GetComponent<Target>();
-        feedbackCanvas = GetComponent<FeedbackCanvas>();
-        timeToDropQuad = GetComponent<GameObject>();
-        timeToDropText = GetComponent<Text>();
-        successfulTrialSound = GetComponent<AudioClip>();
-        feedbackSource = GetComponent<AudioSource>();
-        difficultySource = GetComponent<AudioSource>();
-        difficultyDisplay = GetComponent<TextMeshPro>();
-        highestBouncesDisplay = GetComponent<TextMeshPro>();
-        highestAccurateBouncesDisplay = GetComponent<TextMeshPro>();
-        pauseHandler = GetComponent<GlobalPauseHandler>();
-
-
-
         Instantiate(globalControl.environments[globalControl.environmentIndex]);
 
         // Calibrate the target line to be at the player's eye level

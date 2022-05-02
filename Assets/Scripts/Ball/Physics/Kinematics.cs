@@ -24,8 +24,6 @@ public class Kinematics : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        rigidBody = GetComponent<Rigidbody>();
-
         storedPosition = rigidBody.position;
         storedVelocity = rigidBody.velocity;
         storedAngularVelocity = rigidBody.angularVelocity;

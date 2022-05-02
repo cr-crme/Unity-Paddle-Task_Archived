@@ -53,9 +53,9 @@ public class Paddle : MonoBehaviour
         opaqueBacksideMat = GetComponent<Material>();
         transparentPaddleMat = GetComponent<Material>();
         transparentBacksideMat = GetComponent<Material>();
-        paddleCollider = GetComponent<GameObject>();
-        paddleModel = GetComponent<GameObject>();
-        backsideModel = GetComponent<GameObject>();   
+        paddleCollider = paddleCollider.gameObject;
+        paddleModel = paddleModel.gameObject;
+        backsideModel = backsideModel.gameObject;   
     }
 
     void Update()

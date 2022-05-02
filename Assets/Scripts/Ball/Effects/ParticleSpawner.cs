@@ -11,7 +11,7 @@ public class ParticleSpawner : MonoBehaviour
 
     private void Start()
     {
-        particles = GetComponent<GameObject>();
+        particles = particles.gameObject;
     }
 
     public void SpawnParticles()
