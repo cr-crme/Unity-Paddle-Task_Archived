@@ -32,12 +32,12 @@ public class BallSoundManager : MonoBehaviour {
     }
 
     public void PlayEffectSound(AudioClip audioClip)
-	{
+    {
         if (audioClip != null)
-		{
+        {
             effectSource.PlayOneShot(audioClip);
-		}
-	}
+        }
+    }
 
     // Play a random bounce sound from the array
     public void PlayBounceSound()

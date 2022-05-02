@@ -96,9 +96,9 @@ public class GlobalControl : MonoBehaviour
             // Debug.Log("not paused: " + timeElapsed);
         }
         else
-		{
+        {
             // Debug.Log("paused: " + Time.time);
-		}
+        }
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -117,7 +117,7 @@ public class GlobalControl : MonoBehaviour
     }
 
     public void ResetTimeElapsed()
-	{
+    {
         timeElapsed = 0;
-	}
+    }
 }

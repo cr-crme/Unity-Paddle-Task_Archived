@@ -25,29 +25,29 @@ public class Testing : MonoBehaviour
     }
 
     void Dissolve()
-	{
+    {
 
-	}
+    }
 
     void Respawn()
-	{
+    {
 
-	}
+    }
 
     void Sparks()
-	{
+    {
 
-	}
+    }
 
     void Fire()
-	{
+    {
 
-	}
+    }
 
     void BlueFure()
-	{
+    {
 
-	}
+    }
 
 
 }
