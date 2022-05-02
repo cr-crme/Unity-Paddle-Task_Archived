@@ -18,8 +18,6 @@ public class EffectController : MonoBehaviour
 
     void Start()
     {
-        soundManager = GetComponent<BallSoundManager>();
-
         dissolve?.gameObject.SetActive(false);
         respawn?.gameObject.SetActive(false);
         fire?.gameObject.SetActive(false);

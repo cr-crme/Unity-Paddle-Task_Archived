@@ -24,8 +24,8 @@ public class ViveControllerInput : MonoBehaviour
     void Awake()
     {
         velocityEstimate = GetComponent<VelocityEstimator>();
-        holdPoint = GetComponent<GameObject>();
-        ball = GetComponent<GameObject>();
+        holdPoint = holdPoint.gameObject;
+        ball = ball.gameObject;
     }
 
     void Update()

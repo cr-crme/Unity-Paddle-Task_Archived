@@ -15,8 +15,8 @@ public class BallParticleSpawner : MonoBehaviour
 
     private void Start()
     {
-        bounceParticles = GetComponent<GameObject>();
-        successParticles = GetComponent<GameObject>();
+        bounceParticles = bounceParticles.gameObject;
+        successParticles = successParticles.gameObject;
     }
 
     // Spawn particles indicating a bounce on the paddle

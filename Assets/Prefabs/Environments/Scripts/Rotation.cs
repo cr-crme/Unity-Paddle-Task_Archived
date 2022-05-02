@@ -41,12 +41,6 @@ public class Rotation : MonoBehaviour
     /// </summary>
     void Start()
     {
-        _gameObject = GetComponent<GameObject>();
-        axis = GetComponent<RotationAxis>();
-        radius = GetComponent<float>();
-        clockwise = GetComponent<bool>();
-        secondsPerRotation = GetComponent<float>();
-
         updateCenterPosn();
         angle = 0;
         speed = (2 * Mathf.PI) / secondsPerRotation;
