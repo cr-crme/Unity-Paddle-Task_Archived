@@ -38,17 +38,17 @@ public class GlobalPauseHandler : MonoBehaviour
     }
 
     public void SetIndicatorVisibility(bool visible)
-	{
-		if (visible)
-		{
+    {
+        if (visible)
+        {
             pauseIndicator.visibleOverride = true;
             pauseIndicator.visibleOverrideValue = true;
-		}
-		else
-		{
+        }
+        else
+        {
             pauseIndicator.visibleOverride = true;
             pauseIndicator.visibleOverrideValue = false;
-		}
-	}
+        }
+    }
 }
 

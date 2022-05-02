@@ -11,10 +11,10 @@ public class PauseIndicator : MonoBehaviour
     void Update()
     {
 
-		if (visibleOverride)
-		{
+        if (visibleOverride)
+        {
             quad.SetActive(visibleOverrideValue);
-		}
+        }
         else if (GlobalControl.Instance.paused)
         {
             quad.SetActive(true);

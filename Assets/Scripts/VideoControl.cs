@@ -24,7 +24,7 @@ public class VideoControl : MonoBehaviour
         globalControl = GlobalControl.Instance;
 
         if (GlobalControl.Instance.playVideo)
-		{
+        {
             globalPauseHandler = GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>();
             globalPauseHandler.Pause();
             globalPauseHandler.SetIndicatorVisibility(false);
@@ -37,25 +37,25 @@ public class VideoControl : MonoBehaviour
                 total += duration;
             }
             StartCoroutine(PlaybackFinished(total + .2f));
-		}
-		else
-		{
+        }
+        else
+        {
             renderTarget.gameObject.SetActive(false);
         }
     }
 
     void Update()
-	{
+    {
         if (Input.GetKeyDown(KeyCode.V))
-		{
+        {
             StopAllCoroutines();
             // StopCoroutine(playbackFinished);
             StartCoroutine(PlaybackFinished(0f));
-		}
-	}
+        }
+    }
 
     IEnumerator PlaybackFinished(float delaySeconds)
-	{
+    {
         yield return new WaitForSecondsRealtime(delaySeconds);
         Debug.Log("playback finished");
         renderTarget.gameObject.SetActive(false);
@@ -66,10 +66,10 @@ public class VideoControl : MonoBehaviour
         globalPauseHandler.Pause();
         paddleGame.Initialize(false);
         globalPauseHandler.pauseIndicator.visibleOverride = false;
-	}
+    }
 
     IEnumerator PracticeTime(float start, VideoData videoData)
-	{
+    {
         yield return new WaitForSecondsRealtime(start);
         //paddleGame.SetDifficulty(videoData.difficulty);
         player.clip = videoData.videoClip;

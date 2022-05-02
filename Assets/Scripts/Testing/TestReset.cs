@@ -19,8 +19,8 @@ public class TestReset : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             paddlePose.enabled = true;
             rigidbody.useGravity = true;
             rigidbody.constraints = RigidbodyConstraints.None;
@@ -32,20 +32,20 @@ public class TestReset : MonoBehaviour
         }
     }
 
-	private void OnCollisionEnter(Collision collision)
-	{
-		if(collision.collider.gameObject.name == "Ground")
-		{
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.collider.gameObject.name == "Ground")
+        {
             // rigidbody.velocity = Vector3.zero;
-			rigidbody.angularVelocity = Vector3.zero;
+            rigidbody.angularVelocity = Vector3.zero;
             rigidbody.useGravity = false;
             transform.position = new Vector3(0, 2, .705f);
             transform.rotation = Quaternion.identity;
 
             StartCoroutine(Reset(1f));
         }
-		else if (collision.gameObject.tag == "Paddle")
-		{
+        else if (collision.gameObject.tag == "Paddle")
+        {
             Debug.Log($"Collided with {collision.gameObject.name} at {Time.time} with contact count {collision.contactCount}");
 
             paddlePose.enabled = false;
@@ -58,14 +58,14 @@ public class TestReset : MonoBehaviour
 
             StopCoroutine("Reset");
 
-		}
-	}
+        }
+    }
 
     IEnumerator Reset(float seconds)
-	{
+    {
         yield return new WaitForSeconds(seconds);
         rigidbody.useGravity = true;
         
 
-	}
+    }
 }

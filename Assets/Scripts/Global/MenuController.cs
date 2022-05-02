@@ -81,9 +81,9 @@ public class MenuController : MonoBehaviour {
     }
 
     void UpdateConditionalUIObjects()
-	{
+    {
         ShowProperSessionCanvas();
-	}
+    }
     #endregion
 
     #region Finalization
