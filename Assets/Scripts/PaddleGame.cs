@@ -16,10 +16,6 @@ public class PaddleGame : MonoBehaviour
 	[SerializeField, Tooltip("The main manager for the game difficulty")]
 	private DifficultyManager difficultyManager;
 
-	[Tooltip("The head mounted display")]
-	[SerializeField]
-	private GameObject hmd;
-
 	[SerializeField]
 	[Tooltip("The paddles in the game")]
 	PaddlesManager paddlesManager;
@@ -45,7 +41,7 @@ public class PaddleGame : MonoBehaviour
 	private Text timeToDropText;
 
 	[SerializeField]
-	AudioClip feedbackExample;
+	AudioClip successfulTrialSound;
 
 	[SerializeField]
 	AudioSource feedbackSource, difficultySource;
@@ -109,9 +105,6 @@ public class PaddleGame : MonoBehaviour
 	int scoreEffectTarget = 0;
 	bool maxScoreEffectReached = false;
 
-	List<TrialCondition> trialConditions = new List<TrialCondition>();
-	TrialCondition baseTrialCondition, moderateTrialCondition, maximaltrialCondition;
-
 	float difficultyExampleTime = 30f;
 
 	int highestBounces, highestAccurateBounces;
@@ -133,8 +126,6 @@ public class PaddleGame : MonoBehaviour
 
 
 		PopulateScoreEffects();
-
-		//InitializeTrialConditions();
 
 		if(globalControl.session == SessionType.Session.SHOWCASE)
 		{
@@ -191,7 +182,7 @@ public class PaddleGame : MonoBehaviour
 				$"time elapsed {globalControl.GetTimeElapsed()} greater " +
                 $"than max trial time {difficultyManager.maximumTrialTime}"
 			);
-			difficultyManager.EvaluatePerformance(globalControl.GetTimeElapsed());
+			difficultyManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
 			if (
 				session == SessionType.Session.SHOWCASE || difficultyManager.isSessionOver
 			)
@@ -315,23 +306,15 @@ public class PaddleGame : MonoBehaviour
 		if (globalControl.session == SessionType.Session.PRACTISE)
 		{
 			difficultyDisplay.text = difficultyManager.currentLevel.ToString();
-			//trialData.Add(new DifficultyEvaluationData<TrialData>(
-			//	difficultyEvaluationOrder[difficultyEvaluationIndex], new List<TrialData>())
-			//);
-
-		}
-		else if (globalControl.session == SessionType.Session.SHOWCASE)
+        }
+        else if (globalControl.session == SessionType.Session.SHOWCASE)
 		{
 			difficultyManager.currentLevel = 2;
 			StartShowcase();
 		}
 		else
 		{
-			difficultyManager.currentLevel = globalControl.level;
-			//trialData.Add(new DifficultyEvaluationData<TrialData>(TrialDifficultyPreset.CUSTOM, new List<TrialData>()));
-			pauseHandler.Pause();
-			// difficulty shifts timescale, so pause it again
-			Time.timeScale = 0;
+			Debug.LogError($"SessionType: {globalControl.session} not implemented yet");
 		}
 
 
@@ -386,47 +369,11 @@ public class PaddleGame : MonoBehaviour
 		scoreEffectTarget = 0;
 	}
 
-	///// <summary>
-	///// Set up the conditions in which conditions or feedback would be triggered. a function is created for each condition to evaluate the data and will return the number of true conditions
-	///// </summary>
-	//void InitializeTrialConditions()
-	//{
-	//	// difficulty conditions
-	//	baseTrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
-	//	{
-	//		if (trialData.numBounces >= targetConditionBounces[TrialDifficultyPreset.BASE])
-	//		{
-	//			return trialData.numBounces / targetConditionBounces[TrialDifficultyPreset.BASE];
-	//		}
-	//		return 0; 
-	//	});
-	//	moderateTrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
-	//	{ 
-	//		if (trialData.numBounces >= targetConditionBounces[TrialDifficultyPreset.MODERATE] && (!globalControl.targetHeightEnabled || trialData.numAccurateBounces >= targetConditionAccurateBounces[TrialDifficultyPreset.MODERATE])) 
-	//		{
-	//			int bounces = trialData.numBounces / targetConditionBounces[TrialDifficultyPreset.MODERATE];
-	//			int accurateBounces = trialData.numAccurateBounces / targetConditionAccurateBounces[TrialDifficultyPreset.MODERATE];
-	//			return !globalControl.targetHeightEnabled ? bounces : accurateBounces; 
-	//		} 
-	//		return 0; 
-	//	});
-	//	maximaltrialCondition = new TrialCondition(7, 10, false, feedbackExample, (TrialData trialData) => 
-	//	{
-	//		if (trialData.numBounces >= targetConditionBounces[TrialDifficultyPreset.MAXIMAL])
-	//		{
-	//			return trialData.numAccurateBounces / targetConditionBounces[TrialDifficultyPreset.MAXIMAL];
-	//		}
-	//		return 0; 
-	//	});
 
-	//	// feedback conditions
-	//	trialConditions.Add(new TrialCondition(5, 5, true, feedbackExample, (TrialData trialData) => { if (trialData.numBounces < 0) { return 1; } return 0; }));
-	//}
-
-	/// <summary>
-	/// run through all diffiuclties in a short amount of time to get a feel for them
-	/// </summary>
-	void StartShowcase()
+    /// <summary>
+    /// run through all diffiuclties in a short amount of time to get a feel for them
+    /// </summary>
+    void StartShowcase()
 	{
 		pauseHandler.Resume();
 		SetTrialLevel(difficultyManager.currentLevel);
@@ -541,24 +488,20 @@ public class PaddleGame : MonoBehaviour
 	// The ball was reset after hitting the ground. Reset bounce and score.
 	public void ResetTrial(bool final = false)
 	{
-		// Don't run this code the first time the ball is reset or when there are 0 bounces
-		//if (trialNum < 1 /*|| numBounces < 1*/)
-		//{
-		//	trialNum++;
-		//	CheckEndCondition();
-		//	return;
-		//}
+        // Don't run this code the first time the ball is reset or when there are 0 bounces
+        if (trialNum < 1 /*|| numBounces < 1*/)
+        {
+            trialNum++;
+            CheckEndCondition();
+            return;
+        }
 
-		//if (!_isInTrial)
-		//	return;
+        if (!_isInTrial)
+            return;
 
-		//_isInTrial = false;
+        _isInTrial = false;
 
-		//// Record data for final bounce in trial
-		//GatherBounceData();
-
-
-		if (!final && trialNum != 0 && trialNum % 10 == 0)
+        if (!final && trialNum != 0 && trialNum % 10 == 0)
 		{
 			// some difficulty effects are regenerated every 10 trials
 			SetTrialLevel(difficultyManager.currentLevel);
@@ -598,12 +541,7 @@ public class PaddleGame : MonoBehaviour
 	// This will be called when the ball successfully bounces on the paddle.
 	public void BallBounced()
 	{
-		//if (numBounces > 0)
-		//{
-		//	GatherBounceData();
-		//}
-		//SetUpPaddleData();
-		numBounces++;
+        numBounces++;
 		numTotalBounces++;
 
 		// If there are two paddles, switch the active one
@@ -639,99 +577,27 @@ public class PaddleGame : MonoBehaviour
 			}
 		}
 
-		CheckEndCondition(true);
+		CheckEndCondition();
 	}
 
 	/// <summary>
-	/// if the evaluation does not end, chacks all other conditions
+	/// if the evaluation does not end, checks all other conditions
 	/// </summary>
-	void CheckEndCondition(bool fromBounce = false)
+	void CheckEndCondition()
 	{
-		if(session == SessionType.Session.SHOWCASE)
+		if(session == SessionType.Session.SHOWCASE) 
+			return;
+
+ 		if (difficultyManager.AreTrialConditionsMet())
 		{
+			feedbackSource.PlayOneShot(successfulTrialSound);
+		}
+
+		if (difficultyManager.isSessionOver)
+		{
+			QuitTask();
 			return;
 		}
-
- 		if (CheckScoreCondition())
-		{
-			difficultyManager.EvaluatePerformance(globalControl.GetTimeElapsed());
-			if (difficultyManager.isSessionOver)
-            {
-				QuitTask();
-				return;
-			}
-		}
-		else
-		{
-			CheckTrialConditions(fromBounce);
-		}
-	}
-
-	void CheckTrialConditions(bool fromBounce = false)
-	{
-		foreach(var trialCondition in trialConditions)
-		{
-			CheckCondition(trialCondition, fromBounce);
-		}
-	}
-
-	bool CheckScoreCondition()
-	{
-		//TrialCondition difficultyCondition = GetDifficultyCondition(sessionManager.currentDifficultyChoice);
-		//return CheckCondition(difficultyCondition);
-		return true;
-	}
-
-	/// <summary>
-	/// evaluate the set of recent bouces in the trial and recent trials. will determine how many true conditions there are/>
-	/// </summary>
-	/// <param name="trialCondition"></param>
-	/// <param name="fromBounce"></param>
-	/// <returns></returns>
-	bool CheckCondition(TrialCondition trialCondition, bool fromBounce = false)
-	{
-		return true;
-		//var datas = new List<TrialResults>(trialData[difficultyEvaluationIndex].datas);
-
-		//if (fromBounce)
-		//{
-		//	// add data from current set in progress
-		//	datas.Add(new TrialData(degreesOfFreedom, Time.time, _trialTimer, trialNum, numBounces, numAccurateBounces, sessionManager.currentLevel));
-		//}
-
-		//if (trialCondition.trialEvaluationCooldown > 0)
-		//{
-		//	trialCondition.trialEvaluationCooldown--;
-		//	return false;
-		//}
-
-		//int trueCount = 0;
-
-		//// check for true conditions in recent data  
- 	//	for(int i = datas.Count - 1; i >= datas.Count - (trialCondition.trialEvaluationsSet < datas.Count ? trialCondition.trialEvaluationsSet : datas.Count) && i >= 0; i--)
-		//{
-		//	int trueInTrial = trialCondition.checkTrialCondition(datas[i]);
-		//	if (trueInTrial > 0)
-		//	{
-		//		trueCount += trueInTrial;
-		//	}
-		//	else if (trialCondition.sequential)
-		//	{
-		//		trueCount = 0;
-		//	}
-
-		//	if (trueCount >= trialCondition.trialEvaluationTarget)
-		//	{
-		//		// successful condition
-		//		if (trialCondition.conditionFeedback != null)
-		//		{	
-		//			feedbackSource.PlayOneShot(trialCondition.conditionFeedback);
-		//		}
-		//		trialCondition.trialEvaluationCooldown = trialCondition.trialEvaluationsSet;
-		//		return true;
-		//	}
-		//}
-		//return false;
 	}
 
 	void UpdateHighestBounceDisplay()
@@ -748,25 +614,6 @@ public class PaddleGame : MonoBehaviour
 		{
 			highestAccurateBouncesDisplay.text = "";
 		}
-	}
-
-
-	public TrialCondition GetDifficultyCondition(DifficultyChoice evaluation)
-	{
-		if (evaluation == DifficultyChoice.BASE)
-		{
-			return baseTrialCondition;
-		}
-		else if (evaluation == DifficultyChoice.MODERATE)
-		{
-			return moderateTrialCondition;
-		}
-		else if (evaluation == DifficultyChoice.MAXIMAL)
-		{
-			return maximaltrialCondition;
-		}
-
-		return null;
 	}
 
 	public int GetMaxDifficultyTrialTime()
@@ -792,17 +639,14 @@ public class PaddleGame : MonoBehaviour
 	#region Difficulty
 	void EvaluatePerformance()
     {
-		double _score = difficultyManager.EvaluatePerformance(globalControl.GetTimeElapsed());
+		double _score = difficultyManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
 
 		// each are evaluating for the next difficulty
 		int _newLevel = difficultyManager.ScoreToLevel(_score);
 
 		SetTrialLevel(_newLevel);
 
-		// reset cooldown, condition may be used again
-		//GetDifficultyCondition(sessionManager.currentDifficulty).trialEvaluationCooldown = 0;
-
-		difficultyEvaluationIndex++;
+        difficultyEvaluationIndex++;
 		Debug.Log(
 			$"Increased Difficulty Evaluation to {difficultyEvaluationIndex} with new difficulty " +
 			$"evaluation difficulty evaluation: {difficultyManager.difficultyName}"
