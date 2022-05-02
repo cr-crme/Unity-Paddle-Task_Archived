@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 public enum DifficultyChoice { BASE, MODERATE, MAXIMAL };
 public class DifficultyFactory
 {
@@ -19,6 +18,7 @@ public class DifficultyFactory
                 10.0 * 60,
                 5,
                 0,
+                false,
                 new Tuple<double, double>(2, 5),
                 new List<bool> { 
                     false, false, false, false, false, true, true, true, true, true, true 
@@ -60,6 +60,10 @@ public class DifficultyFactory
                     new RandomizableFloat(0.035f),
                     new RandomizableFloat(0.0325f),
                     new RandomizableFloat(0.03f)
+                },
+                (int _currentLevel, TrialData _trialData, DifficultyDefinition _difficultyDefinition) => {
+                    // Reminder 0 if bounces < required as they are int
+                    return _trialData.nbBounces >= _difficultyDefinition.nbOfBounceRequired;
                 }
             )
         );
@@ -71,6 +75,7 @@ public class DifficultyFactory
                 10.0 * 60,
                 5,
                 5,
+                false,
                 new Tuple<double, double>(6, 10),
                 new List<bool> {
                     false, false, false, false, false, true, true, true, true, true, true 
@@ -112,6 +117,14 @@ public class DifficultyFactory
                     new RandomizableFloat(0.035f),
                     new RandomizableFloat(0.0325f),
                     new RandomizableFloat(0.03f)
+                },
+                (int _currentLevel, TrialData _trialData, DifficultyDefinition _difficultyDefinition) =>
+                {
+                    // Reminder 0 if bounces < required as they are int
+                    if (_difficultyDefinition.hasTarget(_currentLevel)) 
+                        return _trialData.nbAccurateBounces >= _difficultyDefinition.nbOfAccurateBounceRequired;
+                    else
+                        return _trialData.nbBounces >= _difficultyDefinition.nbOfBounceRequired;
                 }
             )
         );
@@ -122,6 +135,7 @@ public class DifficultyFactory
                 10.0 * 60,
                 5,
                 5,
+                false,
                 new Tuple<double, double>(6, 10),
                 new List<bool> {
                     false, false, false, false, false, true, true, true, true, true, true 
@@ -163,6 +177,11 @@ public class DifficultyFactory
                     new RandomizableFloat(0.035f),
                     new RandomizableFloat(0.0325f),
                     new RandomizableFloat(0.03f)
+                },
+                (int _currentLevel, TrialData _trialData, DifficultyDefinition _difficultyDefinition) =>
+                {
+                    // Reminder 0 if bounces < required as they are int
+                    return _trialData.nbAccurateBounces >= _difficultyDefinition.nbOfAccurateBounceRequired;
                 }
             )
         );

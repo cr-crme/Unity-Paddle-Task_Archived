@@ -3,14 +3,16 @@
 /// public readonly, so can always be accessed, but can only be assigned once in the
 /// constructor.
 /// </summary>
-public class TrialResults
+/// 
+
+public class TrialData
 {
     public float time { get; private set; }
     public int nbBounces { get; private set; }
     public int nbAccurateBounces { get; private set; }
 
-    public TrialResults(
-        float _time, 
+    public TrialData(
+        float _time,
         int _nbBounces,
         int _nbAccurateBounces
     )

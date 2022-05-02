@@ -15,8 +15,9 @@ public class DifficultyManager : MonoBehaviour
 
 
     #region Data
-    private List<TrialResults> trialResults = new List<TrialResults>();
-    private TrialResults currentTrial { get { return trialResults.Last(); } }
+    public List<TrialData> allTrialsData { get; protected set; } = new List<TrialData>();
+    private TrialData currentTrial { get { return allTrialsData.Last(); } }
+
     public void AddBounceToCurrentResults(bool _isAccurate)
     {
         currentTrial.AddBounce(_isAccurate);
@@ -40,16 +41,16 @@ public class DifficultyManager : MonoBehaviour
         }
 
         int _totalBounces = 0, _totalAccurateBounces = 0;
-        foreach (var trial in trialResults)
+        foreach (var trial in allTrialsData)
         {
             _totalBounces += trial.nbBounces;
             _totalAccurateBounces += trial.nbAccurateBounces;
         }
         double _averageBounces = ComputeAverage(
-            _totalBounces, trialResults.Count, 0.0, 1.3
+            _totalBounces, allTrialsData.Count, 0.0, 1.3
         );
         double _averageAccurateBounces = hasTarget ?
-            ComputeAverage(_totalAccurateBounces, trialResults.Count, 0, 1.3) : 0;
+            ComputeAverage(_totalAccurateBounces, allTrialsData.Count, 0, 1.3) : 0;
 
         // evaluating time percentage of the way to end
         double _timeScalar = 1 - (_elapsedTime / currentDifficulty.maximumTrialTime);
@@ -59,10 +60,6 @@ public class DifficultyManager : MonoBehaviour
         );
     }
 
-    public double EvaluatePerformance(double elapsedTime)
-    {
-        return EvaluateSessionPerformance(elapsedTime);
-    }
     public int ScoreToLevel(double _score)
     {
         return currentDifficulty.ScoreToLevel(_score);
@@ -86,13 +83,16 @@ public class DifficultyManager : MonoBehaviour
     #endregion
 
     #region Target
-    public bool hasTarget { get { return currentDifficulty.shouldShowTarget(currentLevel); } }
+    public bool hasTarget { get { return currentDifficulty.hasTarget(currentLevel); } }
     public TargetEnum.Height targetHeight { get { return GlobalControl.Instance.targetHeightPreference; } }
     public float targetHeightOffset { get { return currentDifficulty.targetHeightOffset(currentLevel); } }
     public float targetWidth { get { return currentDifficulty.targetWidth(currentLevel); } }
     #endregion
 
     #region Trial
+    public bool AreTrialConditionsMet() {
+        return currentDifficulty.AreTrialConditionsMet(_currentLevel, currentTrial); 
+    }
     public bool mustSwitchPaddleAfterHitting { get { return paddlesManager.NbPaddles > 1; } }
     public double maximumTrialTime { get { return currentDifficulty.maximumTrialTime; } }
     #endregion
@@ -126,8 +126,7 @@ public class DifficultyManager : MonoBehaviour
     {
         DifficultyChoice.BASE,
         DifficultyChoice.MODERATE,
-        DifficultyChoice.MAXIMAL,
-        DifficultyChoice.MODERATE
+        DifficultyChoice.MAXIMAL
     };
     public void AddDifficultyToSessionList(DifficultyChoice newDifficulty)
     {
