@@ -6,6 +6,11 @@ public class DifficultyManager : MonoBehaviour
     [SerializeField, Tooltip("The paddles manager")]
     private PaddlesManager paddlesManager;
 
+    private void Start()
+    {
+        paddlesManager = GetComponent<PaddlesManager>();
+    }
+
     #region Accessors
     #region Ball
     public int nbOfBounceRequired { get { return currentDifficulty.nbOfBounceRequired; } }

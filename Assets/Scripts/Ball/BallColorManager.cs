@@ -19,6 +19,13 @@ public class BallColorManager : MonoBehaviour
     [SerializeField]
     private Material blueBallMat;
 
+    private void Start()
+    {
+        ballMat = GetComponent<Material>();
+        greenBallMat = GetComponent<Material>();
+        redBallMat = GetComponent<Material>();
+        blueBallMat = GetComponent<Material>();
+    }
 
     // For Green/White IEnumerator coroutine 
     bool inTurnBallWhiteCR = false;

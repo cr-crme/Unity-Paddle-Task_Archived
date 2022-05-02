@@ -9,6 +9,11 @@ public class ParticleSpawner : MonoBehaviour
     [SerializeField]
     private GameObject particles;
 
+    private void Start()
+    {
+        particles = GetComponent<GameObject>();
+    }
+
     public void SpawnParticles()
     {
         Instantiate(particles, transform.position, Quaternion.identity);

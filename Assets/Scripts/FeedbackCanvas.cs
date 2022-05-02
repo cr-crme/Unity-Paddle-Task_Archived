@@ -24,6 +24,12 @@ public class FeedbackCanvas : MonoBehaviour {
     //private float hiScore = 0;
     //private int hiBounce = 0;
 
+    void Start()
+    {
+        bounceText = GetComponent<TextMeshPro>();
+        scoreText = GetComponent<Text>();
+    }
+
     public void UpdateScoreText(float curScore, int curBounces)
     {
         /**

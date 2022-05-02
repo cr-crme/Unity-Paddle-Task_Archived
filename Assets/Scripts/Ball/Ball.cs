@@ -46,6 +46,11 @@ public class Ball : MonoBehaviour
 
     void Awake()
     {
+        gameScript = GetComponent<PaddleGame>();
+        ballSoundManager = GetComponent<BallSoundManager>();
+        ballColorManager = GetComponent<BallColorManager>();
+        target = GetComponent<Target>();
+
         kinematics = GetComponent<Kinematics>();
         ballSoundManager = GetComponent<BallSoundManager>();
         effectController = GetComponent<EffectController>();
@@ -103,21 +108,19 @@ public class Ball : MonoBehaviour
 
     public IEnumerator Respawning(GlobalPauseHandler pauseHandler)
     {
-        Debug.Log("Respawning started " + Time.timeScale);
         inRespawnMode = true;
         Time.timeScale = 1f;
         effectController.StopAllParticleEffects();
-        effectController.StartEffect(effectController.dissolve);
+        effectController.StartVisualEffect(effectController.dissolve);
         yield return new WaitForSeconds(ballRespawnSeconds);
         inRespawnMode = false;
         inHoverMode = true;
         yield return new WaitForEndOfFrame();
         effectController.StopParticleEffect(effectController.dissolve);
         pauseHandler.Pause();
-        effectController.StartEffect(effectController.respawn);
-        yield return new WaitForSeconds(ballRespawnSeconds);
+        effectController.StartVisualEffect(effectController.respawn);
+        yield return new WaitForSeconds(ballResetHoverSeconds);
         ballColorManager.SetToNormalColor();
-        Debug.Log("Respawning finished " + Time.timeScale);
     }
 
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
@@ -139,6 +142,11 @@ public class Ball : MonoBehaviour
             DeclareBounce();
             ballSoundManager.PlayBounceSound();
         }
+    }
+
+    public void SelectEffectDependingOnScore(float _score)
+    {
+        effectController.SelectScoreDependentEffects(_score);
     }
 
     public bool isOnGround()

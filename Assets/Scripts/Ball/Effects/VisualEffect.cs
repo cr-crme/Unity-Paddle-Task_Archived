@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// contains necessary effect information and setup. can have a shader and a set of particle effects
 /// </summary>
-public class Effect : MonoBehaviour
+public class VisualEffect : MonoBehaviour
 {
 	public float effectTime = 4;
 	public AnimationCurve fadeIn;
@@ -56,22 +56,19 @@ public class Effect : MonoBehaviour
 			if (timer < effectTime)
 			{
 				timer += Time.deltaTime;
+				renderer.material.SetFloat(shaderProperty, fadeIn.Evaluate(Mathf.InverseLerp(0, effectTime, timer)));
 			}
 			else
 			{
-				// ResetEffect();
+				StopEffect();
 			}
-
-			renderer.material.SetFloat(
-				shaderProperty, fadeIn.Evaluate(Mathf.InverseLerp(0, effectTime, timer))
-			);
 		}
 	}
 
-	public void ResetEffect()
+	public void StopEffect()
 	{
 		playing = false;
-		timer = 0;
+		timer = -1;
 	}
 
 	public void StartEffect()
@@ -81,7 +78,7 @@ public class Effect : MonoBehaviour
 		timer = 0;
 	}
 
-	public EffectParticle GetEffectParticle(Effect effect)
+	public EffectParticle GetEffectParticle(VisualEffect effect)
 	{
 		foreach (var particle in effectParticles)
 		{

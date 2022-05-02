@@ -18,7 +18,6 @@ public class VideoControl : MonoBehaviour
     
     GlobalControl globalControl;
     GlobalPauseHandler globalPauseHandler;
-    float playedTime = 0f;
 
     void Start()
     {

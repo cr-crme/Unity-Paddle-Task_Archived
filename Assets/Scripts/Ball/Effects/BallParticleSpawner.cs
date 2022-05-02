@@ -13,6 +13,12 @@ public class BallParticleSpawner : MonoBehaviour
     [SerializeField]
     private GameObject successParticles;
 
+    private void Start()
+    {
+        bounceParticles = GetComponent<GameObject>();
+        successParticles = GetComponent<GameObject>();
+    }
+
     // Spawn particles indicating a bounce on the paddle
     public void SpawnBounceParticles()
     {
