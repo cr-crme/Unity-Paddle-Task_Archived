@@ -5,13 +5,13 @@
 /// </summary>
 /// 
 
-public class TrialData
+public class Trial
 {
     public float time { get; private set; }
     public int nbBounces { get; private set; }
     public int nbAccurateBounces { get; private set; }
 
-    public TrialData(
+    public Trial(
         float _time,
         int _nbBounces,
         int _nbAccurateBounces

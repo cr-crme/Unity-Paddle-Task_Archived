@@ -7,7 +7,7 @@ using UnityEngine;
 /// according to determined criteria of level and difficulty
 /// </summary>
 public delegate bool IsTrialSuccessfulEvaluator(
-    int currentLevel, TrialData _trialData, DifficultyDefinition _difficultyDefinition
+    int currentLevel, Trial _trialData, DifficultyDefinition _difficultyDefinition
 );
 
 public class RandomizableFloat
@@ -95,7 +95,7 @@ public class DifficultyDefinition
     }
 
     private IsTrialSuccessfulEvaluator isTrialSuccessful;
-    public bool AreTrialConditionsMet(int _currentLevel, TrialData _trialData) {
+    public bool AreTrialConditionsMet(int _currentLevel, Trial _trialData) {
         return isTrialSuccessful(_currentLevel, _trialData, this); 
     }
 }

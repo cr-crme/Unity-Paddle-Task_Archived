@@ -1,72 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class DifficultyManager : MonoBehaviour
 {
     #region Functions to move out of the file
-    public bool isTimeOver(double elapsedTime) { return elapsedTime > currentDifficulty.maximumTrialTime; }
-    public bool isSessionOver
-    {
-        get { return currentDifficultyChoiceIndex >= difficultyOverSession.Count; }
-    }
-
-
-
-    #region Data
-    public List<TrialData> allTrialsData { get; protected set; } = new List<TrialData>();
-    private TrialData currentTrial { get { return allTrialsData.Last(); } }
-
-    public void AddBounceToCurrentResults(bool _isAccurate)
-    {
-        currentTrial.AddBounce(_isAccurate);
-    }
-    public double EvaluateSessionPerformance(
-        double _elapsedTime
-    )
-    {
-        double ComputeAverage(
-            double _total, double _nbElement, double _minValue, double _maxValue
-        )
-        {
-            // Computed bounded average of the bouncing and accurate bouncing
-            double _average = _total / _nbElement;
-            _average = double.IsNaN(_average) ? 0 : _average;
-            return (double)Mathf.Clamp(
-                (float)(_average / currentDifficulty.nbOfBounceRequired),
-                (float)_minValue,
-                (float)_maxValue
-            );
-        }
-
-        int _totalBounces = 0, _totalAccurateBounces = 0;
-        foreach (var trial in allTrialsData)
-        {
-            _totalBounces += trial.nbBounces;
-            _totalAccurateBounces += trial.nbAccurateBounces;
-        }
-        double _averageBounces = ComputeAverage(
-            _totalBounces, allTrialsData.Count, 0.0, 1.3
-        );
-        double _averageAccurateBounces = hasTarget ?
-            ComputeAverage(_totalAccurateBounces, allTrialsData.Count, 0, 1.3) : 0;
-
-        // evaluating time percentage of the way to end
-        double _timeScalar = 1 - (_elapsedTime / currentDifficulty.maximumTrialTime);
-        double _targetHeightModifier = hasTarget ? 3 : 2;
-        return Mathf.Clamp01(
-            (float)((_averageBounces + _averageAccurateBounces + _timeScalar) / _targetHeightModifier)
-        );
-    }
-
-    public int ScoreToLevel(double _score)
-    {
-        return currentDifficulty.ScoreToLevel(_score);
-    }
-    #endregion
-
-
 
     #endregion
 
@@ -90,8 +27,9 @@ public class DifficultyManager : MonoBehaviour
     #endregion
 
     #region Trial
-    public bool AreTrialConditionsMet() {
-        return currentDifficulty.AreTrialConditionsMet(_currentLevel, currentTrial); 
+    public bool AreAllDifficultiesDone { get { return currentDifficultyChoiceIndex >= difficultyOverSession.Count; } }
+    public bool AreTrialConditionsMet(Trial _currentTrial) {
+        return currentDifficulty.AreTrialConditionsMet(_currentLevel, _currentTrial); 
     }
     public bool mustSwitchPaddleAfterHitting { get { return paddlesManager.NbPaddles > 1; } }
     public double maximumTrialTime { get { return currentDifficulty.maximumTrialTime; } }
@@ -114,6 +52,10 @@ public class DifficultyManager : MonoBehaviour
             }
             _currentLevel = value;
         }
+    }
+    public int ScoreToLevel(double _score)
+    {
+        return currentDifficulty.ScoreToLevel(_score);
     }
     #endregion
 
