@@ -10,15 +10,6 @@ using UnityEngine.Networking;
 /// </summary>
 public class DataHandler : MonoBehaviour
 {
-	// stores the data for writing to file at end of task
-	List<DifficultyEvaluationData<TrialResults>> trialDatas = new List<DifficultyEvaluationData<TrialResults>>();
-	//{
-	//    { DifficultyEvaluation.BASE, new List<TrialData>() },
-	//    { DifficultyEvaluation.MODERATE, new List<TrialData>() },
-	//    { DifficultyEvaluation.MAXIMAL, new List<TrialData>() },
-	//    { DifficultyEvaluation.CUSTOM, new List<TrialData>() },
-	//};
-
 	HeaderData headerData;
 
 	private string pid;
@@ -28,12 +19,6 @@ public class DataHandler : MonoBehaviour
 	Dictionary<DifficultyChoice, int> evaluationsCount = new Dictionary<DifficultyChoice, int>();
 
 	public bool dataWritten = false;
-
-	public void InitializeDifficultyEvaluationData(DifficultyDefinition difficultyEvaluation)
-	{
-		trialDatas.Add(new DifficultyEvaluationData<TrialResults>(difficultyEvaluation, new List<TrialResults>()));
-		difficultyEvaluationIndex++;
-	}
 
 	int GetEvaluationsIteration(DifficultyDefinition difficultyEvaluation)
 	{
@@ -76,12 +61,6 @@ public class DataHandler : MonoBehaviour
 		System.DateTime now = System.DateTime.Now;
 		pid = GlobalControl.Instance.participantID + "_" + now.Month.ToString() + "-" + now.Day.ToString() + "-" + now.Year + "_" + now.Hour + "-" + now.Minute + "-" + now.Second; // + "_" + pid;
 
-	}
-
-    // Records trial data into the data list
-    public void recordTrial(float degreesOfFreedom, float time, float trialTime, int trialNum, int numBounces, int numAccurateBounces, DifficultyChoice difficultyEvaluation, int difficulty)
-	{
-		trialDatas[difficultyEvaluationIndex].datas.Add(new TrialResults(time, numBounces, numAccurateBounces));
 	}
 
 	public void recordHeaderInfo(SessionType.Session s, int maxtime, float htime, float twidth)
