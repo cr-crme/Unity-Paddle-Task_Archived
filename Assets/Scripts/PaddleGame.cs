@@ -117,12 +117,10 @@ public class PaddleGame : MonoBehaviour
 	int highestBounces, highestAccurateBounces;
 
 	GlobalControl globalControl;
-	DataHandler dataHandler;
 
 	void Start()
 	{
 		globalControl = GlobalControl.Instance;
-		dataHandler = GetComponent<DataHandler>();
 
 		Instantiate(globalControl.environments[globalControl.environmentIndex]);
 
@@ -291,8 +289,6 @@ public class PaddleGame : MonoBehaviour
 		// This is to ensure that the final trial is recorded.
 		ResetTrial(true);
 
-		dataHandler.WriteDataToFiles();
-
 		// clean DDoL objects and return to the start scene
 		Destroy(GlobalControl.Instance.gameObject);
 		Destroy(gameObject);
@@ -310,7 +306,6 @@ public class PaddleGame : MonoBehaviour
 			return;
 		}
 
-		dataHandler.dataWritten = false;
 		// Initialize Condition and Visit types
 		session = globalControl.session;
 		degreesOfFreedom = globalControl.degreesOfFreedom;
@@ -326,9 +321,6 @@ public class PaddleGame : MonoBehaviour
 			//trialData.Add(new DifficultyEvaluationData<TrialData>(
 			//	difficultyEvaluationOrder[difficultyEvaluationIndex], new List<TrialData>())
 			//);
-			//dataHandler.InitializeDifficultyEvaluationData(
-			//	difficultyEvaluationOrder[difficultyEvaluationIndex]
-			//);
 
 		}
 		else if (globalControl.session == SessionType.Session.SHOWCASE)
@@ -340,8 +332,6 @@ public class PaddleGame : MonoBehaviour
 		{
 			sessionManager.currentLevel = globalControl.level;
 			//trialData.Add(new DifficultyEvaluationData<TrialData>(TrialDifficultyPreset.CUSTOM, new List<TrialData>()));
-			// TODO: CHECK NEXT LINE
-			//dataHandler.InitializeDifficultyEvaluationData(DifficultyChoice.BASE);
 			pauseHandler.Pause();
 			// difficulty shifts timescale, so pause it again
 			Time.timeScale = 0;
@@ -799,66 +789,6 @@ public class PaddleGame : MonoBehaviour
 		}
 		return null;
 	}
-
-	//#region Gathering and recording data
-
-	//	public void StartRecording()
-	//	{
-	//		// Record session data
-	//		dataHandler.recordHeaderInfo(
-	//			condition, expCondition, session, globalControl.maxTrialTime, globalControl.ballResetHoverSeconds, globalControl.targetWidth
-	//		);
-	//	}
-
-	//	// Determine data for recording a bounce and finally, record it.
-	//	private void GatherBounceData()
-	//	{
-	//		float apexHeight = Mathf.Max(bounceHeightList.ToArray());
-	//		float apexTargetError = globalControl.targetHeightEnabled ? (apexHeight - targetLine.transform.position.y) : 0;
-
-	//		bool apexSuccess = globalControl.targetHeightEnabled ? GetHeightInsideTargetWindow(apexHeight) : true;
-
-	//		// If the apex of the bounce was inside the target window, increase the score
-	//		if (apexSuccess)
-	//		{
-	//			curScore += 10;
-	//			if (trialManager.hasTarget)
-	//			{
-	//				numAccurateBounces++;
-	//			}
-
-	//			ball.GetComponent<Ball>().IndicateSuccessBall(); // temporariliy disabled while testing apex coroutines in Ball
-	//		}
-
-	//		//Record Data from last bounce
-	//		Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
-
-
-	//		bounceHeightList = new List<float>();
-	//	}
-
-	//	// Grab ball and paddle info and record it. Should be called once per frame
-	//	private void GatherContinuousData()
-	//	{
-	//		Paddle paddle = paddlesManager.ActivePaddle;
-	//		Vector3 ballVelocity = ball.GetComponent<Rigidbody>().velocity;
-	//		Vector3 paddleVelocity = paddle.Velocity;
-	//		Vector3 paddleAccel = paddle.Acceleration;
-
-	//		Vector3 cbm = ball.GetComponent<Ball>().GetBounceModification();
-
-	//	}
-	//	// Initialize paddle information to be recorded upon next bounce
-	//	private void SetUpPaddleData()
-	//	{
-	//		Paddle paddle = paddlesManager.ActivePaddle;
-
-	//		paddleBounceHeight = paddle.Position.y;
-	//		paddleBounceVelocity = paddle.Velocity;
-	//		paddleBounceAccel = paddle.Acceleration;
-	//	}
-
-	//	#endregion // Gathering and recording data
 
 	#endregion // Checks, Interactions, Data
 
