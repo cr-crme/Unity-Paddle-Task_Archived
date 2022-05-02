@@ -294,6 +294,7 @@ public class PaddleGame : MonoBehaviour
 			// Wait for end of video playback to initialize
 			return;
 		}
+		trialsManager.StartNewTrial();
 
 		// Initialize Condition and Visit types
 		degreesOfFreedom = globalControl.degreesOfFreedom;

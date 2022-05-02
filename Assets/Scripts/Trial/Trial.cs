@@ -11,15 +11,9 @@ public class Trial
     public int nbBounces { get; private set; }
     public int nbAccurateBounces { get; private set; }
 
-    public Trial(
-        float _time,
-        int _nbBounces,
-        int _nbAccurateBounces
-    )
+    public Trial(float _time)
     {
         time = _time;
-        nbBounces = _nbBounces;
-        nbAccurateBounces = _nbAccurateBounces;
     }
 
     public void AddBounce(bool isAccurate)
