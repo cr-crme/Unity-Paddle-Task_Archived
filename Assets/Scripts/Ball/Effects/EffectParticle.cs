@@ -4,10 +4,10 @@ using System.Collections;
 [System.Serializable]
 public class EffectParticle
 {
-    public VisualEffect effect;
+    public VideoEffect effect;
     public GameObject particleParent;
 
-    public EffectParticle(VisualEffect effectVar, GameObject particleParentVar)
+    public EffectParticle(VideoEffect effectVar, GameObject particleParentVar)
     {
         effect = effectVar;
         particleParent = particleParentVar;
