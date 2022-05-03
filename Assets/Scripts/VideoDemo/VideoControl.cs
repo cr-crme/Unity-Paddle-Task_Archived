@@ -15,6 +15,8 @@ public class VideoControl : MonoBehaviour
     GlobalControl globalControl;
     GlobalPauseHandler globalPauseHandler;
 
+    int pauseLockKey = -1;
+
     void Start()
     {
         globalControl = GlobalControl.Instance;
@@ -23,7 +25,7 @@ public class VideoControl : MonoBehaviour
         {
             globalPauseHandler = GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>();
             globalPauseHandler.Pause();
-            globalPauseHandler.SetIndicatorVisibility(false);
+            pauseLockKey = globalPauseHandler.SetIndicatorVisibility(false, true);
 
             float total = 0;
             for (int i = 0; i < videoDatas.Count; i++)
@@ -61,7 +63,7 @@ public class VideoControl : MonoBehaviour
         globalControl.playVideo = false;
         globalPauseHandler.Pause();
         paddleGame.Initialize(false);
-        globalPauseHandler.pauseIndicator.visibleOverride = false;
+        globalPauseHandler.SetIndicatorVisibility(false, false, pauseLockKey);
     }
 
     IEnumerator PracticeTime(float start, VideoData videoData)
