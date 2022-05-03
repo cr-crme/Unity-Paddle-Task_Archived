@@ -26,7 +26,6 @@ public class DifficultyManager : MonoBehaviour
         return currentDifficulty.AreTrialConditionsMet(_currentLevel, _currentTrial); 
     }
     public bool mustSwitchPaddleAfterHitting { get { return paddlesManager.NbPaddles > 1; } }
-    public double maximumTrialTime { get { return currentDifficulty.maximumTrialTime; } }
     #endregion
     #endregion
 
@@ -57,18 +56,15 @@ public class DifficultyManager : MonoBehaviour
 
     // Difficulty is a specific set of level conditions
     #region Difficulty
+    public int NbOfDifficultyInTheSession { get { return difficultyOverSession.Count; } }
     public string difficultyName { get { return currentDifficulty.name; } }
-    private List<DifficultyChoice> difficultyOverSession = new List<DifficultyChoice>()
-    {
-        DifficultyChoice.BASE,
-        DifficultyChoice.MODERATE,
-        DifficultyChoice.MAXIMAL
-    };
+    private List<DifficultyChoice> difficultyOverSession = new List<DifficultyChoice>();
     public void AddDifficultyToSessionList(DifficultyChoice newDifficulty)
     {
         difficultyOverSession.Add(newDifficulty);
     }
-    private int currentDifficultyChoiceIndex = 0;
+    private int currentDifficultyChoiceIndex = -1;
+    public void ProceedToNextDifficulty() { currentDifficultyChoiceIndex += 1; }
     private DifficultyChoice currentDifficultyChoice { 
         get { return difficultyOverSession[currentDifficultyChoiceIndex];  } 
     }

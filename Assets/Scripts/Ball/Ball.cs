@@ -115,6 +115,10 @@ public class Ball : MonoBehaviour
 
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
+        if (trialsManager.isPreparing)
+            // Deactivate contact with paddle when we are not in a trial
+            return;
+
         // Manage Bounce Coroutine
         IEnumerator ManageBounceInTarget()
         {

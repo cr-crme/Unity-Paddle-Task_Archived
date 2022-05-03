@@ -81,12 +81,6 @@ public class InputManager : MonoBehaviour
             GameObject.Find("Debugger Display").GetComponent<DebuggerDisplay>().ToggleDisplay();
         }
 
-        // Simulate passage of time
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            GlobalControl.Instance.timeElapsed += 60;
-        }
-
         // Simulate ball on floor
         if (Input.GetKeyDown(KeyCode.R))
         {

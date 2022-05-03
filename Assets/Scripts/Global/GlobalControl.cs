@@ -39,7 +39,7 @@ public class GlobalControl : MonoBehaviour
     public int showcaseTimePerCondition = 0;
 
     // Time elapsed while game is not paused, in seconds 
-    public float timeElapsed = 0;
+    public float elapsedTime { get; private set; } = 0;
 
     // Duration for which ball should be held before dropping upon reset
     public int ballResetHoverSeconds = 3;
@@ -93,22 +93,7 @@ public class GlobalControl : MonoBehaviour
                 return;
             }
             
-            timeElapsed += Time.deltaTime / Time.timeScale;
+            elapsedTime += Time.deltaTime / Time.timeScale;
         }
-    }
-    
-    public float GetTimeLimitSeconds()
-    {
-        return practiseMaxTrialTime * 60.0f;
-    }
-
-    public float GetTimeElapsed()
-    {
-        return timeElapsed;
-    }
-
-    public void ResetTimeElapsed()
-    {
-        timeElapsed = 0;
     }
 }
