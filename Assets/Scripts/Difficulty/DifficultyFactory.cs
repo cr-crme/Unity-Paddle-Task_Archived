@@ -34,7 +34,8 @@ public class DifficultyFactory
                     new RandomizableFloat(0), 
                     new RandomizableFloat(0), 
                     new RandomizableFloat(0.02f), 
-                    new RandomizableFloat(0.02f) },
+                    new RandomizableFloat(0.02f)
+                },
                 new List<RandomizableFloat> {
                     new RandomizableFloat(0.3f),
                     new RandomizableFloat(0.3f),

@@ -46,11 +46,13 @@ public class Ball : MonoBehaviour
     void Awake()
     {
         kinematics = GetComponent<Kinematics>();
+        kinematics.storedPosition = SpawnPosition;
+
         effectController = GetComponent<EffectController>();
 
         sphereCollider = GetComponent<SphereCollider>();
 
-        // Physics for ball is disabled until Space is pressed
+        // Game always starts in pause state
         kinematics.TriggerPause();
     }
 

@@ -27,6 +27,7 @@ public class EffectController : MonoBehaviour
 
         Initialize();
         PopulateScoreDependentEffects();
+        respawn.effectTime = GlobalControl.Instance.ballResetHoverSeconds;
     }
 
     void Initialize()
