@@ -15,7 +15,8 @@ public class VideoControl : MonoBehaviour
     GlobalControl globalControl;
     GlobalPauseHandler globalPauseHandler;
 
-    int pauseLockKey = -1;
+    private bool isVideoRunning = false;
+    private int pauseLockKey = -1;
 
     void Start()
     {
@@ -23,6 +24,7 @@ public class VideoControl : MonoBehaviour
 
         if (GlobalControl.Instance.playVideo)
         {
+            isVideoRunning = true;
             globalPauseHandler = GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>();
             globalPauseHandler.Pause();
             pauseLockKey = globalPauseHandler.SetIndicatorVisibility(false, true);
@@ -42,14 +44,14 @@ public class VideoControl : MonoBehaviour
         }
     }
 
-    void Update()
+    public void ForceVideoEndingNow()
     {
-        if (Input.GetKeyDown(KeyCode.V))
+        if (!isVideoRunning)
         {
-            StopAllCoroutines();
-            // StopCoroutine(playbackFinished);
-            StartCoroutine(PlaybackFinished(0f));
+            return;
         }
+        StopAllCoroutines();
+        StartCoroutine(PlaybackFinished(0f));
     }
 
     IEnumerator PlaybackFinished(float delaySeconds)
@@ -59,17 +61,16 @@ public class VideoControl : MonoBehaviour
         renderTarget.gameObject.SetActive(false);
         player.Stop();
         audioSource.Stop();
-        // paddleGame.SetDifficulty(1);
         globalControl.playVideo = false;
         globalPauseHandler.Pause();
         paddleGame.Initialize(false);
         globalPauseHandler.SetIndicatorVisibility(false, false, pauseLockKey);
+        isVideoRunning = false;
     }
 
     IEnumerator PracticeTime(float start, VideoData videoData)
     {
         yield return new WaitForSecondsRealtime(start);
-        //paddleGame.SetDifficulty(videoData.difficulty);
         player.clip = videoData.videoClip;
         player.Play();
         audioSource.PlayOneShot(videoData.audioClip);
@@ -78,7 +79,6 @@ public class VideoControl : MonoBehaviour
         player.Pause();
         globalPauseHandler.Resume();
         yield return new WaitForSecondsRealtime(videoData.postClipTime);
-        // player.Play();
         globalPauseHandler.Pause();
     }
 }

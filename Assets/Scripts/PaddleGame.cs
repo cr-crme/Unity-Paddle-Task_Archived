@@ -139,9 +139,6 @@ public class PaddleGame : MonoBehaviour
         ManageIfBallOnGround();
         ManageHoveringPhase();
 
-        // Check for inputs
-        ManageInputs();
-
 
         if (trialsManager.isTimeOver(globalControl.GetTimeElapsed()))
         {
@@ -159,67 +156,6 @@ public class PaddleGame : MonoBehaviour
                 return;
             }
         }
-    }
-
-    void ManageInputs()
-    {
-        // Actual game inputs
-        if (SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
-        {
-            Debug.Log("Forcing restart.");
-            StartCoroutine(ball.GetComponent<Ball>().Respawning(pauseHandler));
-        }
-
-#if UNITY_EDITOR
-        // Debug related inputs
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            globalControl.timescale = Mathf.Clamp(globalControl.timescale - .05f, .05f, 3f);
-            Time.timeScale = globalControl.timescale;
-            Debug.Log("reduced timescale to " + globalControl.timescale);
-        }
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            globalControl.timescale = Mathf.Clamp(globalControl.timescale + .05f, .05f, 3f);
-            Time.timeScale = globalControl.timescale;
-            Debug.Log("increased timescale to " + globalControl.timescale);
-
-        }
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            QuitTask();
-        }
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            globalControl.timeElapsed += 60;
-        }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-        }
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            if (globalControl.session == SessionType.Session.PRACTISE)
-            {
-                for (int i = 0; i < difficultyManager.nbOfBounceRequired * 7; i++)
-                {
-                    trialsManager.AddBounceToCurrentTrial();
-                    trialsManager.AddAccurateBounceToCurrentTrial();
-                }
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            ball.GetComponent<Ball>().SimulateOnCollisionEnterWithPaddle(
-                new Vector3(0, (float)0.5, 0),
-                new Vector3(0, 1, 0)
-            );
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Debug.Log("Forcing restart.");
-            StartCoroutine(ball.GetComponent<Ball>().Respawning(pauseHandler));
-        }
-#endif
     }
 
     void OnApplicationQuit()
