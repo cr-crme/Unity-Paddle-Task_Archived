@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -8,17 +9,22 @@ public class TrialsManager : MonoBehaviour
     private DifficultyManager difficultyManager;
 
     [SerializeField]
-    private PaddleGame gameUI;
+    private PaddleGame paddleGame;
 
     [SerializeField]
     [Tooltip("The paddles in the game")]
-    PaddlesManager paddlesManager;
+    private PaddlesManager paddlesManager;
 
-    private void Start()
+    [SerializeField]
+    private Ball ball;
+
+    public bool isPreparing { get; private set; } = true;
+
+    private void Awake()
     {
-        difficultyManager = GetComponent<DifficultyManager>();
         bestSoFarNbOfBounces = 0;
 
+        difficultyManager = GetComponent<DifficultyManager>();
         if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {
             difficultyManager.AddDifficultyToSessionList(DifficultyChoice.BASE);
@@ -27,21 +33,77 @@ public class TrialsManager : MonoBehaviour
         } else
         {
             difficultyManager.AddDifficultyToSessionList(GlobalControl.Instance.practiseDifficulty);
+            difficultyManager.AddDifficultyToSessionList(GlobalControl.Instance.practiseDifficulty);
+        }
+        StartNewSession();
+    }
+
+    private void Update()
+    {
+        if (!isPreparing && ( isTrialTimeOver() || AreTrialConditionsMet() ) )
+        {
+            isPreparing = true;
+            StartCoroutine(FinalizeTrial());
+        }
+
+        IEnumerator FinalizeTrial()
+        {
+            yield return new WaitWhile(() => !ball.isOnGround());
+            Debug.Log($"Trial is over the session performance score is {EvaluateSessionPerformance()}");
+
+            StartNewSession();
+            if (isSessionOver)
+            {
+                paddleGame.QuitTask();
+            }
         }
     }
 
-
     #region One specific trial
+    public void StartNewTrial()
+    {
+        if (allTrialsData.Count > 0 && allTrialsData.Last().nbBounces > bestSoFarNbOfBounces)
+        {
+            bestSoFarNbOfBounces = allTrialsData.Last().nbBounces;
+        }
+        allTrialsData.Add(new Trial(GlobalControl.Instance.elapsedTime));
+        isPreparing = false;
+    }
     private Trial currentTrial { get { return allTrialsData.Last(); } }
+    private float trialTime { get { return GlobalControl.Instance.elapsedTime - currentTrial.time; } }
+    private bool isTrialTimeOver()
+    {
+        float maxTime = maximumTrialTime;
+        if (maxTime <= 0) return false;
+        else return trialTime > maxTime;
+    }
+    private float maximumTrialTime { 
+        get
+        {
+            if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
+            {
+                return GlobalControl.Instance.showcaseTimePerCondition * 60f;
+            }
+            else if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
+            {
+                return GlobalControl.Instance.practiseMaxTrialTime * 60f;
+            }
+            else
+            {
+                Debug.LogError("Time over not implemented for current session type");
+                return 0;
+            }
+        }
+    }
     public void AddBounceToCurrentTrial()
     {
         currentTrial.AddBounce();
-        gameUI.UpdateFeebackCanvas(this);
+        paddleGame.UpdateFeebackCanvas(this);
         paddlesManager.SwitchPaddleIfNeeded(difficultyManager);
 
         if (isSessionOver)
         {
-            gameUI.QuitTask();
+            paddleGame.QuitTask();
         }
     }
     public void AddAccurateBounceToCurrentTrial()
@@ -50,7 +112,7 @@ public class TrialsManager : MonoBehaviour
     }
     public int currentNumberOfBounces { get { return currentTrial.nbBounces; } }
     public int currentNumberOfAccurateBounces { get { return currentTrial.nbAccurateBounces; } }
-    public bool CheckIfTrialIsOver()
+    public bool AreTrialConditionsMet()
     {
         if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
             return false;
@@ -60,22 +122,20 @@ public class TrialsManager : MonoBehaviour
     public bool hasTarget { get { return difficultyManager.hasTarget; } }
     #endregion
 
-    #region All trials
-    public int bestSoFarNbOfBounces;
-    public bool isTimeOver(double elapsedTime) { return elapsedTime > difficultyManager.maximumTrialTime; }
+
+
+    #region Full Session
+    public void StartNewSession()
+    {
+        difficultyManager.ProceedToNextDifficulty();
+        _sessionTime = GlobalControl.Instance.elapsedTime;
+    }
+    private float _sessionTime;
+    public float sessionTime { get { return GlobalControl.Instance.elapsedTime - _sessionTime; } }
     public bool isSessionOver { get { return difficultyManager.AreAllDifficultiesDone; } }
     private List<Trial> allTrialsData = new List<Trial>();
-    public void StartNewTrial() {
-        if (allTrialsData.Count > 0 && allTrialsData.Last().nbBounces > bestSoFarNbOfBounces)
-        {
-            bestSoFarNbOfBounces = allTrialsData.Last().nbBounces;
-        }
-        allTrialsData.Add(new Trial(GlobalControl.Instance.GetTimeElapsed()));
-    }
-
-    public double EvaluateSessionPerformance(
-        double _elapsedTime
-    )
+    public int bestSoFarNbOfBounces;
+    public double EvaluateSessionPerformance()
     {
         double ComputeAverage(
             double _total, double _nbElement, double _minValue, double _maxValue
@@ -91,20 +151,19 @@ public class TrialsManager : MonoBehaviour
             );
         }
 
-        int _totalBounces = 0, _totalAccurateBounces = 0;
+        int _totalBounces = 0;
+        int _totalAccurateBounces = 0;
         foreach (var trial in allTrialsData)
         {
             _totalBounces += trial.nbBounces;
             _totalAccurateBounces += trial.nbAccurateBounces;
         }
-        double _averageBounces = ComputeAverage(
-            _totalBounces, allTrialsData.Count, 0.0, 1.3
-        );
+        double _averageBounces = ComputeAverage(_totalBounces, allTrialsData.Count, 0.0, 1.3);
         double _averageAccurateBounces = difficultyManager.hasTarget ?
             ComputeAverage(_totalAccurateBounces, allTrialsData.Count, 0, 1.3) : 0;
 
-        // evaluating time percentage of the way to end
-        double _timeScalar = 1 - (_elapsedTime / difficultyManager.maximumTrialTime);
+        // evaluating time percentage of the way to end of the session
+        double _timeScalar = 1 - (GlobalControl.Instance.elapsedTime / maximumTrialTime);
         double _targetHeightModifier = difficultyManager.hasTarget ? 3 : 2;
         return Mathf.Clamp01(
             (float)((_averageBounces + _averageAccurateBounces + _timeScalar) / _targetHeightModifier)

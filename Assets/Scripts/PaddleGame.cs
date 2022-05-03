@@ -85,7 +85,6 @@ public class PaddleGame : MonoBehaviour
 
         // difficulty shifts timescale, so pause it again
         Time.timeScale = 0;
-        GlobalControl.Instance.ResetTimeElapsed();
         pauseHandler.Pause();
     }
 
@@ -106,22 +105,6 @@ public class PaddleGame : MonoBehaviour
         // Reset ball if it drops 
         ManageIfBallOnGround();
         ManageHoveringPhase();
-
-
-        if (trialsManager.isTimeOver(GlobalControl.Instance.GetTimeElapsed()))
-        {
-            Debug.Log(
-                $"time elapsed {GlobalControl.Instance.GetTimeElapsed()} greater " +
-                $"than max trial time {difficultyManager.maximumTrialTime}"
-            );
-            trialsManager.EvaluateSessionPerformance(GlobalControl.Instance.GetTimeElapsed());
-            if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE || trialsManager.isSessionOver)
-            {
-                // over once end time is reached.
-                QuitTask();
-                return;
-            }
-        }
     }
 
     void OnApplicationQuit()
@@ -173,8 +156,6 @@ public class PaddleGame : MonoBehaviour
             Debug.LogError($"SessionType: {GlobalControl.Instance.session} not implemented yet");
         }
 
-
-        GlobalControl.Instance.ResetTimeElapsed();
         feedbackCanvas.UpdateAllInformation(trialsManager);
 
         // ensure drop time on first drop
@@ -367,7 +348,7 @@ public class PaddleGame : MonoBehaviour
     #region Difficulty
     void EvaluatePerformance()
     {
-        double _score = trialsManager.EvaluateSessionPerformance(GlobalControl.Instance.GetTimeElapsed());
+        double _score = trialsManager.EvaluateSessionPerformance();
 
         // each are evaluating for the next difficulty
         int _newLevel = difficultyManager.ScoreToLevel(_score);

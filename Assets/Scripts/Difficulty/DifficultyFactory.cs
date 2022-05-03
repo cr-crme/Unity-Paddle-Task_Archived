@@ -15,7 +15,6 @@ public class DifficultyFactory
             DifficultyChoice.BASE, 
             new DifficultyDefinition(
                 "BASE",
-                10.0 * 60,
                 5,
                 0,
                 false,
@@ -73,7 +72,6 @@ public class DifficultyFactory
             DifficultyChoice.MODERATE,
             new DifficultyDefinition(
                 "MODERATE",
-                10.0 * 60,
                 5,
                 5,
                 false,
@@ -133,7 +131,6 @@ public class DifficultyFactory
             DifficultyChoice.MAXIMAL,
             new DifficultyDefinition(
                 "MAXIMAL",
-                10.0 * 60,
                 5,
                 5,
                 false,

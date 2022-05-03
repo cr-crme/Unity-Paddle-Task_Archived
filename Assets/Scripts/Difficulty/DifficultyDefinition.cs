@@ -30,7 +30,6 @@ public class DifficultyDefinition
 {
     public DifficultyDefinition(
         string _name,
-        double _maximumTrialTime,
         int _nbOfBounceRequired,
         int _nbOfAccurateBounceRequired,
         bool _shouldBeSequentialBounces,
@@ -43,7 +42,6 @@ public class DifficultyDefinition
     )
     {
         name = _name;
-        maximumTrialTime = _maximumTrialTime;
         nbOfBounceRequired = _nbOfBounceRequired;
         nbOfAccurateBounceRequired = _nbOfAccurateBounceRequired;
         shouldBeSequentialBounces = _shouldBeSequentialBounces;
@@ -68,7 +66,6 @@ public class DifficultyDefinition
     public int nbOfBounceRequired { get; private set; }
     public int nbOfAccurateBounceRequired { get; private set; }
     public bool shouldBeSequentialBounces { get; private set; }
-    public double maximumTrialTime { get; private set; }
 
     List<bool> showTargetByLevel;
     public bool hasTarget(int _currentLevel) { 

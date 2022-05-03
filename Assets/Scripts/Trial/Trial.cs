@@ -11,9 +11,9 @@ public class Trial
     public int nbBounces { get; private set; }
     public int nbAccurateBounces { get; private set; }
 
-    public Trial(float _time)
+    public Trial(float _startingTime)
     {
-        time = _time;
+        time = _startingTime;
     }
 
     public void AddBounce()
