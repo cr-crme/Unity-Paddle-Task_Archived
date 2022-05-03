@@ -86,18 +86,14 @@ public class GlobalControl : MonoBehaviour
     {
         if (!paused)
         {
+            // Prevent from dividing by zero
             if (Time.timeScale == 0)
             {
-                Debug.Log($"{nameof(Time.timeScale)}={Time.timeScale}");
+                Debug.LogError("Division by zero found, please report this error");
                 return;
             }
             
-            timeElapsed += (Time.deltaTime * (1/Time.timeScale));
-            // Debug.Log("not paused: " + timeElapsed);
-        }
-        else
-        {
-            // Debug.Log("paused: " + Time.time);
+            timeElapsed += Time.deltaTime / Time.timeScale;
         }
     }
     

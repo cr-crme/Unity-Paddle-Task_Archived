@@ -9,7 +9,6 @@ using UnityEngine.SceneManagement;
 
 public class PaddleGame : MonoBehaviour
 {	
-    private float _trialTimer;
     private bool _isInTrial;
 
     // Manage the current task to perform
@@ -19,11 +18,6 @@ public class PaddleGame : MonoBehaviour
     // Manage the current task to perform
     [SerializeField, Tooltip("The main trial manager for the game")]
     private TrialsManager trialsManager;
-
-
-    [SerializeField]
-    [Tooltip("The paddles in the game")]
-    PaddlesManager paddlesManager;
     
     [Tooltip("The ball being bounced")]
     [SerializeField]
@@ -46,24 +40,16 @@ public class PaddleGame : MonoBehaviour
     private Text timeToDropText;
 
     [SerializeField]
-    AudioClip successfulTrialSound;
+    private AudioSource difficultySource;
 
     [SerializeField]
-    AudioSource feedbackSource, difficultySource;
-
-    [SerializeField]
-    TextMeshPro difficultyDisplay;
+    private TextMeshPro difficultyDisplay;
 
     /// <summary>
     /// list of the audio clips played at the beginning of difficulties in some cases
     /// </summary>
     [SerializeField]
     List<DifficultyAudioClip> difficultyAudioClips = new List<DifficultyAudioClip>();
-
-
-    // Current number of bounces that the player has acheieved in this trial
-    private int nbBounces = 0;
-    private int nbBouncesOnTarget = 0;
 
     // The current trial number. This is increased by one every time the ball is reset.
     public int trialNum = 0;
@@ -78,51 +64,33 @@ public class PaddleGame : MonoBehaviour
     // Variables for countdown timer display
     private bool inCoutdownCoroutine = false;
 
-    // Timescale
-    public bool slowtime = false;
-
     
     private int difficultyEvaluationIndex = 0;
 
     float difficultyExampleTime = 30f;
 
-
-    GlobalControl globalControl;
-
     void Start()
     {
-        globalControl = GlobalControl.Instance;
-        Instantiate(globalControl.environments[globalControl.environmentIndex]);
+        Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentIndex]);
 
         // Calibrate the target line to be at the player's eye level
-        var kinematics = ball.GetComponent<Kinematics>();
-        if (kinematics)
+        if(GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {
-            kinematics.storedPosition = ball.GetComponent<Ball>().SpawnPosition;
+            GlobalControl.Instance.practiseMaxTrialTime = 0;
         }
 
-        if(globalControl.session == SessionType.Session.SHOWCASE)
-        {
-            globalControl.practiseMaxTrialTime = 0;
-        }
-
-        SetTrialLevel(globalControl.level);
+        SetTrialLevel(GlobalControl.Instance.level);
         Initialize(true);
 
 
         // difficulty shifts timescale, so pause it again
         Time.timeScale = 0;
-        globalControl.ResetTimeElapsed();
+        GlobalControl.Instance.ResetTimeElapsed();
         pauseHandler.Pause();
     }
 
     void Update()
     {
-        if (_isInTrial && !globalControl.paused)
-        {
-            _trialTimer += Time.unscaledDeltaTime;
-        }
-
         if(GlobalControl.Instance.paused)
         {
             // no processing until unpaused
@@ -133,23 +101,21 @@ public class PaddleGame : MonoBehaviour
         timeToDropQuad.SetActive(false);
 
         // Reset time scale
-        Time.timeScale = globalControl.timescale;
+        Time.timeScale = GlobalControl.Instance.timescale;
 
         // Reset ball if it drops 
         ManageIfBallOnGround();
         ManageHoveringPhase();
 
 
-        if (trialsManager.isTimeOver(globalControl.GetTimeElapsed()))
+        if (trialsManager.isTimeOver(GlobalControl.Instance.GetTimeElapsed()))
         {
             Debug.Log(
-                $"time elapsed {globalControl.GetTimeElapsed()} greater " +
+                $"time elapsed {GlobalControl.Instance.GetTimeElapsed()} greater " +
                 $"than max trial time {difficultyManager.maximumTrialTime}"
             );
-            trialsManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
-            if (
-                globalControl.session == SessionType.Session.SHOWCASE || trialsManager.isSessionOver
-            )
+            trialsManager.EvaluateSessionPerformance(GlobalControl.Instance.GetTimeElapsed());
+            if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE || trialsManager.isSessionOver)
             {
                 // over once end time is reached.
                 QuitTask();
@@ -182,7 +148,7 @@ public class PaddleGame : MonoBehaviour
 
     public void Initialize(bool firstTime)
     {
-        if (globalControl.playVideo)
+        if (GlobalControl.Instance.playVideo)
         {
             // Wait for end of video playback to initialize
             return;
@@ -190,27 +156,25 @@ public class PaddleGame : MonoBehaviour
         trialsManager.StartNewTrial();
 
         // Initialize Condition and Visit types
-        degreesOfFreedom = globalControl.degreesOfFreedom;
+        degreesOfFreedom = GlobalControl.Instance.degreesOfFreedom;
 
-        ball.GetComponent<EffectController>().dissolve.effectTime = globalControl.ballResetHoverSeconds;
-        ball.GetComponent<EffectController>().respawn.effectTime = globalControl.ballResetHoverSeconds;
 
-        if (globalControl.session == SessionType.Session.PRACTISE)
+        if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
         {
             difficultyDisplay.text = difficultyManager.currentLevel.ToString();
         }
-        else if (globalControl.session == SessionType.Session.SHOWCASE)
+        else if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {
             difficultyManager.currentLevel = 2;
             StartShowcase();
         }
         else
         {
-            Debug.LogError($"SessionType: {globalControl.session} not implemented yet");
+            Debug.LogError($"SessionType: {GlobalControl.Instance.session} not implemented yet");
         }
 
 
-        globalControl.ResetTimeElapsed();
+        GlobalControl.Instance.ResetTimeElapsed();
         feedbackCanvas.UpdateAllInformation(trialsManager);
 
         // ensure drop time on first drop
@@ -289,8 +253,8 @@ public class PaddleGame : MonoBehaviour
         ball.GetComponent<Ball>().IsCollisionEnabled = false;
 
         // Hover ball at target line for a second
-        StartCoroutine(ball.GetComponent<Ball>().PlayDropSound(globalControl.ballResetHoverSeconds - 0.15f));
-        StartCoroutine(ball.GetComponent<Ball>().ReleaseHoverOnReset(globalControl.ballResetHoverSeconds));
+        StartCoroutine(ball.GetComponent<Ball>().PlayDropSound(GlobalControl.Instance.ballResetHoverSeconds - 0.15f));
+        StartCoroutine(ball.GetComponent<Ball>().ReleaseHoverOnReset(GlobalControl.Instance.ballResetHoverSeconds));
 
         // Start countdown timer 
         StartCoroutine(UpdateTimeToDropDisplay());
@@ -317,7 +281,6 @@ public class PaddleGame : MonoBehaviour
         {
             ResetTrial();
             _isInTrial = true;
-            _trialTimer = 0;
         }
     }
 
@@ -331,7 +294,7 @@ public class PaddleGame : MonoBehaviour
         }
         inCoutdownCoroutine = true;
 
-        int countdown = globalControl.ballResetHoverSeconds;
+        int countdown = GlobalControl.Instance.ballResetHoverSeconds;
 
         while (countdown >= 1.0f)
         {
@@ -404,7 +367,7 @@ public class PaddleGame : MonoBehaviour
     #region Difficulty
     void EvaluatePerformance()
     {
-        double _score = trialsManager.EvaluateSessionPerformance(globalControl.GetTimeElapsed());
+        double _score = trialsManager.EvaluateSessionPerformance(GlobalControl.Instance.GetTimeElapsed());
 
         // each are evaluating for the next difficulty
         int _newLevel = difficultyManager.ScoreToLevel(_score);
@@ -423,13 +386,8 @@ public class PaddleGame : MonoBehaviour
 
         // TODO: This should be done by GlobalControl itself
         Debug.Log("Setting Difficulty: " + difficultyManager.currentLevel);
-        GlobalControl globalControl = GlobalControl.Instance;
-        globalControl.targetWidth = difficultyManager.hasTarget ? difficultyManager.targetWidth / 2f : 0;
-        globalControl.timescale = difficultyManager.ballSpeed;
-
-        // Reset trial
-        nbBounces = 0;
-        nbBouncesOnTarget = 0;
+        GlobalControl.Instance.targetWidth = difficultyManager.hasTarget ? difficultyManager.targetWidth / 2f : 0;
+        GlobalControl.Instance.timescale = difficultyManager.ballSpeed;
 
         targetLine.UpdateCondition();
         difficultyDisplay.text = difficultyManager.currentLevel.ToString();
