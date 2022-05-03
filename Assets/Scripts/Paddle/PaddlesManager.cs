@@ -31,15 +31,22 @@ public class PaddlesManager : MonoBehaviour
         }
     }
 
-
-    public IEnumerator WaitThenSwitchPaddles()
+    public void SwitchPaddleIfNeeded(DifficultyManager _difficultyManager)
     {
-        // In order to prevent bugs, wait a little bit for the paddles to switch
-        yield return new WaitForSeconds(0.1f);
-        SwitchActivePaddle();
+        IEnumerator WaitThenSwitchPaddles()
+        {
+            // In order to prevent bugs, wait a little bit for the paddles to switch
+            yield return new WaitForSeconds(0.1f);
+            SwitchActivePaddle();
+        }
+        if (_difficultyManager.mustSwitchPaddleAfterHitting)
+        {
+            StartCoroutine(WaitThenSwitchPaddles());
+        }
     }
 
-    public void SwitchActivePaddle()
+
+    private void SwitchActivePaddle()
     {
         if (currentPaddleIsLeft)
         {
@@ -55,7 +62,7 @@ public class PaddlesManager : MonoBehaviour
     }
 
     // Finds the currently active paddle (in the case of two paddles)
-    public Paddle ActivePaddle
+    private Paddle ActivePaddle
     {
         get { return currentPaddleIsLeft ? leftPaddle : rightPaddle; }
     }

@@ -13,8 +13,6 @@ public class Target : MonoBehaviour
 
     private void Start()
     {
-        hmd = GetComponent<Camera>();
-        difficultyManager = GetComponent<DifficultyManager>();
         UpdateCondition();
     }
 

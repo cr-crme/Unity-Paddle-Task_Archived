@@ -7,9 +7,17 @@ public class TrialsManager : MonoBehaviour
     [SerializeField]
     private DifficultyManager difficultyManager;
 
+    [SerializeField]
+    private PaddleGame gameUI;
+
+    [SerializeField]
+    [Tooltip("The paddles in the game")]
+    PaddlesManager paddlesManager;
+
     private void Start()
     {
         difficultyManager = GetComponent<DifficultyManager>();
+        bestSoFarNbOfBounces = 0;
 
         if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {
@@ -25,10 +33,23 @@ public class TrialsManager : MonoBehaviour
 
     #region One specific trial
     private Trial currentTrial { get { return allTrialsData.Last(); } }
-    public void AddBounceToCurrentTrial(bool _isAccurate)
+    public void AddBounceToCurrentTrial()
     {
-        currentTrial.AddBounce(_isAccurate);
+        currentTrial.AddBounce();
+        gameUI.UpdateFeebackCanvas(this);
+        paddlesManager.SwitchPaddleIfNeeded(difficultyManager);
+
+        if (isSessionOver)
+        {
+            gameUI.QuitTask();
+        }
     }
+    public void AddAccurateBounceToCurrentTrial()
+    {
+        currentTrial.AddAccurateBounce();
+    }
+    public int currentNumberOfBounces { get { return currentTrial.nbBounces; } }
+    public int currentNumberOfAccurateBounces { get { return currentTrial.nbAccurateBounces; } }
     public bool CheckIfTrialIsOver()
     {
         if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
@@ -36,13 +57,21 @@ public class TrialsManager : MonoBehaviour
 
         return difficultyManager.AreTrialConditionsMet(currentTrial);
     }
+    public bool hasTarget { get { return difficultyManager.hasTarget; } }
     #endregion
 
     #region All trials
+    public int bestSoFarNbOfBounces;
     public bool isTimeOver(double elapsedTime) { return elapsedTime > difficultyManager.maximumTrialTime; }
     public bool isSessionOver { get { return difficultyManager.AreAllDifficultiesDone; } }
     private List<Trial> allTrialsData = new List<Trial>();
-    public void StartNewTrial() { allTrialsData.Add(new Trial(GlobalControl.Instance.GetTimeElapsed())); }
+    public void StartNewTrial() {
+        if (allTrialsData.Count > 0 && allTrialsData.Last().nbBounces > bestSoFarNbOfBounces)
+        {
+            bestSoFarNbOfBounces = allTrialsData.Last().nbBounces;
+        }
+        allTrialsData.Add(new Trial(GlobalControl.Instance.GetTimeElapsed()));
+    }
 
     public double EvaluateSessionPerformance(
         double _elapsedTime

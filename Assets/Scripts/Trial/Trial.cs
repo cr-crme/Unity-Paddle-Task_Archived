@@ -16,10 +16,12 @@ public class Trial
         time = _time;
     }
 
-    public void AddBounce(bool isAccurate)
+    public void AddBounce()
     {
         nbBounces++;
-        if (isAccurate)
-            nbAccurateBounces++;
+    }
+    public void AddAccurateBounce()
+    {
+        nbAccurateBounces++;
     }
 }
