@@ -17,14 +17,13 @@ public class Ball : MonoBehaviour
     [SerializeField, Tooltip("The target the ball should reach")]
     private Target target;
 
+    [SerializeField, Tooltip("The trials manager")]
+    private TrialsManager trialsManager;
+
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
 
     private SphereCollider sphereCollider;
-
-    // This is true when the player is currently paddling the ball. If the 
-    // player stops paddling the ball, set to false.
-    public bool isBouncing = false;
 
     // If the ball just bounced, this will be true (momentarily)
     private bool justBounced = false;
@@ -64,11 +63,6 @@ public class Ball : MonoBehaviour
             Vector3 paddleVelocity = paddle.Velocity;
             Vector3 cpNormal = c.GetContact(0).normal;
             BounceBall(paddleVelocity, cpNormal);
-        }
-        // if ball collides with the floor or something random, it is no longer bouncing
-        else
-        {
-            isBouncing = false;
         }
     }
 
@@ -119,28 +113,39 @@ public class Ball : MonoBehaviour
 
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
-        Vector3 Vin = kinematics.storedVelocity;
-        
-        kinematics.ApplyBouncePhysics(paddleVelocity, cpNormal, Vin);
+        // Manage Bounce Coroutine
+        IEnumerator ManageBounceInTarget()
+        {
+            bool isApexInTarget = true;  // Automatically accurate if there is no target
+            if (trialsManager.hasTarget)
+            {
+                // Wait until the ball reach the target then compute if the trial is valid
+                while (!kinematics.ReachedApex()) { yield return null; }
+                isApexInTarget = target.IsInsideTarget(kinematics.GetCurrentPosition());
+            }
+
+            if (isApexInTarget)
+            {
+                IndicateSuccessBall();  // Flash ball green
+                trialsManager.AddAccurateBounceToCurrentTrial();
+            }
+
+            // Setting justBounce here ensure that the ball starts decending before being available again
+            justBounced = false;
+        }
 
         // Determine if collision should be counted as an active bounce
-        if (paddleVelocity.magnitude < 0.05f)
+        if (paddleVelocity.magnitude >= 0.05f && !justBounced)
         {
-            isBouncing = false;
-        }
-        else
-        {
-            isBouncing = true;
-
-            CheckApexSuccess();
-            DeclareBounce();
+            justBounced = true;
             ballSoundManager.PlayBounceSound();
-        }
-    }
+            trialsManager.AddBounceToCurrentTrial();
+            effectController.SelectScoreDependentEffects(trialsManager.currentNumberOfBounces);
+            kinematics.ApplyBouncePhysics(paddleVelocity, cpNormal, kinematics.storedVelocity);
 
-    public void SelectEffectDependingOnScore(float _score)
-    {
-        effectController.SelectScoreDependentEffects(_score);
+            StartCoroutine(ManageBounceInTarget());
+        }
+
     }
 
     public bool isOnGround()
@@ -148,53 +153,12 @@ public class Ball : MonoBehaviour
         return transform.position.y < transform.localScale.y;
     }
 
-    void CheckApexSuccess()
-    {
-        StartCoroutine(CheckForApex());
-    }
-
-    IEnumerator CheckForApex()
-    {
-        yield return new WaitWhile( () => !kinematics.ReachedApex());
-
-        if (target.IsInsideTarget(kinematics.GetCurrentPosition())) { 
-            IndicateSuccessBall();  // Flash ball green 
-        }
-    }
 
     public void IndicateSuccessBall()
     {
         // Turns ball green briefly and plays success sound.
         ballSoundManager.PlaySuccessSound();
         ballColorManager.IndicateSuccess();
-    }
-
-    
-
-    // Try to declare that the ball has been bounced. If the ball
-    // was bounced too recently, then this declaration will fail.
-    // This is to ensure that bounces are only counted once.
-    public void DeclareBounce()
-    {
-        if (justBounced)
-        {
-            // do nothing, this bounce has already been counted
-            return;
-        }
-        else
-        {
-            justBounced = true;
-            gameScript.BallBounced();
-            StartCoroutine(FinishBounceDeclaration());
-        }
-    }
-
-    // Wait a little bit before a bounce can be declared again.
-    // This is to ensure that bounces are not counted multiple times.
-    IEnumerator FinishBounceDeclaration()
-    {
-        yield return new WaitForSeconds(0.2f);
-        justBounced = false;
     }
 
     // Ball has been reset. Reset the trial as well.

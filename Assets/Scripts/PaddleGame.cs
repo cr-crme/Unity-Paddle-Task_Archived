@@ -54,12 +54,6 @@ public class PaddleGame : MonoBehaviour
     [SerializeField]
     TextMeshPro difficultyDisplay;
 
-    [SerializeField]
-    TextMeshPro highestBouncesDisplay;
-
-    [SerializeField]
-    TextMeshPro highestAccurateBouncesDisplay;
-
     /// <summary>
     /// list of the audio clips played at the beginning of difficulties in some cases
     /// </summary>
@@ -68,13 +62,8 @@ public class PaddleGame : MonoBehaviour
 
 
     // Current number of bounces that the player has acheieved in this trial
-    private int numBounces = 0;
-    private int numAccurateBounces = 0;
-    // Current score during this trial
-    private float curScore = 0f;
-
-    // Running total number of bounces this instance
-    private int numTotalBounces = 0;
+    private int nbBounces = 0;
+    private int nbBouncesOnTarget = 0;
 
     // The current trial number. This is increased by one every time the ball is reset.
     public int trialNum = 0;
@@ -91,14 +80,12 @@ public class PaddleGame : MonoBehaviour
 
     // Timescale
     public bool slowtime = false;
-    private List<float> bounceHeightList = new List<float>();
 
     
     private int difficultyEvaluationIndex = 0;
 
     float difficultyExampleTime = 30f;
 
-    int highestBounces, highestAccurateBounces;
 
     GlobalControl globalControl;
 
@@ -144,13 +131,6 @@ public class PaddleGame : MonoBehaviour
 
         // Update Canvas display
         timeToDropQuad.SetActive(false);
-        feedbackCanvas.UpdateScoreText(curScore, numBounces);
-
-        // Record list of heights for bounce data analysis
-        if (ball.GetComponent<Ball>().isBouncing)
-        {
-            bounceHeightList.Add(ball.transform.position.y);
-        }
 
         // Reset time scale
         Time.timeScale = globalControl.timescale;
@@ -205,18 +185,6 @@ public class PaddleGame : MonoBehaviour
             Debug.Log("increased timescale to " + globalControl.timescale);
 
         }
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            curScore -= 25f;
-            BallBounced();
-            Debug.Log("Score decreased");
-        }
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            curScore += 25f;
-            BallBounced();
-            Debug.Log("Score increased");
-        }
         if (Input.GetKeyDown(KeyCode.Q))
         {
             QuitTask();
@@ -232,14 +200,17 @@ public class PaddleGame : MonoBehaviour
         {
             if (globalControl.session == SessionType.Session.PRACTISE)
             {
-                numBounces += difficultyManager.nbOfBounceRequired * 7;
-                numAccurateBounces += difficultyManager.nbOfAccurateBounceRequired * 7;
+                for (int i = 0; i < difficultyManager.nbOfBounceRequired * 7; i++)
+                {
+                    trialsManager.AddBounceToCurrentTrial();
+                    trialsManager.AddAccurateBounceToCurrentTrial();
+                }
             }
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
             ball.GetComponent<Ball>().SimulateOnCollisionEnterWithPaddle(
-                new Vector3(0, (float)1, 0),
+                new Vector3(0, (float)0.5, 0),
                 new Vector3(0, 1, 0)
             );
         }
@@ -259,7 +230,7 @@ public class PaddleGame : MonoBehaviour
     /// <summary>
     /// Stop the task, write data and return to the start screen
     /// </summary>
-    void QuitTask()
+    public void QuitTask()
     {
         // This is to ensure that the final trial is recorded.
         ResetTrial(true);
@@ -288,8 +259,6 @@ public class PaddleGame : MonoBehaviour
         ball.GetComponent<EffectController>().dissolve.effectTime = globalControl.ballResetHoverSeconds;
         ball.GetComponent<EffectController>().respawn.effectTime = globalControl.ballResetHoverSeconds;
 
-        curScore = 0;
-
         if (globalControl.session == SessionType.Session.PRACTISE)
         {
             difficultyDisplay.text = difficultyManager.currentLevel.ToString();
@@ -306,12 +275,7 @@ public class PaddleGame : MonoBehaviour
 
 
         globalControl.ResetTimeElapsed();
-
-
-        highestBounces = 0;
-        highestAccurateBounces = 0;
-        UpdateHighestBounceDisplay();
-        feedbackCanvas.UpdateScoreText(curScore, numBounces);
+        feedbackCanvas.UpdateAllInformation(trialsManager);
 
         // ensure drop time on first drop
         if (firstTime)
@@ -465,21 +429,11 @@ public class PaddleGame : MonoBehaviour
         }
             
 
-        if (numBounces > highestBounces)
-        {
-            highestBounces = numBounces;
-        }
-        if (numAccurateBounces > highestAccurateBounces)
-        {
-            highestAccurateBounces = numAccurateBounces;
-        }
 
-        UpdateHighestBounceDisplay();
+        feedbackCanvas.UpdateBestSoFar(trialsManager.bestSoFarNbOfBounces);
 
         trialNum++;
-        numBounces = 0;
-        numAccurateBounces = 0;
-        curScore = 0f;
+        trialsManager.StartNewTrial();
 
         if (!final)
         {
@@ -496,50 +450,6 @@ public class PaddleGame : MonoBehaviour
 #endregion // Reset
 
 #region Checks, Interactions, Data
-
-    // This will be called when the ball successfully bounces on the paddle.
-    public void BallBounced()
-    {
-        numBounces++;
-        numTotalBounces++;
-
-        // If there are two paddles, switch the active one
-        if (difficultyManager.mustSwitchPaddleAfterHitting)
-        {
-            StartCoroutine(paddlesManager.WaitThenSwitchPaddles());
-        }
-
-        ball.GetComponent<Ball>().SelectEffectDependingOnScore(curScore);
-
-
-        if (trialsManager.CheckIfTrialIsOver())
-        {
-            feedbackSource.PlayOneShot(successfulTrialSound);
-        }
-
-        if (trialsManager.isSessionOver)
-        {
-            QuitTask();
-            return;
-        }
-    }
-
-
-    void UpdateHighestBounceDisplay()
-    {
-        string bounces = highestBounces.ToString();
-        highestBouncesDisplay.text = $"{bounces} bounces in a row!";
-    
-        if (difficultyManager.hasTarget)
-        {
-            string accurateBounces = highestAccurateBounces.ToString();
-            highestAccurateBouncesDisplay.text = $"{accurateBounces} target hits!";
-        }
-        else
-        {
-            highestAccurateBouncesDisplay.text = "";
-        }
-    }
 
     private AudioClip GetDifficultyAudioClip(int difficulty)
     {
@@ -582,9 +492,8 @@ public class PaddleGame : MonoBehaviour
         globalControl.timescale = difficultyManager.ballSpeed;
 
         // Reset trial
-        numBounces = 0;
-        numAccurateBounces = 0;
-        curScore = 0f;
+        nbBounces = 0;
+        nbBouncesOnTarget = 0;
 
         targetLine.UpdateCondition();
         difficultyDisplay.text = difficultyManager.currentLevel.ToString();
@@ -596,7 +505,14 @@ public class PaddleGame : MonoBehaviour
         }
     }
 
-#endregion // Difficulty
+    #endregion // Difficulty
 
+
+    #region Feedback
+    public void UpdateFeebackCanvas(TrialsManager _trialsManager)
+    {
+        feedbackCanvas.UpdateAllInformation(_trialsManager);
+    }
+    #endregion
 
 }

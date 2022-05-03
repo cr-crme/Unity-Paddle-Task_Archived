@@ -19,7 +19,7 @@ public class Kinematics : MonoBehaviour
     public Quaternion storedRotation;
 
     public CircularBuffer<Vector3> velocityBuffer;
-    const int CIRCULAR_BUFFER_SIZE = 8;
+    const int CIRCULAR_BUFFER_SIZE = 50;
 
     // Start is called before the first frame update
     void Awake()
