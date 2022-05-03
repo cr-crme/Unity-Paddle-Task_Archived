@@ -57,10 +57,10 @@ public class EffectController : MonoBehaviour
     void PopulateScoreDependentEffects()
     {
         // Enter score effects in ascending order of the score needed to trigger them
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(25, new FullEffect(embers, null, null)));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(50, new FullEffect(fire, null, null)));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(75, new FullEffect(blueEmbers, null, new List<VideoEffect>() { embers })));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(100, new FullEffect(blueFire, null, new List<VideoEffect>() { fire })));
+        scoreDependentEffects.Add(new Tuple<int, FullEffect>(10, new FullEffect(embers, null, null)));
+        scoreDependentEffects.Add(new Tuple<int, FullEffect>(20, new FullEffect(fire, null, null)));
+        scoreDependentEffects.Add(new Tuple<int, FullEffect>(30, new FullEffect(blueEmbers, null, new List<VideoEffect>() { embers })));
+        scoreDependentEffects.Add(new Tuple<int, FullEffect>(40, new FullEffect(blueFire, null, new List<VideoEffect>() { fire })));
 
         // Sanity check
         for (int i = 1; i < scoreDependentEffects.Count; i++)
