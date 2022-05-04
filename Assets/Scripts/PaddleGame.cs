@@ -235,11 +235,6 @@ public class PaddleGame : MonoBehaviour
         ball.GetComponent<Ball>().ResetBall();
     }
 
-#endregion // Initialization
-
-#region Reset Trial
-
-
 
 #endregion // Reset
 

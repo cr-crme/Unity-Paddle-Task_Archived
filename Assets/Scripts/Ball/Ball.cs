@@ -63,12 +63,14 @@ public class Ball : MonoBehaviour
     public void TriggerPause()
     {
         kinematics.TriggerPause();
+        shouldCollideWithPaddle = false;
     }
 
     public void TriggerResume()
     {
         if (inHoverMode) return;
         kinematics.TriggerResume();
+        shouldCollideWithPaddle = true;
     }
 
 
