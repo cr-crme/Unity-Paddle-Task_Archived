@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,7 +18,7 @@ public class TrialsManager : MonoBehaviour
     [SerializeField]
     private Ball ball;
 
-    public bool isPreparing { get; private set; } = true;
+    public bool isPreparingNewTrial { get; private set; } = true;
 
     private void Awake()
     {
@@ -30,7 +30,8 @@ public class TrialsManager : MonoBehaviour
             difficultyManager.AddDifficultyToSessionList(DifficultyChoice.BASE);
             difficultyManager.AddDifficultyToSessionList(DifficultyChoice.MODERATE);
             difficultyManager.AddDifficultyToSessionList(DifficultyChoice.MAXIMAL);
-        } else
+        } 
+        else
         {
             difficultyManager.AddDifficultyToSessionList(GlobalControl.Instance.practiseDifficulty);
             difficultyManager.AddDifficultyToSessionList(GlobalControl.Instance.practiseDifficulty);
