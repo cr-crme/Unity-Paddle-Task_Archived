@@ -237,7 +237,7 @@ public class PaddleGame : MonoBehaviour
 
         timeToDropQuad.SetActive(true);
 
-        ball.GetComponent<Ball>().IsCollisionEnabled = false;
+        ball.GetComponent<Ball>().shouldCollideWithPaddle = false;
 
         // Hover ball at target line for a second
         StartCoroutine(ball.GetComponent<Ball>().PlayDropSoundCoroutine(GlobalControl.Instance.ballResetHoverSeconds - 0.15f));

@@ -32,7 +32,7 @@ public class ViveControllerInput : MonoBehaviour
     {
         if (resetAction.GetState(source))
         {
-            ball.GetComponent<Ball>().IsCollisionEnabled = false;
+            ball.GetComponent<Ball>().shouldCollideWithPaddle = false;
             ball.transform.position = holdPoint.transform.position;
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
             ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
@@ -41,7 +41,7 @@ public class ViveControllerInput : MonoBehaviour
         if (resetAction.GetStateUp(source))
         {
             //Enable the ball's collider so it can be paddled.
-            ball.GetComponent<Ball>().IsCollisionEnabled = true;
+            ball.GetComponent<Ball>().shouldCollideWithPaddle = true;
             // Give the ball the controller's velocity so that it is thrown realistically
             ball.GetComponent<Rigidbody>().velocity = velocityEstimate.GetVelocityEstimate();
             ball.GetComponent<Rigidbody>().angularVelocity = velocityEstimate.GetAngularVelocityEstimate();

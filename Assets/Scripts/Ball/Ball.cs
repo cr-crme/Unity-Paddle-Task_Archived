@@ -3,11 +3,6 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-
-    [Tooltip("The script that handles the game logic")]
-    [SerializeField]
-    private PaddleGame gameScript;
-
     [SerializeField, Tooltip("Handles the ball sound effects")]
     private BallSoundManager ballSoundManager;
 
@@ -23,10 +18,16 @@ public class Ball : MonoBehaviour
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
 
-    private SphereCollider sphereCollider;
-
     // If the ball just bounced, this will be true (momentarily)
     private bool justBounced = false;
+
+    private bool _isCollidingWithPaddle;
+    public bool shouldCollideWithPaddle
+    {
+        get { return _isCollidingWithPaddle; }
+        set { _isCollidingWithPaddle = value; }
+    }
+
 
     // A reference to this ball's rigidbody and collider
     private Kinematics kinematics; 
@@ -45,15 +46,18 @@ public class Ball : MonoBehaviour
 
     void Awake()
     {
-        kinematics = GetComponent<Kinematics>();
-        kinematics.storedPosition = SpawnPosition;
-
         effectController = GetComponent<EffectController>();
 
-        sphereCollider = GetComponent<SphereCollider>();
+        kinematics = GetComponent<Kinematics>();
+        kinematics.storedPosition = SpawnPosition;
+        kinematics.TriggerPause();  // Game always starts in pause state
+    }
 
-        // Game always starts in pause state
-        kinematics.TriggerPause();
+
+
+    public void ForceToDrop()
+    {
+        shouldCollideWithPaddle = false;
     }
 
     void OnCollisionEnter(Collision c)
@@ -70,10 +74,7 @@ public class Ball : MonoBehaviour
 
     public void SimulateOnCollisionEnterWithPaddle(Vector3 paddleVelocity, Vector3 cpNormal)
     {
-        if (IsCollisionEnabled)
-        {
-            BounceBall(paddleVelocity, cpNormal);
-        }
+        BounceBall(paddleVelocity, cpNormal);
     }
 
     // For every frame that the ball is still in collision with the paddle, 
@@ -115,7 +116,10 @@ public class Ball : MonoBehaviour
 
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
-        if (trialsManager.isPreparing)
+        if (!shouldCollideWithPaddle)
+            return;
+
+        if (trialsManager.isPreparingNewTrial)
             // Deactivate contact with paddle when we are not in a trial
             return;
 
@@ -171,7 +175,7 @@ public class Ball : MonoBehaviour
     public void ResetBall()
     {
         ballColorManager.SetToNormalColor();
-        gameScript.ResetTrial();
+        trialsManager.StartNewTrial();
     }
 
     // Drops ball after reset
@@ -190,12 +194,7 @@ public class Ball : MonoBehaviour
         inHoverResetCoroutine = false;
         inPlayDropSoundRoutine = false;
 
-        IsCollisionEnabled = true;
-    }
-
-    public bool IsCollisionEnabled { 
-        get { return sphereCollider.enabled; }
-        set { sphereCollider.enabled = value; } 
+        shouldCollideWithPaddle = true;
     }
 
     // Play drop sound
