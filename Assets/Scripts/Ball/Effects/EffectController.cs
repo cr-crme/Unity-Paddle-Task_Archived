@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,33 +14,25 @@ public class EffectController : MonoBehaviour
     public VideoEffect effectTarget;
     VideoEffect activeShaderEffect;
 
-    private List<Tuple<int, FullEffect>> scoreDependentEffects = new List<Tuple<int, FullEffect>>();
+    [SerializeField] private List<FullEffect> scoreDependentEffects;
 
     void Start()
     {
-        dissolve?.gameObject.SetActive(false);
-        respawn?.gameObject.SetActive(false);
-        fire?.gameObject.SetActive(false);
-        blueFire?.gameObject.SetActive(false);
-        embers?.gameObject.SetActive(false);
-        blueEmbers?.gameObject.SetActive(false);
-
-        Initialize();
-        PopulateScoreDependentEffects();
-        respawn.effectTime = GlobalControl.Instance.ballResetHoverSeconds;
-    }
-
-    void Initialize()
-    {
         InitializeParticleEffect(dissolve);
         InitializeParticleEffect(respawn);
+        respawn.effectTime = GlobalControl.Instance.ballResetHoverSeconds;
         InitializeParticleEffect(fire);
         InitializeParticleEffect(blueFire);
         InitializeParticleEffect(embers);
         InitializeParticleEffect(blueEmbers);
+
+        SanityCheckForScoreDependentEffects();
     }
+
     void InitializeParticleEffect(VideoEffect effect)
     {
+        effect.gameObject.SetActive(false);
+
         EffectParticle effectParticle = effect.GetEffectParticle(effect);
         if (effectParticle == null)
         {
@@ -55,17 +47,12 @@ public class EffectController : MonoBehaviour
         }
     }
 
-    void PopulateScoreDependentEffects()
+    void SanityCheckForScoreDependentEffects()
     {
-        // Enter score effects in ascending order of the score needed to trigger them
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(10, new FullEffect(embers, null, null)));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(20, new FullEffect(fire, null, null)));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(30, new FullEffect(blueEmbers, null, new List<VideoEffect>() { embers })));
-        scoreDependentEffects.Add(new Tuple<int, FullEffect>(40, new FullEffect(blueFire, null, new List<VideoEffect>() { fire })));
-
         // Sanity check
         for (int i = 1; i < scoreDependentEffects.Count; i++)
-            if (scoreDependentEffects[i - 1].Item1 >= scoreDependentEffects[i].Item1)
+            if (scoreDependentEffects[i - 1].minimimBouncesBeforeActivating 
+                >= scoreDependentEffects[i].minimimBouncesBeforeActivating)
                 Debug.LogError("ERROR! Invalid Score effect must be in ascending order");
     }
 
@@ -74,19 +61,19 @@ public class EffectController : MonoBehaviour
         for (int i = scoreDependentEffects.Count - 1; i >= 0; i--)
         {
             // If the score is smaller than any minimal score, go to next (reversed order)
-            if (_score < scoreDependentEffects[i].Item1) continue;
+            if (_score < scoreDependentEffects[i].minimimBouncesBeforeActivating) continue;
 
             // If the score is equal, then start the current effect and stop the previous one
-            if (_score == scoreDependentEffects[i].Item1)
+            if (_score == scoreDependentEffects[i].minimimBouncesBeforeActivating)
             {
-                StartEffect(scoreDependentEffects[i].Item2);
+                StartEffect(scoreDependentEffects[i]);
                 if (i != 0)
-                    StopEffect(scoreDependentEffects[i - 1].Item2);
+                    StopEffect(scoreDependentEffects[i - 1]);
                 break;
             }
 
             // If the score is larger, break as everything will necessarily be larger (reversed order)
-            if (_score > scoreDependentEffects[i].Item1)
+            if (_score > scoreDependentEffects[i].minimimBouncesBeforeActivating)
                 break;
         }
     }
@@ -129,7 +116,7 @@ public class EffectController : MonoBehaviour
         if (activeShaderEffect == null || activeShaderEffect != effect)
         {
             activeShaderEffect = effect;
-            effectTarget.SetEffect(
+            effectTarget.SetEffectProperties(
                 effect.effectTime, 
                 effect.fadeIn, 
                 effect.material,
@@ -149,7 +136,6 @@ public class EffectController : MonoBehaviour
         EffectParticle effectParticle = effectTarget.GetEffectParticle(effect);
         if (effectParticle == null)
         {
-            Debug.LogError("particle effect not found");
             return;
         }
 

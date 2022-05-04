@@ -98,7 +98,6 @@ public class PaddleGame : MonoBehaviour
         Time.timeScale = GlobalControl.Instance.timescale;
 
         // Reset ball if it drops 
-        ManageIfBallOnGround();
         ManageHoveringPhase();
     }
 
@@ -128,7 +127,31 @@ public class PaddleGame : MonoBehaviour
         StartCoroutine(QuitWhenTrialIsProcessed());
     }
 
-#region Initialization
+    #region UI Manager
+    public void UpdateFeebackCanvas(TrialsManager _trialsManager)
+    {
+        feedbackCanvas.UpdateAllInformation(_trialsManager);
+    }
+    #endregion
+
+
+    #region Ball effect manager
+    public void TriggerBallRespawn(bool spawnOnly)
+    {
+        StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler, spawnOnly));
+    }
+    #endregion
+
+
+
+
+
+
+
+
+
+
+    #region Initialization
 
     public void Initialize(bool firstTime)
     {
@@ -250,24 +273,6 @@ public class PaddleGame : MonoBehaviour
         //Debug.Log("Entering hover mode");
     }
 
-    void ManageIfBallOnGround()
-    {
-        if (ball.GetComponent<Ball>().inHoverMode) 
-            return;
-
-        if (ball.GetComponent<Ball>().inRespawnMode)
-            return;         
-        
-        // Check if ball is on ground
-        if (ball.GetComponent<Ball>().isOnGround())
-        {
-            ResetTrial();
-            trialsManager.StartNewTrial();
-            _isInTrial = true;
-        }
-    }
-
-
     // Update time to drop
     IEnumerator UpdateTimeToDropDisplayCoroutine()
     {
@@ -289,30 +294,6 @@ public class PaddleGame : MonoBehaviour
         inCoutdownCoroutine = false;
     }
 
-    // The ball was reset after hitting the ground. Reset bounce and score.
-    public void ResetTrial(bool final = false)
-    {
-        if (!_isInTrial)
-            return;
-
-        _isInTrial = false;
-            
-
-
-        feedbackCanvas.UpdateBestSoFar(trialsManager.bestSoFarNbOfBounces);
-        trialsManager.StartNewTrial();
-
-        if (!final)
-        {
-            // Check if game should end or evaluation set change
-            if (trialsManager.isSessionOver)
-            {
-                QuitTask();
-                return;
-            }
-            Initialize(false);
-        }
-    }
 
 #endregion // Reset
 
@@ -343,10 +324,6 @@ public class PaddleGame : MonoBehaviour
         SetTrialLevel(_newLevel);
 
         difficultyEvaluationIndex++;
-        Debug.Log(
-            $"Increased Difficulty Evaluation to {difficultyEvaluationIndex} with new difficulty " +
-            $"evaluation difficulty evaluation: {difficultyManager.difficultyName}"
-        );
     }
     private void SetTrialLevel(int _newLevel)
     {
@@ -359,22 +336,9 @@ public class PaddleGame : MonoBehaviour
 
         targetLine.UpdateCondition();
         difficultyDisplay.text = difficultyManager.currentLevel.ToString();
-
-        if (trialsManager.isSessionOver)
-        {
-            // all difficulties recored
-            QuitTask();
-        }
     }
 
     #endregion // Difficulty
 
-
-    #region Feedback
-    public void UpdateFeebackCanvas(TrialsManager _trialsManager)
-    {
-        feedbackCanvas.UpdateAllInformation(_trialsManager);
-    }
-    #endregion
 
 }

@@ -33,7 +33,7 @@ public class MenuController : MonoBehaviour {
             { "session", (GetRecordSession(), LoadSessionToMenu) },
             { "practise_totalTime", (GetPractiseTotalTime(), LoadPractiseTotalTimeToMenu) },
             { "showcase_timePerTrial", (GetShowcaseTimePerTrial(), LoadShowcaseTimePerTrialToMenu) },
-            { "practise_difficulty", (GetPractiseDifficulty(), LoadPractiseDifficulty) },
+            { "difficulty", (GetPractiseDifficulty(), LoadPractiseDifficulty) },
             { "practise_level", (GetPractiseStartingLevel(), LoadPractiseStartingLevelToMenu) },
             { "showcase_toggleVideo", (GetShowcaseVideo(), LoadShowcaseVideoToMenu) },
             { "targetHeight", (GetTargetHeight(), LoadTargetHeightToMenu) },
@@ -326,16 +326,16 @@ public class MenuController : MonoBehaviour {
     }
     private void SavePractiseDifficulty(int _value)
     {
-        PlayerPrefs.SetInt("practise_difficulty", _value);
+        PlayerPrefs.SetInt("difficulty", _value);
         PlayerPrefs.Save();
     }
     private void LoadPractiseDifficulty(bool resetToDefault)
     {
         int _value;
         if (resetToDefault)
-            _value = (int)preferenceList["practise_difficulty"].Item1;
-        else if (PlayerPrefs.HasKey("practise_difficulty"))
-            _value = PlayerPrefs.GetInt("practise_difficulty");
+            _value = (int)preferenceList["difficulty"].Item1;
+        else if (PlayerPrefs.HasKey("difficulty"))
+            _value = PlayerPrefs.GetInt("difficulty");
         else
             return;
 

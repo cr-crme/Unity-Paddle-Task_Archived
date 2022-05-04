@@ -6,24 +6,33 @@ public class DifficultyManager : MonoBehaviour
     [SerializeField, Tooltip("The paddles manager")]
     private PaddlesManager paddlesManager;
 
+    DifficultyFactory difficultyFactory = new DifficultyFactory();
+    private DifficultyDefinition difficulty;
+
+    private void Awake()
+    {
+        difficulty = difficultyFactory.trialLevelDefinitions[GlobalControl.Instance.practiseDifficulty];
+    }
+
     #region Accessors
     #region Ball
-    public int nbOfBounceRequired { get { return currentDifficulty.nbOfBounceRequired; } }
-    public int nbOfAccurateBounceRequired { get { return currentDifficulty.nbOfAccurateBounceRequired; } }
-    public float ballSpeed { get { return currentDifficulty.ballSpeed(currentLevel); } }
+    public int nbOfBounceRequired { get { return difficulty.nbOfBounceRequired; } }
+    public int nbOfAccurateBounceRequired { get { return difficulty.nbOfAccurateBounceRequired; } }
+    public float ballSpeed { get { return difficulty.ballSpeed(currentLevel); } }
     #endregion
+
 
     #region Target
-    public bool hasTarget { get { return currentDifficulty.hasTarget(currentLevel); } }
+    public bool hasTarget { get { return difficulty.hasTarget(currentLevel); } }
     public TargetEnum.Height targetHeight { get { return GlobalControl.Instance.targetHeightPreference; } }
-    public float targetHeightOffset { get { return currentDifficulty.targetHeightOffset(currentLevel); } }
-    public float targetWidth { get { return currentDifficulty.targetWidth(currentLevel); } }
+    public float targetHeightOffset { get { return difficulty.targetHeightOffset(currentLevel); } }
+    public float targetWidth { get { return difficulty.targetWidth(currentLevel); } }
     #endregion
 
+
     #region Trial
-    public bool AreAllDifficultiesDone { get { return currentDifficultyChoiceIndex >= difficultyOverSession.Count; } }
     public bool AreTrialConditionsMet(Trial _currentTrial) {
-        return currentDifficulty.AreTrialConditionsMet(_currentLevel, _currentTrial); 
+        return difficulty.AreTrialConditionsMet(_currentLevel, _currentTrial);
     }
     public bool mustSwitchPaddleAfterHitting { get { return paddlesManager.NbPaddles > 1; } }
     #endregion
@@ -33,12 +42,13 @@ public class DifficultyManager : MonoBehaviour
 
     // Level is the increment inside a difficulty condition 
     #region Level
+    public int nbLevel { get { return nbLevel; } }
     private int _currentLevel = 0;
     public int currentLevel { 
         get { return _currentLevel; }
         set
         {
-            if (value < 0 || value > currentDifficulty.nbLevel)
+            if (value < 0 || value > difficulty.nbLevel)
             {
                 Debug.LogError("Issue setting difficulty, not in expected range: " + value);
                 return;
@@ -48,30 +58,8 @@ public class DifficultyManager : MonoBehaviour
     }
     public int ScoreToLevel(double _score)
     {
-        return currentDifficulty.ScoreToLevel(_score);
+        return difficulty.ScoreToLevel(_score);
     }
     #endregion
 
-
-
-    // Difficulty is a specific set of level conditions
-    #region Difficulty
-    public int NbOfDifficultyInTheSession { get { return difficultyOverSession.Count; } }
-    public string difficultyName { get { return currentDifficulty.name; } }
-    private List<DifficultyChoice> difficultyOverSession = new List<DifficultyChoice>();
-    public void AddDifficultyToSessionList(DifficultyChoice newDifficulty)
-    {
-        difficultyOverSession.Add(newDifficulty);
-    }
-    private int currentDifficultyChoiceIndex = -1;
-    public void ProceedToNextDifficulty() { currentDifficultyChoiceIndex += 1; }
-    private DifficultyChoice currentDifficultyChoice { 
-        get { return difficultyOverSession[currentDifficultyChoiceIndex];  } 
-    }
-    private DifficultyFactory difficultyFactory = new DifficultyFactory();
-    private DifficultyDefinition currentDifficulty
-    {
-        get { return difficultyFactory.trialLevelDefinitions[currentDifficultyChoice]; }
-    }
-    #endregion
 }

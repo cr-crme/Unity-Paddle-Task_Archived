@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,7 +34,7 @@ public class VideoEffect : MonoBehaviour
         }
     }
 
-    public void SetEffect(
+    public void SetEffectProperties(
         float effectTimeVar, 
         AnimationCurve fadeInVar,
         Material materialVar, 
@@ -73,6 +73,9 @@ public class VideoEffect : MonoBehaviour
 
     public void StartEffect()
     {
+        if (ps == null)
+            return;
+
         playing = true;
         ps.Play();
         timer = 0;
