@@ -9,8 +9,6 @@ using UnityEngine.SceneManagement;
 
 public class PaddleGame : MonoBehaviour
 {	
-    private bool _isInTrial;
-
     // Manage the current task to perform
     [SerializeField, Tooltip("The main manager for the game difficulty")]
     private DifficultyManager difficultyManager;
@@ -50,9 +48,6 @@ public class PaddleGame : MonoBehaviour
     /// </summary>
     [SerializeField]
     List<DifficultyAudioClip> difficultyAudioClips = new List<DifficultyAudioClip>();
-
-    // The current trial number. This is increased by one every time the ball is reset.
-    public int trialNum = 0;
 
     [SerializeField]
     private GlobalPauseHandler pauseHandler;
@@ -267,6 +262,7 @@ public class PaddleGame : MonoBehaviour
         if (ball.GetComponent<Ball>().isOnGround())
         {
             ResetTrial();
+            trialsManager.StartNewTrial();
             _isInTrial = true;
         }
     }
@@ -296,29 +292,14 @@ public class PaddleGame : MonoBehaviour
     // The ball was reset after hitting the ground. Reset bounce and score.
     public void ResetTrial(bool final = false)
     {
-        // Don't run this code the first time the ball is reset or when there are 0 bounces
-        if (trialNum < 1 /*|| numBounces < 1*/)
-        {
-            trialNum++;
-            return;
-        }
-
         if (!_isInTrial)
             return;
 
         _isInTrial = false;
-
-        if (!final && trialNum != 0 && trialNum % 10 == 0)
-        {
-            // some difficulty effects are regenerated every 10 trials
-            SetTrialLevel(difficultyManager.currentLevel);
-        }
             
 
 
         feedbackCanvas.UpdateBestSoFar(trialsManager.bestSoFarNbOfBounces);
-
-        trialNum++;
         trialsManager.StartNewTrial();
 
         if (!final)

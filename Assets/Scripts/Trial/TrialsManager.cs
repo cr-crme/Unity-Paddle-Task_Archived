@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -41,26 +41,12 @@ public class TrialsManager : MonoBehaviour
 
     private void Update()
     {
-        if (!isPreparing && ( isTrialTimeOver() || AreTrialConditionsMet() ) )
-        {
-            isPreparing = true;
-            StartCoroutine(FinalizeTrial());
-        }
+        if (isPreparingNewTrial) return;
 
-        IEnumerator FinalizeTrial()
-        {
-            yield return new WaitWhile(() => !ball.isOnGround());
-            Debug.Log($"Trial is over the session performance score is {EvaluateSessionPerformance()}");
-
-            StartNewSession();
-            if (isSessionOver)
-            {
-                paddleGame.QuitTask();
-            }
-        }
+        ManageIfEndOfTrial();
     }
 
-    #region One specific trial
+    #region Current trial in the session
     public void StartNewTrial()
     {
         if (allTrialsData.Count > 0 && allTrialsData.Last().nbBounces > bestSoFarNbOfBounces)
@@ -68,7 +54,37 @@ public class TrialsManager : MonoBehaviour
             bestSoFarNbOfBounces = allTrialsData.Last().nbBounces;
         }
         allTrialsData.Add(new Trial(GlobalControl.Instance.elapsedTime));
-        isPreparing = false;
+        isPreparingNewTrial = false;
+    }
+    public void ManageIfEndOfTrial(bool forceEndOfTrial = false)
+    {
+        IEnumerator FinalizeTrialCoroutine()
+        {
+            yield return new WaitWhile(() => !ball.isOnGround());
+            Debug.Log($"Trial is over the session performance score is {EvaluateSessionPerformance()}");
+
+            StartNewTrial();
+            if (isSessionOver)
+            {
+                isPreparingNewTrial = false;
+                paddleGame.QuitTask();
+            }
+        }
+
+        if (isPreparingNewTrial) return;
+
+        if (forceEndOfTrial || isTrialTimeOver() || AreTrialConditionsMet())
+        {
+            isPreparingNewTrial = true;
+            ball.ForceToDrop();
+            StartCoroutine(FinalizeTrialCoroutine());
+        }
+    }
+    public void ForceEndOfTrial()
+    {
+        if (isPreparingNewTrial) return;
+
+        ManageIfEndOfTrial(true);
     }
     private Trial currentTrial { get { return allTrialsData.Last(); } }
     private float trialTime { get { return GlobalControl.Instance.elapsedTime - currentTrial.time; } }
