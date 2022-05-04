@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -66,9 +65,7 @@ public class EffectController : MonoBehaviour
             // If the score is equal, then start the current effect and stop the previous one
             if (_score == scoreDependentEffects[i].minimimBouncesBeforeActivating)
             {
-                StartEffect(scoreDependentEffects[i]);
-                if (i != 0)
-                    StopEffect(scoreDependentEffects[i - 1]);
+                StartParticleEffect(scoreDependentEffects[i]);
                 break;
             }
 
@@ -78,13 +75,15 @@ public class EffectController : MonoBehaviour
         }
     }
 
-    public void StartEffect(FullEffect effect)
+    public void StartParticleEffect(FullEffect effect)
     {
         foreach (var disableEffect in effect.disableEffects)
         {
             StopParticleEffect(disableEffect);
         }
-        StartVisualEffect(effect.visualEffect);
+        StartParticleEffect(effect.visualEffect);
+        StartShaderEffect(effect.visualEffect);
+        effect.visualEffect.StartEffect();
         PlaySound(effect.audioClip);
     }
     public void StopEffect(FullEffect effect)
