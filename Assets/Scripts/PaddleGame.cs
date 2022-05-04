@@ -56,12 +56,6 @@ public class PaddleGame : MonoBehaviour
     // 0 degrees: ball can only bounce in y direction, 90 degrees: no reduction in range
     public float degreesOfFreedom;
 
-    // Variables for countdown timer display
-    private bool inCoutdownCoroutine = false;
-
-    
-    private int difficultyEvaluationIndex = 0;
-
     float difficultyExampleTime = 30f;
 
     void Start()
@@ -79,26 +73,7 @@ public class PaddleGame : MonoBehaviour
 
 
         // difficulty shifts timescale, so pause it again
-        Time.timeScale = 0;
         pauseHandler.Pause();
-    }
-
-    void Update()
-    {
-        if(GlobalControl.Instance.paused)
-        {
-            // no processing until unpaused
-            return;
-        }
-
-        // Update Canvas display
-        timeToDropQuad.SetActive(false);
-
-        // Reset time scale
-        Time.timeScale = GlobalControl.Instance.timescale;
-
-        // Reset ball if it drops 
-        ManageHoveringPhase();
     }
 
     void OnApplicationQuit()
@@ -132,6 +107,11 @@ public class PaddleGame : MonoBehaviour
     {
         feedbackCanvas.UpdateAllInformation(_trialsManager);
     }
+
+    public void ToggleTimerCountdownCanvas(bool value)
+    {
+        timeToDropQuad.SetActive(value);
+    }
     #endregion
 
 
@@ -139,6 +119,18 @@ public class PaddleGame : MonoBehaviour
     public void TriggerBallRespawn(bool spawnOnly)
     {
         StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler, spawnOnly));
+    }
+
+    public IEnumerator ManageCountdownToDropCanvasCoroutine(int countdownTime)
+    {
+        ToggleTimerCountdownCanvas(true);
+        while (countdownTime >= 1.0f)
+        {
+            timeToDropText.text = countdownTime.ToString();
+            countdownTime--;
+            yield return new WaitForSeconds(1.0f);
+        }
+        ToggleTimerCountdownCanvas(false);
     }
     #endregion
 
@@ -247,52 +239,6 @@ public class PaddleGame : MonoBehaviour
 
 #region Reset Trial
 
-    // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
-    void ManageHoveringPhase()
-    {
-        if (!ball.GetComponent<Ball>().inHoverMode)
-            return;
-
-        timeToDropQuad.SetActive(true);
-
-        ball.GetComponent<Ball>().shouldCollideWithPaddle = false;
-
-        // Hover ball at target line for a second
-        StartCoroutine(ball.GetComponent<Ball>().PlayDropSoundCoroutine(GlobalControl.Instance.ballResetHoverSeconds - 0.15f));
-        StartCoroutine(ball.GetComponent<Ball>().ReleaseHoverOnResetCoroutine(GlobalControl.Instance.ballResetHoverSeconds));
-
-        // Start countdown timer 
-        StartCoroutine(UpdateTimeToDropDisplayCoroutine());
-
-        ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-        ball.transform.position = ball.GetComponent<Ball>().SpawnPosition;
-        ball.transform.rotation = Quaternion.identity;
-
-        Time.timeScale = 1f;
-        //Debug.Log("Entering hover mode");
-    }
-
-    // Update time to drop
-    IEnumerator UpdateTimeToDropDisplayCoroutine()
-    {
-        if (inCoutdownCoroutine)
-        {
-            yield break;
-        }
-        inCoutdownCoroutine = true;
-
-        int countdown = GlobalControl.Instance.ballResetHoverSeconds;
-
-        while (countdown >= 1.0f)
-        {
-            timeToDropText.text = countdown.ToString();
-            countdown--;
-            yield return new WaitForSeconds(1.0f);
-        }
-
-        inCoutdownCoroutine = false;
-    }
 
 
 #endregion // Reset
@@ -322,8 +268,6 @@ public class PaddleGame : MonoBehaviour
         int _newLevel = difficultyManager.ScoreToLevel(_score);
 
         SetTrialLevel(_newLevel);
-
-        difficultyEvaluationIndex++;
     }
     private void SetTrialLevel(int _newLevel)
     {

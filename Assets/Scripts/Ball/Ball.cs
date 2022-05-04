@@ -15,6 +15,9 @@ public class Ball : MonoBehaviour
     [SerializeField, Tooltip("The trials manager")]
     private TrialsManager trialsManager;
 
+    [SerializeField]
+    private PaddleGame uiManager;
+
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
 
@@ -30,19 +33,17 @@ public class Ball : MonoBehaviour
 
 
     // A reference to this ball's rigidbody and collider
-    private Kinematics kinematics; 
-
-
+    private Kinematics kinematics;
+    public EffectController effectController;
+    private Rigidbody rigidBody;
 
     // Variables to keep track of resetting the ball after dropping to the ground
+    public bool isOnGround { get { return transform.position.y < transform.localScale.y; } }
     public bool inHoverMode { get; protected set; } = true;
     public bool inRespawnMode { get; protected set; } = false;
-    private bool inHoverResetCoroutine = false;
-    private bool inPlayDropSoundRoutine = false;
     private int ballResetHoverSeconds = 3;
     private int ballRespawnSeconds = 1;
 
-    public EffectController effectController;
 
     void Awake()
     {
@@ -50,6 +51,8 @@ public class Ball : MonoBehaviour
 
         kinematics = GetComponent<Kinematics>();
         kinematics.storedPosition = SpawnPosition;
+
+        rigidBody = GetComponent<Rigidbody>();
     }
 
     public void ForceToDrop()
@@ -62,6 +65,15 @@ public class Ball : MonoBehaviour
         kinematics.TriggerPause();
     }
 
+    public void TriggerResume()
+    {
+        if (inHoverMode) return;
+        kinematics.TriggerResume();
+    }
+
+
+
+    #region Collision with paddle
     void OnCollisionEnter(Collision c)
     {
         // On collision with paddle, ball should bounce
@@ -91,39 +103,11 @@ public class Ball : MonoBehaviour
             kinematics.AddToVelocity(new Vector3(0, pVySlice, 0));
         }
     }
+    #endregion
 
-    // Returns the default spawn position of the ball:
-    // 10cm above the target line, 50cm in front of the 0 
-    public Vector3 SpawnPosition
-    {
-        get { return new Vector3(0.0f, target.transform.position.y + 0.1f, 0.5f); }
-    }
 
-    public IEnumerator RespawningCoroutine(GlobalPauseHandler pauseHandler, bool spawnOnly = false)
-    {
-        inRespawnMode = true;
-        if (!spawnOnly)
-        {
-            Time.timeScale = 1f;
-            effectController.StopAllParticleEffects();
-            effectController.StartVisualEffect(effectController.dissolve);
-            yield return new WaitForSeconds(ballRespawnSeconds);
-            inHoverMode = true;
-            yield return new WaitForEndOfFrame();
-            effectController.StopParticleEffect(effectController.dissolve);
-        }
-        else
-        {
-            inHoverMode = true;
-        }
-        pauseHandler.Pause();
-        ballColorManager.SetToNormalColor();
-        inRespawnMode = false;
-        effectController.StartVisualEffect(effectController.respawn);
-        yield return new WaitForSeconds(ballResetHoverSeconds);
-        ballColorManager.SetToNormalColor();
-    }
 
+    #region Bounce logic
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
         if (!shouldCollideWithPaddle)
@@ -168,56 +152,6 @@ public class Ball : MonoBehaviour
 
     }
 
-    public bool isOnGround { get { return transform.position.y < transform.localScale.y; } }
-
-
-    public void IndicateSuccessBall()
-    {
-        // Turns ball green briefly and plays success sound.
-        ballSoundManager.PlaySuccessSound();
-        ballColorManager.IndicateSuccess();
-    }
-
-    // Ball has been reset. Reset the trial as well.
-    public void ResetBall()
-    {
-        trialsManager.StartNewTrial();
-    }
-
-    // Drops ball after reset
-    public IEnumerator ReleaseHoverOnResetCoroutine(float time)
-    {
-        if (inHoverResetCoroutine)
-        {
-            yield break;
-        }
-        inHoverResetCoroutine = true;
-
-        yield return new WaitForSeconds(time);
-
-        // Stop hovering
-        inHoverMode = false;
-        inHoverResetCoroutine = false;
-        inPlayDropSoundRoutine = false;
-
-        shouldCollideWithPaddle = true;
-    }
-
-    // Play drop sound
-    public IEnumerator PlayDropSoundCoroutine(float time)
-    {
-        if (inPlayDropSoundRoutine)
-        {
-            yield break;
-        }
-        inPlayDropSoundRoutine = true;
-        yield return new WaitForSeconds(time);
-
-        ballSoundManager.PlayDropSound();
-    }
-
-    
-
     // Modifies the bounce for this forced exploration game
     public void SetBounceModification(Vector3 modification)
     {
@@ -230,4 +164,97 @@ public class Ball : MonoBehaviour
         return currentBounceModification;
     }
 
+    public void IndicateSuccessBall()
+    {
+        // Turns ball green briefly and plays success sound.
+        ballSoundManager.PlaySuccessSound();
+        ballColorManager.IndicateSuccess();
+    }
+    #endregion
+
+
+
+    #region Spawning manager
+    public void ResetBall()
+    {
+        ResetBallProperties();
+        trialsManager.StartNewTrial();
+    }
+
+    private void ResetBallProperties()
+    {
+        ballColorManager.SetToNormalColor();
+
+        rigidBody.velocity = Vector3.zero;
+        rigidBody.angularVelocity = Vector3.zero;
+        transform.position = SpawnPosition;
+        transform.rotation = Quaternion.identity;
+    }
+
+    // Returns the default spawn position of the ball:
+    // 10cm above the target line, 50cm in front of the 0 
+    public Vector3 SpawnPosition
+    {
+        get { return new Vector3(0.0f, target.transform.position.y + 0.1f, 0.5f); }
+    }
+
+    public IEnumerator RespawningCoroutine(GlobalPauseHandler pauseHandler, bool spawnOnly = false)
+    {
+        if (!spawnOnly)
+        {
+            inRespawnMode = true;
+            Time.timeScale = 1f; // Normal speed for the animation
+            effectController.StopAllParticleEffects();
+            effectController.StartVisualEffect(effectController.dissolve);
+            yield return new WaitForSeconds(ballRespawnSeconds);
+            yield return new WaitForEndOfFrame();
+            effectController.StopParticleEffect(effectController.dissolve);
+            inRespawnMode = false;
+        }
+
+        ManageHoveringPhaseCoroutine(pauseHandler);
+    }
+    #endregion
+
+
+    #region Hovering manager
+    // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
+    private void ManageHoveringPhaseCoroutine(GlobalPauseHandler pauseHandler)
+    {
+        // Drops ball after reset
+        IEnumerator ReleaseHoverAfterCountdown(float time)
+        {
+            yield return new WaitForSeconds(time);
+
+            // Stop hovering
+            inHoverMode = false;
+            shouldCollideWithPaddle = true;
+            pauseHandler.Resume();
+        }
+
+        IEnumerator PlayDropSoundCoroutine(float _waitTimeBeforePlaying)
+        {
+            yield return new WaitForSeconds(_waitTimeBeforePlaying);
+            ballSoundManager.PlayDropSound();
+        }
+
+        inHoverMode = true;
+        shouldCollideWithPaddle = false;
+
+        ResetBallProperties();
+        pauseHandler.Pause();
+
+        effectController.StartVisualEffect(effectController.respawn);
+
+        int resetTime = GlobalControl.Instance.ballResetHoverSeconds;
+
+        // Hover ball at target line for a second
+        StartCoroutine(PlayDropSoundCoroutine(resetTime - 0.15f));
+        StartCoroutine(ReleaseHoverAfterCountdown(resetTime));
+
+        // Show countdown to participant
+        StartCoroutine(uiManager.ManageCountdownToDropCanvasCoroutine(resetTime));
+    }
+
+    #endregion
 }

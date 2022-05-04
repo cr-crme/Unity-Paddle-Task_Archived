@@ -50,8 +50,8 @@ public class GlobalPauseHandler : MonoBehaviour
         }
 
         GlobalControl.Instance.paused = false;
-        Time.timeScale = GlobalControl.Instance.timescale;
-        GameObject.Find("Ball").GetComponent<Kinematics>().TriggerResume();
+        Time.timeScale = ball.inHoverMode ? 1f : GlobalControl.Instance.timescale;
+        ball.TriggerResume();
         SetIndicatorVisibility(false);
     }
 

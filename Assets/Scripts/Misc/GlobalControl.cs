@@ -50,7 +50,8 @@ public class GlobalControl : MonoBehaviour
     // Alter the speed at which physics and other updates occur
     private float _timescale = 1f;
     public float timescale { 
-        get { return _timescale; } set { _timescale = value;  Time.timeScale = value; } 
+        get { return _timescale; }
+        set { _timescale = value; } 
     }
 
 
