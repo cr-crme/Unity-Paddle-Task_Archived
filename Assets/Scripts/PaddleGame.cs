@@ -117,14 +117,20 @@ public class PaddleGame : MonoBehaviour
     /// </summary>
     public void QuitTask()
     {
+        IEnumerator QuitWhenTrialIsProcessed()
+        {
+            yield return new WaitUntil(() => (trialsManager.isPreparingNewTrial));
+
+            // clean DDoL objects and return to the start scene
+            Destroy(GlobalControl.Instance.gameObject);
+            Destroy(gameObject);
+
+            SceneManager.LoadScene(0);
+        }
+
         // This is to ensure that the final trial is recorded.
-        ResetTrial(true);
-
-        // clean DDoL objects and return to the start scene
-        Destroy(GlobalControl.Instance.gameObject);
-        Destroy(gameObject);
-
-        SceneManager.LoadScene(0);
+        trialsManager.ForceEndOfTrial();
+        StartCoroutine(QuitWhenTrialIsProcessed());
     }
 
 #region Initialization
@@ -165,7 +171,7 @@ public class PaddleGame : MonoBehaviour
         }
         else
         {
-            StartCoroutine(ball.GetComponent<Ball>().Respawning(pauseHandler));
+            StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler));
         }
 
         Debug.Log("Initialized");
@@ -180,10 +186,10 @@ public class PaddleGame : MonoBehaviour
     {
         pauseHandler.Resume();
         SetTrialLevel(difficultyManager.currentLevel);
-        StartCoroutine(StartDifficultyDelayed(difficultyExampleTime, true));
+        StartCoroutine(StartDifficultyDelayedCoroutine(difficultyExampleTime, true));
     }
 
-    IEnumerator StartDifficultyDelayed(float delay, bool initial = false)
+    IEnumerator StartDifficultyDelayedCoroutine(float delay, bool initial = false)
     {
         if (initial)
         {
@@ -209,7 +215,7 @@ public class PaddleGame : MonoBehaviour
         else
         {
             SetTrialLevel(difficultyManager.currentLevel + 2);
-            StartCoroutine(StartDifficultyDelayed(difficultyExampleTime));
+            StartCoroutine(StartDifficultyDelayedCoroutine(difficultyExampleTime));
             if (difficultyManager.currentLevel > 10) // OG ==
             {
                 // yield return new WaitForSecondsRealtime(delay);
@@ -234,11 +240,11 @@ public class PaddleGame : MonoBehaviour
         ball.GetComponent<Ball>().IsCollisionEnabled = false;
 
         // Hover ball at target line for a second
-        StartCoroutine(ball.GetComponent<Ball>().PlayDropSound(GlobalControl.Instance.ballResetHoverSeconds - 0.15f));
-        StartCoroutine(ball.GetComponent<Ball>().ReleaseHoverOnReset(GlobalControl.Instance.ballResetHoverSeconds));
+        StartCoroutine(ball.GetComponent<Ball>().PlayDropSoundCoroutine(GlobalControl.Instance.ballResetHoverSeconds - 0.15f));
+        StartCoroutine(ball.GetComponent<Ball>().ReleaseHoverOnResetCoroutine(GlobalControl.Instance.ballResetHoverSeconds));
 
         // Start countdown timer 
-        StartCoroutine(UpdateTimeToDropDisplay());
+        StartCoroutine(UpdateTimeToDropDisplayCoroutine());
 
         ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
         ball.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
@@ -267,7 +273,7 @@ public class PaddleGame : MonoBehaviour
 
 
     // Update time to drop
-    IEnumerator UpdateTimeToDropDisplay()
+    IEnumerator UpdateTimeToDropDisplayCoroutine()
     {
         if (inCoutdownCoroutine)
         {

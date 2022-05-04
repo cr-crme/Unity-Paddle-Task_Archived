@@ -25,7 +25,7 @@ public class BallColorManager : MonoBehaviour
     public void IndicateSuccess()
     {
         TurnBallGreen();
-        StartCoroutine(TurnBallWhiteCR(0.3f));
+        StartCoroutine(TurnBallWhiteCoroutine(0.3f));
     }
 
     public void SetToNormalColor()
@@ -53,7 +53,7 @@ public class BallColorManager : MonoBehaviour
         GetComponent<MeshRenderer>().material = ballMat;
     }
 
-    private IEnumerator TurnBallWhiteCR(float time = 0.0f)
+    private IEnumerator TurnBallWhiteCoroutine(float time = 0.0f)
     {
         if (inTurnBallWhiteCR)
         {
@@ -67,7 +67,7 @@ public class BallColorManager : MonoBehaviour
         inTurnBallWhiteCR = false;
     }
 
-    private IEnumerator TurnBallGreenCR(float time = 0.0f)
+    private IEnumerator TurnBallGreenCoroutine(float time = 0.0f)
     {
         yield return new WaitForSeconds(time);
         TurnBallGreen();

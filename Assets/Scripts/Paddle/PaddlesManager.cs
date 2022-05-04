@@ -33,7 +33,7 @@ public class PaddlesManager : MonoBehaviour
 
     public void SwitchPaddleIfNeeded(DifficultyManager _difficultyManager)
     {
-        IEnumerator WaitThenSwitchPaddles()
+        IEnumerator WaitThenSwitchPaddlesCoroutine()
         {
             // In order to prevent bugs, wait a little bit for the paddles to switch
             yield return new WaitForSeconds(0.1f);
@@ -41,7 +41,7 @@ public class PaddlesManager : MonoBehaviour
         }
         if (_difficultyManager.mustSwitchPaddleAfterHitting)
         {
-            StartCoroutine(WaitThenSwitchPaddles());
+            StartCoroutine(WaitThenSwitchPaddlesCoroutine());
         }
     }
 
