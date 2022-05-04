@@ -9,7 +9,7 @@ public class TrialsManager : MonoBehaviour
     private DifficultyManager difficultyManager;
 
     [SerializeField]
-    private PaddleGame paddleGame;
+    private PaddleGame uiManager;
 
     [SerializeField]
     [Tooltip("The paddles in the game")]
@@ -20,23 +20,10 @@ public class TrialsManager : MonoBehaviour
 
     public bool isPreparingNewTrial { get; private set; } = true;
 
-    private void Awake()
+    private void Start()
     {
         bestSoFarNbOfBounces = 0;
-
-        difficultyManager = GetComponent<DifficultyManager>();
-        if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
-        {
-            difficultyManager.AddDifficultyToSessionList(DifficultyChoice.BASE);
-            difficultyManager.AddDifficultyToSessionList(DifficultyChoice.MODERATE);
-            difficultyManager.AddDifficultyToSessionList(DifficultyChoice.MAXIMAL);
-        } 
-        else
-        {
-            difficultyManager.AddDifficultyToSessionList(GlobalControl.Instance.practiseDifficulty);
-            difficultyManager.AddDifficultyToSessionList(GlobalControl.Instance.practiseDifficulty);
-        }
-        StartNewSession();
+        StartSession();
     }
 
     private void Update()
@@ -49,34 +36,44 @@ public class TrialsManager : MonoBehaviour
     #region Current trial in the session
     public void StartNewTrial()
     {
+        IEnumerator FinalizeStartNewTrialCoroutine()
+        {
+            yield return new WaitWhile(() => ball.inRespawnMode);
+            isPreparingNewTrial = false;
+        }
         if (allTrialsData.Count > 0 && allTrialsData.Last().nbBounces > bestSoFarNbOfBounces)
         {
             bestSoFarNbOfBounces = allTrialsData.Last().nbBounces;
         }
         allTrialsData.Add(new Trial(GlobalControl.Instance.elapsedTime));
-        isPreparingNewTrial = false;
+        uiManager.TriggerBallRespawn(allTrialsData.Count == 1);
+        uiManager.UpdateFeebackCanvas(this);
+        StartCoroutine(FinalizeStartNewTrialCoroutine());
     }
     public void ManageIfEndOfTrial(bool forceEndOfTrial = false)
     {
         IEnumerator FinalizeTrialCoroutine()
         {
-            yield return new WaitWhile(() => !ball.isOnGround());
+            yield return new WaitWhile(() => !ball.isOnGround);
             Debug.Log($"Trial is over the session performance score is {EvaluateSessionPerformance()}");
 
             StartNewTrial();
             if (isSessionOver)
             {
                 isPreparingNewTrial = false;
-                paddleGame.QuitTask();
+                uiManager.QuitTask();
             }
         }
 
-        if (isPreparingNewTrial) return;
+        if (isPreparingNewTrial || ball.inRespawnMode || ball.inHoverMode) 
+            return;
 
-        if (forceEndOfTrial || isTrialTimeOver() || AreTrialConditionsMet())
+        if (forceEndOfTrial)
+            ball.ForceToDrop();
+
+        if (ball.isOnGround || isSessionOver)
         {
             isPreparingNewTrial = true;
-            ball.ForceToDrop();
             StartCoroutine(FinalizeTrialCoroutine());
         }
     }
@@ -88,18 +85,12 @@ public class TrialsManager : MonoBehaviour
     }
     private Trial currentTrial { get { return allTrialsData.Last(); } }
     private float trialTime { get { return GlobalControl.Instance.elapsedTime - currentTrial.time; } }
-    private bool isTrialTimeOver()
-    {
-        float maxTime = maximumTrialTime;
-        if (maxTime <= 0) return false;
-        else return trialTime > maxTime;
-    }
     private float maximumTrialTime { 
         get
         {
             if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
             {
-                return GlobalControl.Instance.showcaseTimePerCondition * 60f;
+                return GlobalControl.Instance.showcaseTimePerCondition * 60f * difficultyManager.nbLevel;
             }
             else if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
             {
@@ -115,17 +106,13 @@ public class TrialsManager : MonoBehaviour
     public void AddBounceToCurrentTrial()
     {
         currentTrial.AddBounce();
-        paddleGame.UpdateFeebackCanvas(this);
+        uiManager.UpdateFeebackCanvas(this);
         paddlesManager.SwitchPaddleIfNeeded(difficultyManager);
-
-        if (isSessionOver)
-        {
-            paddleGame.QuitTask();
-        }
     }
     public void AddAccurateBounceToCurrentTrial()
     {
         currentTrial.AddAccurateBounce();
+        uiManager.UpdateFeebackCanvas(this);
     }
     public int currentNumberOfBounces { get { return currentTrial.nbBounces; } }
     public int currentNumberOfAccurateBounces { get { return currentTrial.nbAccurateBounces; } }
@@ -142,14 +129,20 @@ public class TrialsManager : MonoBehaviour
 
 
     #region Full Session
-    public void StartNewSession()
+    public void StartSession()
     {
-        difficultyManager.ProceedToNextDifficulty();
         _sessionTime = GlobalControl.Instance.elapsedTime;
     }
     private float _sessionTime;
     public float sessionTime { get { return GlobalControl.Instance.elapsedTime - _sessionTime; } }
-    public bool isSessionOver { get { return difficultyManager.AreAllDifficultiesDone; } }
+    public bool isSessionOver {
+        get
+        {
+            float maxTime = maximumTrialTime;
+            if (maxTime <= 0) return false;
+            else return trialTime > maxTime; 
+        } 
+    }
     private List<Trial> allTrialsData = new List<Trial>();
     public int bestSoFarNbOfBounces;
     public double EvaluateSessionPerformance()

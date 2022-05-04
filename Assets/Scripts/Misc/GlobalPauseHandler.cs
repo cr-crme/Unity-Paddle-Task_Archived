@@ -7,6 +7,9 @@ public class GlobalPauseHandler : MonoBehaviour
     [SerializeField, Tooltip("The canvas for pausing")]
     public GameObject pauseIndicator;
 
+    [SerializeField]
+    private Ball ball;
+
     // If any game object requested the indicator to be block (sort of mutex)
     int lockKey = -1;
 
@@ -33,7 +36,7 @@ public class GlobalPauseHandler : MonoBehaviour
 
         GlobalControl.Instance.paused = true;
         Time.timeScale = 0;
-        GameObject.Find("Ball").GetComponent<Kinematics>().TriggerPause();
+        ball.TriggerPause();
 
         SetIndicatorVisibility(true);
     }

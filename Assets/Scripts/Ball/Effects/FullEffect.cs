@@ -1,14 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+
+[System.Serializable]
 public class FullEffect
 {
-    public VideoEffect visualEffect { get; private set; }
-    public AudioClip audioClip { get; private set; }
-    public List<VideoEffect> disableEffects { get; private set; }
+    public int minimimBouncesBeforeActivating;
+    public VideoEffect visualEffect;
+    public AudioClip audioClip;
+    public List<VideoEffect> disableEffects;
 
-    public FullEffect(VideoEffect _visualEffet, AudioClip _audioEffect, List<VideoEffect> _disableEffects)
+    public FullEffect(
+        int _minimimBouncesBeforeActivating,
+        VideoEffect _visualEffet, 
+        AudioClip _audioEffect,
+        List<VideoEffect> _disableEffects
+    )
     {
+        minimimBouncesBeforeActivating = _minimimBouncesBeforeActivating;
         visualEffect = _visualEffet;
         audioClip = _audioEffect;
         disableEffects = _disableEffects != null ? _disableEffects : new List<VideoEffect>();

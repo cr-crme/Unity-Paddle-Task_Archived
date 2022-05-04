@@ -8680,7 +8680,6 @@ MonoBehaviour:
   practiseDifficulty: 0
   practiseMaxTrialTime: 0
   showcaseTimePerCondition: 0
-  timeElapsed: 0
   ballResetHoverSeconds: 3
   paused: 1
   level: 1

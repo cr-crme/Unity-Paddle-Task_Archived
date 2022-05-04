@@ -50,14 +50,16 @@ public class Ball : MonoBehaviour
 
         kinematics = GetComponent<Kinematics>();
         kinematics.storedPosition = SpawnPosition;
-        kinematics.TriggerPause();  // Game always starts in pause state
     }
-
-
 
     public void ForceToDrop()
     {
         shouldCollideWithPaddle = false;
+    }
+
+    public void TriggerPause()
+    {
+        kinematics.TriggerPause();
     }
 
     void OnCollisionEnter(Collision c)
@@ -97,18 +99,26 @@ public class Ball : MonoBehaviour
         get { return new Vector3(0.0f, target.transform.position.y + 0.1f, 0.5f); }
     }
 
-    public IEnumerator RespawningCoroutine(GlobalPauseHandler pauseHandler)
+    public IEnumerator RespawningCoroutine(GlobalPauseHandler pauseHandler, bool spawnOnly = false)
     {
         inRespawnMode = true;
-        Time.timeScale = 1f;
-        effectController.StopAllParticleEffects();
-        effectController.StartVisualEffect(effectController.dissolve);
-        yield return new WaitForSeconds(ballRespawnSeconds);
-        inRespawnMode = false;
-        inHoverMode = true;
-        yield return new WaitForEndOfFrame();
-        effectController.StopParticleEffect(effectController.dissolve);
+        if (!spawnOnly)
+        {
+            Time.timeScale = 1f;
+            effectController.StopAllParticleEffects();
+            effectController.StartVisualEffect(effectController.dissolve);
+            yield return new WaitForSeconds(ballRespawnSeconds);
+            inHoverMode = true;
+            yield return new WaitForEndOfFrame();
+            effectController.StopParticleEffect(effectController.dissolve);
+        }
+        else
+        {
+            inHoverMode = true;
+        }
         pauseHandler.Pause();
+        ballColorManager.SetToNormalColor();
+        inRespawnMode = false;
         effectController.StartVisualEffect(effectController.respawn);
         yield return new WaitForSeconds(ballResetHoverSeconds);
         ballColorManager.SetToNormalColor();
@@ -158,10 +168,7 @@ public class Ball : MonoBehaviour
 
     }
 
-    public bool isOnGround()
-    {
-        return transform.position.y < transform.localScale.y;
-    }
+    public bool isOnGround { get { return transform.position.y < transform.localScale.y; } }
 
 
     public void IndicateSuccessBall()
@@ -174,7 +181,6 @@ public class Ball : MonoBehaviour
     // Ball has been reset. Reset the trial as well.
     public void ResetBall()
     {
-        ballColorManager.SetToNormalColor();
         trialsManager.StartNewTrial();
     }
 
