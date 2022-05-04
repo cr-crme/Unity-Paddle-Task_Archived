@@ -32,11 +32,11 @@ public class VideoControl : MonoBehaviour
             float total = 0;
             for (int i = 0; i < videoDatas.Count; i++)
             {
-                StartCoroutine(PracticeTime(total, videoDatas[i]));
+                StartCoroutine(PracticeTimeCoroutine(total, videoDatas[i]));
                 float duration = (float)videoDatas[i].videoClip.length + videoDatas[i].postClipTime; 
                 total += duration;
             }
-            StartCoroutine(PlaybackFinished(total + .2f));
+            StartCoroutine(PlaybackFinishedCoroutine(total + .2f));
         }
         else
         {
@@ -51,10 +51,10 @@ public class VideoControl : MonoBehaviour
             return;
         }
         StopAllCoroutines();
-        StartCoroutine(PlaybackFinished(0f));
+        StartCoroutine(PlaybackFinishedCoroutine(0f));
     }
 
-    IEnumerator PlaybackFinished(float delaySeconds)
+    IEnumerator PlaybackFinishedCoroutine(float delaySeconds)
     {
         yield return new WaitForSecondsRealtime(delaySeconds);
         Debug.Log("playback finished");
@@ -68,7 +68,7 @@ public class VideoControl : MonoBehaviour
         isVideoRunning = false;
     }
 
-    IEnumerator PracticeTime(float start, VideoData videoData)
+    IEnumerator PracticeTimeCoroutine(float start, VideoData videoData)
     {
         yield return new WaitForSecondsRealtime(start);
         player.clip = videoData.videoClip;

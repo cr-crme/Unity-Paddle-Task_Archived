@@ -96,7 +96,7 @@ public class Ball : MonoBehaviour
         get { return new Vector3(0.0f, target.transform.position.y + 0.1f, 0.5f); }
     }
 
-    public IEnumerator Respawning(GlobalPauseHandler pauseHandler)
+    public IEnumerator RespawningCoroutine(GlobalPauseHandler pauseHandler)
     {
         inRespawnMode = true;
         Time.timeScale = 1f;
@@ -120,7 +120,7 @@ public class Ball : MonoBehaviour
             return;
 
         // Manage Bounce Coroutine
-        IEnumerator ManageBounceInTarget()
+        IEnumerator ManageBounceInTargetCoroutine()
         {
             bool isApexInTarget = true;  // Automatically accurate if there is no target
             if (trialsManager.hasTarget)
@@ -149,7 +149,7 @@ public class Ball : MonoBehaviour
             effectController.SelectScoreDependentEffects(trialsManager.currentNumberOfBounces);
             kinematics.ApplyBouncePhysics(paddleVelocity, cpNormal, kinematics.storedVelocity);
 
-            StartCoroutine(ManageBounceInTarget());
+            StartCoroutine(ManageBounceInTargetCoroutine());
         }
 
     }
@@ -175,7 +175,7 @@ public class Ball : MonoBehaviour
     }
 
     // Drops ball after reset
-    public IEnumerator ReleaseHoverOnReset(float time)
+    public IEnumerator ReleaseHoverOnResetCoroutine(float time)
     {
         if (inHoverResetCoroutine)
         {
@@ -199,7 +199,7 @@ public class Ball : MonoBehaviour
     }
 
     // Play drop sound
-    public IEnumerator PlayDropSound(float time)
+    public IEnumerator PlayDropSoundCoroutine(float time)
     {
         if (inPlayDropSoundRoutine)
         {

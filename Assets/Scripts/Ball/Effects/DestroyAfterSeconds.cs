@@ -16,10 +16,10 @@ public class DestroyAfterSeconds : MonoBehaviour {
     void Start()
     {
         objectToDestroy = objectToDestroy.gameObject;
-        StartCoroutine(WaitToDestroy());
+        StartCoroutine(WaitToDestroyCoroutine());
     }
 
-    IEnumerator WaitToDestroy()
+    IEnumerator WaitToDestroyCoroutine()
     {
         yield return new WaitForSeconds(secondsToWait);
         Destroy(objectToDestroy);

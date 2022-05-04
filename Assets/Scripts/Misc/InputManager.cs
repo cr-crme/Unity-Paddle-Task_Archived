@@ -38,7 +38,7 @@ public class InputManager : MonoBehaviour
         if (SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
         {
             Debug.Log("Forcing restart.");
-            StartCoroutine(ball.GetComponent<Ball>().Respawning(pauseHandler));
+            StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler));
         }
 
         // Toggle pause/resume state
@@ -85,7 +85,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             Debug.Log("Forcing restart.");
-            StartCoroutine(ball.Respawning(pauseHandler));
+            StartCoroutine(ball.RespawningCoroutine(pauseHandler));
         }
 
         // Simulate enough bounces
