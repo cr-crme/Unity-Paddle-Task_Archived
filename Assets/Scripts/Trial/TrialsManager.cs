@@ -7,6 +7,7 @@ public class TrialsManager : MonoBehaviour
 {
     [SerializeField]
     private DifficultyManager difficultyManager;
+    private DynamicDifficultyAlgorithm dda = new DynamicDifficultyAlgorithm();
 
     [SerializeField]
     private PaddleGame uiManager;
@@ -49,6 +50,8 @@ public class TrialsManager : MonoBehaviour
             bestSoFarNbOfBounces = allTrialsData.Last().nbBounces;
         }
         allTrialsData.Add(new Trial(GlobalControl.Instance.elapsedTime));
+        trialAtChangeOfLevel = new Trial(GlobalControl.Instance.elapsedTime);
+
         uiManager.TriggerBallRespawn(allTrialsData.Count == 1);
         uiManager.UpdateFeebackCanvas(this);
         StartCoroutine(FinalizeStartNewTrialCoroutine());
@@ -58,7 +61,6 @@ public class TrialsManager : MonoBehaviour
         IEnumerator FinalizeTrialCoroutine()
         {
             yield return new WaitWhile(() => !ball.isOnGround);
-            Debug.Log($"Trial is over the session performance score is {EvaluateSessionPerformance()}");
 
             StartNewTrial();
             if (isSessionOver)
@@ -109,22 +111,37 @@ public class TrialsManager : MonoBehaviour
     public void AddBounceToCurrentTrial()
     {
         currentTrial.AddBounce();
+        trialAtChangeOfLevel.AddBounce();
+
         uiManager.UpdateFeebackCanvas(this);
         paddlesManager.SwitchPaddleIfNeeded(difficultyManager);
+
+        AutomaticLevelChanging();
     }
     public void AddAccurateBounceToCurrentTrial()
     {
         currentTrial.AddAccurateBounce();
+        trialAtChangeOfLevel.AddAccurateBounce();
+
         uiManager.UpdateFeebackCanvas(this);
     }
     public int currentNumberOfBounces { get { return currentTrial.nbBounces; } }
     public int currentNumberOfAccurateBounces { get { return currentTrial.nbAccurateBounces; } }
     public int currentLevel { get { return difficultyManager.currentLevel; } }
-    public void ChangeLevel(int _newLevel)
+    public void ForceLevelChanging(int _newLevel)
     {
+        trialAtChangeOfLevel = new Trial(GlobalControl.Instance.elapsedTime);
         difficultyManager.SetCurrentLevel(_newLevel);
         target.UpdateCondition();
         uiManager.UpdateCurrentLevelText(_newLevel);
+    }
+    public void AutomaticLevelChanging()
+    {
+        int _newLevel = dda.ComputeNewLevel(difficultyManager, trialAtChangeOfLevel);
+        if (_newLevel < 0)
+            return;
+
+        ForceLevelChanging(_newLevel);
     }
     public bool AreTrialConditionsMet()
     {
@@ -154,6 +171,7 @@ public class TrialsManager : MonoBehaviour
         } 
     }
     private List<Trial> allTrialsData = new List<Trial>();
+    Trial trialAtChangeOfLevel;
     public int bestSoFarNbOfBounces;
     public double EvaluateSessionPerformance()
     {

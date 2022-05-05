@@ -56,7 +56,7 @@ public class PaddleGame : MonoBehaviour
         Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentIndex]);
 
 
-        trialsManager.ChangeLevel(GlobalControl.Instance.level);
+        trialsManager.ForceLevelChanging(GlobalControl.Instance.level);
         Initialize(true);
 
 
@@ -158,7 +158,7 @@ public class PaddleGame : MonoBehaviour
         }
         else if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {
-            trialsManager.ChangeLevel(2);
+            trialsManager.ForceLevelChanging(2);
             StartShowcase();
         }
         else
@@ -208,12 +208,12 @@ public class PaddleGame : MonoBehaviour
         yield return new WaitForSecondsRealtime(delay);
 
         int _newLevel = trialsManager.currentLevel + 2;
-        if (_newLevel > 10)
+        if (_newLevel >= 10)
             // finish up the difficulty showcase, quit application
             QuitTask();
 
         // reset ball, change difficulty level, possible audio announcement.
-        trialsManager.ChangeLevel(_newLevel);
+        trialsManager.ForceLevelChanging(_newLevel);
         StartCoroutine(StartDifficultyDelayedCoroutine(difficultyExampleTime));
         ball.GetComponent<Ball>().ResetBall();
     }
@@ -236,18 +236,5 @@ public class PaddleGame : MonoBehaviour
     }
 
     #endregion // Checks, Interactions, Data
-
-    #region Difficulty
-    void EvaluatePerformance()
-    {
-        // TODO: DO SOME COMPUTATION
-        double _score = trialsManager.EvaluateSessionPerformance();
-        int _newLevel = 1;
-
-        trialsManager.ChangeLevel(_newLevel);
-    }
-
-    #endregion // Difficulty
-
 
 }

@@ -42,12 +42,12 @@ public class DifficultyManager : MonoBehaviour
 
     // Level is the increment inside a difficulty condition 
     #region Level
-    public int nbLevel { get { return nbLevel; } }
+    public int nbLevel { get { return difficulty.nbLevel; } }
     private int _currentLevel = 0;
     public int currentLevel { get { return _currentLevel; } }
     public void SetCurrentLevel(int value)
     {
-        if (value < 0 || value > difficulty.nbLevel)
+        if (value < 0 || value >= difficulty.nbLevel)
         {
             Debug.LogError("Issue setting difficulty, not in expected range: " + value);
             return;

@@ -122,17 +122,10 @@ public class Ball : MonoBehaviour
         // Manage Bounce Coroutine
         IEnumerator ManageBounceInTargetCoroutine()
         {
-            bool isApexInTarget = true;  // Automatically accurate if there is no target
-
             // Wait until the ball reach the target then compute if the trial is valid
             // We wait even if there is no target as it prevents from double bounces
             while (!kinematics.ReachedApex()) { yield return null; }
-            if (trialsManager.hasTarget)
-            {
-                isApexInTarget = target.IsInsideTarget(kinematics.GetCurrentPosition());
-            }
-
-            if (isApexInTarget)
+            if (trialsManager.hasTarget && target.IsInsideTarget(kinematics.GetCurrentPosition()))
             {
                 IndicateSuccessBall();  // Flash ball green
                 trialsManager.AddAccurateBounceToCurrentTrial();
