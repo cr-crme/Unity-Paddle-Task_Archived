@@ -49,11 +49,7 @@ public class DifficultyFactory
                     new RandomizableFloat(1.1f, 0.15f)
                 },
                 new List<RandomizableFloat> {
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
+                    null, null, null, null, null,
                     new RandomizableFloat(0.04f),
                     new RandomizableFloat(0.04f),
                     new RandomizableFloat(0.0375f),
@@ -105,11 +101,7 @@ public class DifficultyFactory
                     new RandomizableFloat(1.1f, 0.15f)
                 },
                 new List<RandomizableFloat> {
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
+                    null, null, null, null, null,
                     new RandomizableFloat(0.04f),
                     new RandomizableFloat(0.04f),
                     new RandomizableFloat(0.0375f),
@@ -164,11 +156,7 @@ public class DifficultyFactory
                     new RandomizableFloat(1.1f, 0.15f)
                 },
                 new List<RandomizableFloat> {
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
-                    new RandomizableFloat(0f),
+                    null, null, null, null, null,
                     new RandomizableFloat(0.04f),
                     new RandomizableFloat(0.04f),
                     new RandomizableFloat(0.0375f),

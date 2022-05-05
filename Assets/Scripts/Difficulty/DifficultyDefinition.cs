@@ -77,7 +77,7 @@ public class DifficultyDefinition
     public float targetHeightOffset(int _currentLevel) { return targetHeightOffsetByLevel[_currentLevel].value; }
 
     private List<RandomizableFloat> targetWidthByLevel;
-    public float targetWidth(int _currentLevel){ return targetWidthByLevel[_currentLevel].value; }
+    public float targetWidth(int _currentLevel){ return hasTarget(_currentLevel) ? targetWidthByLevel[_currentLevel].value : 0f; }
 
     private List<RandomizableFloat> ballSpeedByLevel;
     public float ballSpeed(int _currentLevel) { return ballSpeedByLevel[_currentLevel].value; }

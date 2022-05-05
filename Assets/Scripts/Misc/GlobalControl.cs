@@ -20,9 +20,6 @@ public class GlobalControl : MonoBehaviour
     // Target Line Height
     public TargetEnum.Height targetHeightPreference = TargetEnum.Height.EYE_LEVEL;
 
-    // Target Line Width Acceptance Threshold
-    public float targetWidth = 0.05f;
-
     // The current session
     public SessionType.Session session = SessionType.Session.PRACTISE;
 
@@ -30,7 +27,7 @@ public class GlobalControl : MonoBehaviour
     public float degreesOfFreedom = 90;
 
     // Test period of this instance
-    public DifficultyChoice practiseDifficulty;
+    public DifficultyChoice difficulty;
 
     // Time limit for practise condition
     public int practiseMaxTrialTime = 0;

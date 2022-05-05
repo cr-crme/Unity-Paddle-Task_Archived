@@ -33,11 +33,10 @@ public class MenuController : MonoBehaviour {
             { "session", (GetRecordSession(), LoadSessionToMenu) },
             { "practise_totalTime", (GetPractiseTotalTime(), LoadPractiseTotalTimeToMenu) },
             { "showcase_timePerTrial", (GetShowcaseTimePerTrial(), LoadShowcaseTimePerTrialToMenu) },
-            { "difficulty", (GetPractiseDifficulty(), LoadPractiseDifficulty) },
+            { "difficulty", (GetDifficulty(), LoadDifficulty) },
             { "practise_level", (GetPractiseStartingLevel(), LoadPractiseStartingLevelToMenu) },
             { "showcase_toggleVideo", (GetShowcaseVideo(), LoadShowcaseVideoToMenu) },
             { "targetHeight", (GetTargetHeight(), LoadTargetHeightToMenu) },
-            { "targetWidth", (GetTargetWidth(), LoadTargetWidthToMenu) },
             { "hoverTime", (GetBallHoverTime(), LoadBallHoverTimeToMenu) },
         };
 
@@ -310,26 +309,26 @@ public class MenuController : MonoBehaviour {
 
 
     #region Difficulty
-    [SerializeField] private TMP_Dropdown practiseDifficulty;
-    public void RecordPractiseDifficulty(int _value)
+    [SerializeField] private TMP_Dropdown difficulty;
+    public void RecordDifficulty(int _value)
     {
-        globalControl.practiseDifficulty = (DifficultyChoice)_value;
-        SavePractiseDifficulty(_value);
+        globalControl.difficulty = (DifficultyChoice)_value;
+        SaveDifficulty(_value);
     }
-    private void SetPractiseDifficulty(int _value)
+    private void SetDifficulty(int _value)
     {
-        practiseDifficulty.value = _value;
+        difficulty.value = _value;
     }
-    private int GetPractiseDifficulty()
+    private int GetDifficulty()
     {
-        return practiseDifficulty.value;
+        return difficulty.value;
     }
-    private void SavePractiseDifficulty(int _value)
+    private void SaveDifficulty(int _value)
     {
         PlayerPrefs.SetInt("difficulty", _value);
         PlayerPrefs.Save();
     }
-    private void LoadPractiseDifficulty(bool resetToDefault)
+    private void LoadDifficulty(bool resetToDefault)
     {
         int _value;
         if (resetToDefault)
@@ -339,8 +338,8 @@ public class MenuController : MonoBehaviour {
         else
             return;
 
-        RecordPractiseDifficulty(_value);
-        SetPractiseDifficulty(_value);
+        RecordDifficulty(_value);
+        SetDifficulty(_value);
     }
     #endregion
 
@@ -422,9 +421,6 @@ public class MenuController : MonoBehaviour {
 
     #region Target
     [SerializeField] private TMP_Dropdown targetHeight;
-    [SerializeField] private Slider targetWidth;
-    [SerializeField] private TextMeshProUGUI targetWidthText;
-    const float INCHES_PER_METER = 39.37f;
     public void RecordTargetHeight(int _value)
     {
         globalControl.targetHeightPreference = (TargetEnum.Height)_value;
@@ -455,53 +451,6 @@ public class MenuController : MonoBehaviour {
 
         RecordTargetHeight(_value);
         SetTargetHeight(_value);
-    }
-
-    public void RecordTargetWidth(float _value)
-    {
-        globalControl.targetWidth = ComputeTargetWidthInMeter(_value);
-        UpdateTargetWidthText(_value);
-        SaveTargetWidth(_value);
-    }
-    private void UpdateTargetWidthText(float _value)
-    {
-        targetWidthText.text =
-            $"+/- {ComputeTargetWidthInInches(_value).ToString("0.0")} in.\n" +
-            $"({_value.ToString("0.0")} in. total)";
-    }
-    private float ComputeTargetWidthInInches(float _value)
-    {
-        return _value * 0.5f;  // each notch is 0.5 inches 
-    }
-    private float ComputeTargetWidthInMeter(float _value)
-    {
-        return ComputeTargetWidthInInches(_value) / INCHES_PER_METER;
-    }
-    private void SetTargetWidth(float _value)
-    {
-        targetWidth.value = _value;
-    }
-    private float GetTargetWidth()
-    {
-        return targetWidth.value;
-    }
-    private void SaveTargetWidth(float _value)
-    {
-        PlayerPrefs.SetFloat("targetWidth", _value);
-        PlayerPrefs.Save();
-    }
-    private void LoadTargetWidthToMenu(bool resetToDefault)
-    {
-        float _value;
-        if (resetToDefault)
-            _value = (float)preferenceList["targetWidth"].Item1;
-        else if (PlayerPrefs.HasKey("targetWidth"))
-            _value = PlayerPrefs.GetFloat("targetWidth");
-        else
-            return;
-
-        RecordTargetWidth(_value);
-        SetTargetWidth(_value);
     }
     #endregion
 

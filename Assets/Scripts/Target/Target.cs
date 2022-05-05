@@ -39,7 +39,7 @@ public class Target : MonoBehaviour
     {
         transform.localScale = new Vector3(
             transform.localScale.x, 
-            difficultyManager.targetWidth * 2f,
+            difficultyManager.targetWidth,
             transform.localScale.z
         );
     }
@@ -70,8 +70,8 @@ public class Target : MonoBehaviour
         if (!difficultyManager.hasTarget) return false;
 
         float targetHeight = transform.position.y;
-        float lowerLimit = targetHeight - difficultyManager.targetWidth;
-        float upperLimit = targetHeight + difficultyManager.targetWidth;
+        float lowerLimit = targetHeight - (difficultyManager.targetWidth / 2f);
+        float upperLimit = targetHeight + (difficultyManager.targetWidth / 2f);
 
         return (height.y > lowerLimit) && (height.y < upperLimit);
     }
