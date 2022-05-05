@@ -28,6 +28,20 @@ public class TrialsManager : MonoBehaviour
     {
         bestSoFarNbOfBounces = 0;
         StartSession();
+
+        StartNewTrial();
+        if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
+        {
+            ForceLevelChanging(2);
+        }
+        else if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
+        {
+            ForceLevelChanging(GlobalControl.Instance.level);
+        }
+        else
+        {
+            Debug.LogError($"SessionType: {GlobalControl.Instance.session} not implemented yet");
+        }
     }
 
     private void Update()

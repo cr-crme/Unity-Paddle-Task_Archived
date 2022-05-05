@@ -44,22 +44,12 @@ public class PaddleGame : MonoBehaviour
     [SerializeField]
     private GlobalPauseHandler pauseHandler;
 
-    // Degrees of freedom, how many degrees in x-z directions ball can bounce after hitting paddle
-    // 0 degrees: ball can only bounce in y direction, 90 degrees: no reduction in range
-    public float degreesOfFreedom;
-
     float difficultyExampleTime = 30f;
 
     void Start()
     {
         // Load the visual environment
         Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentIndex]);
-
-
-        trialsManager.ForceLevelChanging(GlobalControl.Instance.level);
-        Initialize(true);
-
-
         // difficulty shifts timescale, so pause it again
         pauseHandler.Pause();
     }
@@ -138,50 +128,6 @@ public class PaddleGame : MonoBehaviour
 
 
     #region Initialization
-
-    public void Initialize(bool firstTime)
-    {
-        if (GlobalControl.Instance.playVideo)
-        {
-            // Wait for end of video playback to initialize
-            return;
-        }
-        trialsManager.StartNewTrial();
-
-        // Initialize Condition and Visit types
-        degreesOfFreedom = GlobalControl.Instance.degreesOfFreedom;
-
-
-        if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
-        {
-            difficultyDisplay.text = trialsManager.currentLevel.ToString();
-        }
-        else if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
-        {
-            trialsManager.ForceLevelChanging(2);
-            StartShowcase();
-        }
-        else
-        {
-            Debug.LogError($"SessionType: {GlobalControl.Instance.session} not implemented yet");
-        }
-
-        feedbackCanvas.UpdateAllInformation(trialsManager);
-
-        // ensure drop time on first drop
-        if (firstTime)
-        {
-            ball.GetComponent<EffectController>().StopAllParticleEffects();
-        }
-        else
-        {
-            StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler));
-        }
-
-        Debug.Log("Initialized");
-    }
-
-
 
     /// <summary>
     /// run through all difficulties in a short amount of time to get a feel for them

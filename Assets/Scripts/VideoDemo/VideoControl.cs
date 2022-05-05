@@ -63,7 +63,6 @@ public class VideoControl : MonoBehaviour
         audioSource.Stop();
         globalControl.playVideo = false;
         globalPauseHandler.Pause();
-        paddleGame.Initialize(false);
         globalPauseHandler.SetIndicatorVisibility(false, false, pauseLockKey);
         isVideoRunning = false;
     }

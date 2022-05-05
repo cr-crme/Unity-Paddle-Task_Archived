@@ -23,9 +23,6 @@ public class GlobalControl : MonoBehaviour
     // The current session
     public SessionType.Session session = SessionType.Session.PRACTISE;
 
-    // Degrees of Freedom for ball bounce for this instance
-    public float degreesOfFreedom = 90;
-
     // Test period of this instance
     public DifficultyChoice difficulty;
 
