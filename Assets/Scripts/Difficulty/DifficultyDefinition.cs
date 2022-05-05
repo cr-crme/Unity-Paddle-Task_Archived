@@ -82,15 +82,6 @@ public class DifficultyDefinition
     private List<RandomizableFloat> ballSpeedByLevel;
     public float ballSpeed(int _currentLevel) { return ballSpeedByLevel[_currentLevel].value; }
 
-    public int ScoreToLevel(double _normalizedScore)
-    {
-        float _lerpedScore = Mathf.Lerp(
-            (float)baseScoreBonus.Item1, (float)baseScoreBonus.Item2, (float)_normalizedScore
-        );
-        float _lerpedClampedScore = Mathf.Clamp(_lerpedScore, 0, nbLevel);
-        return Mathf.RoundToInt(_lerpedClampedScore);
-    }
-
     private IsTrialSuccessfulEvaluator isTrialSuccessful;
     public bool AreTrialConditionsMet(int _currentLevel, Trial _trialData) {
         return isTrialSuccessful(_currentLevel, _trialData, this); 

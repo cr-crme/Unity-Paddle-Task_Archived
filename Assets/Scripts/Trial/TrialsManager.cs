@@ -18,6 +18,9 @@ public class TrialsManager : MonoBehaviour
     [SerializeField]
     private Ball ball;
 
+    [SerializeField]
+    private Target target;
+
     public bool isPreparingNewTrial { get; private set; } = true;
 
     private void Start()
@@ -116,6 +119,13 @@ public class TrialsManager : MonoBehaviour
     }
     public int currentNumberOfBounces { get { return currentTrial.nbBounces; } }
     public int currentNumberOfAccurateBounces { get { return currentTrial.nbAccurateBounces; } }
+    public int currentLevel { get { return difficultyManager.currentLevel; } }
+    public void ChangeLevel(int _newLevel)
+    {
+        difficultyManager.SetCurrentLevel(_newLevel);
+        target.UpdateCondition();
+        uiManager.UpdateCurrentLevelText(_newLevel);
+    }
     public bool AreTrialConditionsMet()
     {
         if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
