@@ -209,7 +209,8 @@ public class MenuController : MonoBehaviour {
     #region TrialTime
     [SerializeField] private Slider practiseTotalTime;
     [SerializeField] private TextMeshProUGUI practiseTotalTimeText;
-    [SerializeField] private TMP_Dropdown showcaseTimePerTrial;
+    [SerializeField] private Slider showcaseTimePerTrial;
+    [SerializeField] private TextMeshProUGUI showcaseTimePerTrialText;
     public void RecordPractiseTotalTime(float _value)
     {
         globalControl.practiseMaxTrialTime = (int)_value;
@@ -254,10 +255,15 @@ public class MenuController : MonoBehaviour {
         SetPractiseTotalTime(_value);
     }
 
-    public void RecordShowcaseTimePerTrial(int _value)
+    public void RecordShowcaseTimePerTrial(float _value)
     {
-        globalControl.showcaseTimePerCondition = _value;
-        SaveShowcaseTimePerTrial(_value);
+        globalControl.showcaseTimePerCondition = (int)_value;
+        UpdateShowcaseTimePerTrialText((int)_value);
+        SaveShowcaseTimePerTrial((int)_value);
+    }
+    private void UpdateShowcaseTimePerTrialText(int _value)
+    {
+        showcaseTimePerTrialText.text = $"Time: {_value} minutes";
     }
     private void SetShowcaseTimePerTrial(int _value)
     {
@@ -265,7 +271,7 @@ public class MenuController : MonoBehaviour {
     }
     private int GetShowcaseTimePerTrial()
     {
-        return showcaseTimePerTrial.value;
+        return (int)showcaseTimePerTrial.value;
     }
     private void SaveShowcaseTimePerTrial(int _value)
     {
