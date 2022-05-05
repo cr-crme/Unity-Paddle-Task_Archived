@@ -10,20 +10,12 @@ using UnityEngine.SceneManagement;
 public class PaddleGame : MonoBehaviour
 {	
     // Manage the current task to perform
-    [SerializeField, Tooltip("The main manager for the game difficulty")]
-    private DifficultyManager difficultyManager;
-
-    // Manage the current task to perform
     [SerializeField, Tooltip("The main trial manager for the game")]
     private TrialsManager trialsManager;
     
     [Tooltip("The ball being bounced")]
     [SerializeField]
     private GameObject ball;
-
-    [Tooltip("The line that denotes where the ball should be bounced ideally")]
-    [SerializeField]
-    private Target targetLine;
 
     [Tooltip("The canvas that displays score information to the user")]
     [SerializeField]
@@ -64,7 +56,7 @@ public class PaddleGame : MonoBehaviour
         Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentIndex]);
 
 
-        SetTrialLevel(GlobalControl.Instance.level);
+        trialsManager.ChangeLevel(GlobalControl.Instance.level);
         Initialize(true);
 
 
@@ -130,6 +122,12 @@ public class PaddleGame : MonoBehaviour
     }
     #endregion
 
+    #region Level
+    public void UpdateCurrentLevelText(int _newLevel)
+    {
+        difficultyDisplay.text = trialsManager.currentLevel.ToString();
+    }
+    #endregion
 
 
 
@@ -156,11 +154,11 @@ public class PaddleGame : MonoBehaviour
 
         if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
         {
-            difficultyDisplay.text = difficultyManager.currentLevel.ToString();
+            difficultyDisplay.text = trialsManager.currentLevel.ToString();
         }
         else if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {
-            difficultyManager.currentLevel = 2;
+            trialsManager.ChangeLevel(2);
             StartShowcase();
         }
         else
@@ -186,12 +184,11 @@ public class PaddleGame : MonoBehaviour
 
 
     /// <summary>
-    /// run through all diffiuclties in a short amount of time to get a feel for them
+    /// run through all difficulties in a short amount of time to get a feel for them
     /// </summary>
     void StartShowcase()
     {
         pauseHandler.Resume();
-        SetTrialLevel(difficultyManager.currentLevel);
         StartCoroutine(StartDifficultyDelayedCoroutine(difficultyExampleTime, true));
     }
 
@@ -203,31 +200,21 @@ public class PaddleGame : MonoBehaviour
             yield return new WaitForSeconds(.1f);
         }
 
-        var audioClip = GetDifficultyAudioClip(difficultyManager.currentLevel);
+        var audioClip = GetDifficultyAudioClip(trialsManager.currentLevel);
         if (audioClip != null)
         {
             difficultySource.PlayOneShot(audioClip);
         }
-        Debug.Log("playing difficulty audio " + (audioClip != null ? audioClip.name : "null"));
-
         yield return new WaitForSecondsRealtime(delay);
 
-        // reset ball, change difficulty level, possible audio announcement.
-        if (difficultyManager.currentLevel >= 10)
-        {
+        int _newLevel = trialsManager.currentLevel + 2;
+        if (_newLevel > 10)
             // finish up the difficulty showcase, quit application
             QuitTask();
-        }
-        else
-        {
-            SetTrialLevel(difficultyManager.currentLevel + 2);
-            StartCoroutine(StartDifficultyDelayedCoroutine(difficultyExampleTime));
-            if (difficultyManager.currentLevel > 10) // OG ==
-            {
-                // yield return new WaitForSecondsRealtime(delay);
-            }
-        }
 
+        // reset ball, change difficulty level, possible audio announcement.
+        trialsManager.ChangeLevel(_newLevel);
+        StartCoroutine(StartDifficultyDelayedCoroutine(difficultyExampleTime));
         ball.GetComponent<Ball>().ResetBall();
     }
 
@@ -253,22 +240,11 @@ public class PaddleGame : MonoBehaviour
     #region Difficulty
     void EvaluatePerformance()
     {
+        // TODO: DO SOME COMPUTATION
         double _score = trialsManager.EvaluateSessionPerformance();
+        int _newLevel = 1;
 
-        // each are evaluating for the next difficulty
-        int _newLevel = difficultyManager.ScoreToLevel(_score);
-
-        SetTrialLevel(_newLevel);
-    }
-    private void SetTrialLevel(int _newLevel)
-    {
-        difficultyManager.currentLevel = _newLevel;
-
-        // TODO: This should be done by GlobalControl itself
-        GlobalControl.Instance.timescale = difficultyManager.ballSpeed;
-
-        targetLine.UpdateCondition();
-        difficultyDisplay.text = difficultyManager.currentLevel.ToString();
+        trialsManager.ChangeLevel(_newLevel);
     }
 
     #endregion // Difficulty

@@ -44,21 +44,17 @@ public class DifficultyManager : MonoBehaviour
     #region Level
     public int nbLevel { get { return nbLevel; } }
     private int _currentLevel = 0;
-    public int currentLevel { 
-        get { return _currentLevel; }
-        set
-        {
-            if (value < 0 || value > difficulty.nbLevel)
-            {
-                Debug.LogError("Issue setting difficulty, not in expected range: " + value);
-                return;
-            }
-            _currentLevel = value;
-        }
-    }
-    public int ScoreToLevel(double _score)
+    public int currentLevel { get { return _currentLevel; } }
+    public void SetCurrentLevel(int value)
     {
-        return difficulty.ScoreToLevel(_score);
+        if (value < 0 || value > difficulty.nbLevel)
+        {
+            Debug.LogError("Issue setting difficulty, not in expected range: " + value);
+            return;
+        }
+        _currentLevel = value;
+
+        GlobalControl.Instance.timescale = ballSpeed;
     }
     #endregion
 
