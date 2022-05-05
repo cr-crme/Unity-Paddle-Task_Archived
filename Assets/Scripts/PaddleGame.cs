@@ -60,13 +60,9 @@ public class PaddleGame : MonoBehaviour
 
     void Start()
     {
+        // Load the visual environment
         Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentIndex]);
 
-        // Calibrate the target line to be at the player's eye level
-        if(GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
-        {
-            GlobalControl.Instance.practiseMaxTrialTime = 0;
-        }
 
         SetTrialLevel(GlobalControl.Instance.level);
         Initialize(true);
@@ -269,8 +265,6 @@ public class PaddleGame : MonoBehaviour
         difficultyManager.currentLevel = _newLevel;
 
         // TODO: This should be done by GlobalControl itself
-        Debug.Log("Setting Difficulty: " + difficultyManager.currentLevel);
-        GlobalControl.Instance.targetWidth = difficultyManager.hasTarget ? difficultyManager.targetWidth / 2f : 0;
         GlobalControl.Instance.timescale = difficultyManager.ballSpeed;
 
         targetLine.UpdateCondition();

@@ -11,7 +11,7 @@ public class DifficultyManager : MonoBehaviour
 
     private void Awake()
     {
-        difficulty = difficultyFactory.trialLevelDefinitions[GlobalControl.Instance.practiseDifficulty];
+        difficulty = difficultyFactory.trialLevelDefinitions[GlobalControl.Instance.difficulty];
     }
 
     #region Accessors
