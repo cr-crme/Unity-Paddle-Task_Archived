@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -14,31 +14,33 @@ public class GlobalControl : MonoBehaviour
     // participant ID to differentiate data files
     public string participantID = "";
 
-    // The number of paddles that the player is using. Usually 1 or 2.
-    public int nbPaddles = 1;
+    // The number of paddles that the player is using.
+    public int nbPaddles;
 
     // Target Line Height
-    public TargetEnum.Height targetHeightPreference = TargetEnum.Height.EYE_LEVEL;
+    public TargetEnum.Height targetHeightPreference;
 
     // The current session
-    public SessionType.Session session = SessionType.Session.PRACTISE;
+    public SessionType.Session session;
 
     // Test period of this instance
-    public DifficultyChoice difficulty;
+    public DifficultyChoice startingDifficulty;
 
     // Time limit for practise condition
-    public int practiseMaxTrialTime = 0;
+    public int practiseMaxTrialTime;
 
     // Time per level for showcase condition
-    public int showcaseTimePerCondition = 0;
+    public int showcaseTimePerCondition;
 
     public float timeConversionToMinute = 60f;
 
     // Time elapsed while game is not paused, in seconds 
     public float elapsedTime { get; private set; } = 0;
+    // value affecting various metrics increasing randomness and general difficulty
+    public int practiseStartingLevel;
 
     // Duration for which ball should be held before dropping upon reset
-    public int ballResetHoverSeconds = 3;
+    public int ballResetHoverSeconds;
 
     // Allow game to be paused
     public bool paused = true;
@@ -50,15 +52,11 @@ public class GlobalControl : MonoBehaviour
         set { _timescale = value; } 
     }
 
-
-    // value affecting various metrics increasing randomness and general difficulty
-    public int level = 1;
-
     // Play video at the start
-    public bool playVideo = false;
+    public bool playVideo;
 
     // Selected environment
-    public int environmentIndex = 0;
+    public int environmentIndex;
 
     // all environment prefabs
     public List<GameObject> environments = new List<GameObject>();

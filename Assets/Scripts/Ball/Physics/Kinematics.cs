@@ -36,7 +36,7 @@ public class Kinematics : MonoBehaviour
     void FixedUpdate()
     {
         // Handle Paused and Playing states separately.
-        if (GlobalControl.Instance.paused)
+        if (GlobalPauseHandler.Instance.isPaused)
         {
             DisableMotion();
         }

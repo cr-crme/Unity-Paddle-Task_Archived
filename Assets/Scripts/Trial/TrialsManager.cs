@@ -36,7 +36,7 @@ public class TrialsManager : MonoBehaviour
         }
         else if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
         {
-            ForceLevelChanging(GlobalControl.Instance.level);
+            ForceLevelChanging(GlobalControl.Instance.practiseStartingLevel);
         }
         else
         {
