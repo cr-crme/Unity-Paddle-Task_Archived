@@ -5,11 +5,9 @@ using UnityEngine;
 
 public class TrialsManager : MonoBehaviour
 {
-    [SerializeField]
     private DifficultyManager difficultyManager;
     private DynamicDifficultyAlgorithm dda = new DynamicDifficultyAlgorithm();
 
-    [SerializeField]
     private PaddleGame uiManager;
 
     [SerializeField]
@@ -26,6 +24,9 @@ public class TrialsManager : MonoBehaviour
 
     private void Start()
     {
+        difficultyManager = GetComponent<DifficultyManager>();
+        uiManager = GetComponent<PaddleGame>();
+
         bestSoFarNbOfBounces = 0;
         StartSession();
 

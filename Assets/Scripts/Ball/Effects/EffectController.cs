@@ -6,7 +6,6 @@ using UnityEngine;
 /// </summary>
 public class EffectController : MonoBehaviour
 {
-    [SerializeField]
     private BallSoundManager soundManager;
 
     public VideoEffect dissolve, respawn, fire, blueFire, embers, blueEmbers;
@@ -17,6 +16,8 @@ public class EffectController : MonoBehaviour
 
     void Start()
     {
+        soundManager = GetComponent<BallSoundManager>();
+
         InitializeParticleEffect(dissolve);
         InitializeParticleEffect(respawn);
         respawn.effectTime = GlobalControl.Instance.ballResetHoverSeconds;

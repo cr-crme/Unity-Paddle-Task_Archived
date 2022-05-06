@@ -31,10 +31,7 @@ public class PaddleGame : MonoBehaviour
     /// <summary>
     /// list of the audio clips played at the beginning of difficulties in some cases
     /// </summary>
-    [SerializeField]
     private AudioManager audioManager;
-
-    [SerializeField]
     private GlobalPauseHandler pauseHandler;
 
     float difficultyExampleTime = 30f;
@@ -42,6 +39,9 @@ public class PaddleGame : MonoBehaviour
     #region Initialization
     void Start()
     {
+        audioManager = GetComponent<AudioManager>();
+        pauseHandler = GetComponent<GlobalPauseHandler>();
+
         // Load the visual environment
         Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentIndex]);
         // difficulty shifts timescale, so pause it again
