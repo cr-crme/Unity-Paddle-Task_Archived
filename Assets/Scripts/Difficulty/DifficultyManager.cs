@@ -24,7 +24,7 @@ public class DifficultyManager : MonoBehaviour
 
     #region Target
     public bool hasTarget { get { return difficulty.hasTarget(currentLevel); } }
-    public TargetEnum.Height targetBaseHeight { get { return GlobalControl.Instance.targetHeightPreference; } }
+    public TargetEnum.Height targetBaseHeight { get { return GlobalControl.Instance.targetBaseHeight; } }
     public float targetHeightOffset { get { return difficulty.targetHeightOffset(currentLevel); } }
     public float targetWidth { get { return difficulty.targetWidth(currentLevel); } }
     #endregion

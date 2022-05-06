@@ -7497,13 +7497,11 @@ MonoBehaviour:
   nbPaddles: 1
   targetHeightPreference: 0
   session: 0
-  degreesOfFreedom: 90
-  difficulty: 0
+  startingDifficulty: 0
   practiseMaxTrialTime: 0
   showcaseTimePerCondition: 0
-  ballResetHoverSeconds: 3
-  paused: 1
-  level: 1
+  practiseStartingLevel: 0
+  ballResetHoverSeconds: 5
   playVideo: 0
   environmentIndex: 0
   environments:
