@@ -7,13 +7,14 @@
 
 public class Trial
 {
-    public float time { get; private set; }
+    private float _startTime;
+    public float time { get { return GlobalControl.Instance.elapsedTime - _startTime; } }
     public int nbBounces { get; private set; }
     public int nbAccurateBounces { get; private set; }
 
     public Trial(float _startingTime)
     {
-        time = _startingTime;
+        _startTime = _startingTime;
     }
 
     public void AddBounce()
