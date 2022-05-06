@@ -34,8 +34,6 @@ public class UiManager : MonoBehaviour
     private AudioManager audioManager;
     private GlobalPauseHandler pauseHandler;
 
-    float difficultyExampleTime = 30f;
-
     #region Initialization
     void Start()
     {
