@@ -18,9 +18,6 @@ public class FeedbackCanvas : MonoBehaviour {
     private TextMeshPro numberOfTargetHitsText;
     string initialNumberOfTargetHits;
 
-    [SerializeField]
-    private DifficultyManager difficultyManager;
-
     void Awake() 
     {
         initialCurrentNumberOfBounces = currentNumberOfBouncesText.text;
@@ -32,7 +29,7 @@ public class FeedbackCanvas : MonoBehaviour {
     {
         UpdateCurrentNumberOfBounces(_trialsManager.currentNumberOfBounces);
         UpdateBestSoFar(_trialsManager.bestSoFarNbOfBounces);
-        UpdateTargetHits(_trialsManager.currentNumberOfAccurateBounces);
+        UpdateTargetHits(_trialsManager.currentNumberOfAccurateBounces, _trialsManager.hasTarget);
     }
 
     public void UpdateCurrentNumberOfBounces(int _nbBounces)
@@ -45,9 +42,9 @@ public class FeedbackCanvas : MonoBehaviour {
         bestSoFarText.text = string.Format(initialBestSoFar, _bestSoFar);
     }
 
-    public void UpdateTargetHits(int _nbTargetHits) 
+    public void UpdateTargetHits(int _nbTargetHits, bool _hasTarget) 
     { 
-        if (difficultyManager.hasTarget)
+        if (_hasTarget)
         {
             numberOfTargetHitsText.text = string.Format(initialNumberOfTargetHits, _nbTargetHits);
         }

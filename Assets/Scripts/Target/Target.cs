@@ -11,26 +11,22 @@ public class Target : MonoBehaviour
     [SerializeField]
     private DifficultyManager difficultyManager;
 
-    private void Start()
-    {
-        UpdateCondition();
-    }
 
     // Sets Target Line height based on HMD eye level and target position preference
-    public void UpdateCondition()
+    public void UpdateCondition(TrialsManager _trialsManager)
     {
-        UpdateHeight();
+        UpdateHeight(_trialsManager.targetHeightOffset);
         UpdateWidth();
         UpdateToggle();
     }
 
-    private void UpdateHeight()
+    private void UpdateHeight(double _heightOffset)
     {
         Vector3 oldPosition = transform.position;
 
         float x = oldPosition.x;
         float z = oldPosition.z;
-        float y = ComputeTargetHeight(GetHmdHeight()) + difficultyManager.targetHeightOffset;
+        float y = ComputeTargetHeight(GetHmdHeight()) + (float)_heightOffset;
 
         transform.position = new Vector3(x, y, z);
     }

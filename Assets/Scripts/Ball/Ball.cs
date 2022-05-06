@@ -255,4 +255,12 @@ public class Ball : MonoBehaviour
     }
 
     #endregion
+
+
+    #region Difficulty and level
+    public void UpdatePhysics(DifficultyManager _difficultyManager)
+    {
+        kinematics.UpdateGravityMultiplyer(_difficultyManager.ballSpeed);
+    }
+    #endregion
 }
