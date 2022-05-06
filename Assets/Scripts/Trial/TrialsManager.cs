@@ -169,7 +169,9 @@ public class TrialsManager : MonoBehaviour
         return difficultyManager.AreTrialConditionsMet(currentTrial);
     }
     public bool hasTarget { get { return difficultyManager.hasTarget; } }
+    public TargetEnum.Height targetBaseHeight { get { return difficultyManager.targetBaseHeight; } }
     public double targetHeightOffset { get { return difficultyManager.targetHeightOffset; } }
+    public double targetWidth { get { return difficultyManager.targetWidth; } }
     #endregion
 
 
