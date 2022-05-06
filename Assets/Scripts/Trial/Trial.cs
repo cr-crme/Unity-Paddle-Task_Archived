@@ -4,11 +4,12 @@
 /// constructor.
 /// </summary>
 /// 
+using UnityEngine;
 
 public class Trial
 {
     private float _startTime;
-    public float time { get { return GlobalControl.Instance.elapsedTime - _startTime; } }
+    public float time { get { return Time.time - _startTime; } }
     public int nbBounces { get; private set; }
     public int nbAccurateBounces { get; private set; }
 

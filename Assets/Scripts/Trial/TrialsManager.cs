@@ -59,8 +59,8 @@ public class TrialsManager : MonoBehaviour
         {
             yield return new WaitWhile(() => ball.inRespawnMode);
             GlobalControl globalControl = GlobalControl.Instance;
-            allTrialsData.Add(new Trial(globalControl.elapsedTime + globalControl.ballResetHoverSeconds));
-            trialAtChangeOfLevel = new Trial(globalControl.elapsedTime + globalControl.ballResetHoverSeconds);
+            allTrialsData.Add(new Trial(Time.time + globalControl.ballResetHoverSeconds));
+            trialAtChangeOfLevel = new Trial(Time.time + globalControl.ballResetHoverSeconds);
             uiManager.UpdateFeebackCanvas(this);
             isPreparingNewTrial = false;
         }
@@ -147,7 +147,7 @@ public class TrialsManager : MonoBehaviour
     public int currentLevel { get { return difficultyManager.currentLevel; } }
     public void ForceLevelChanging(int _newLevel)
     {
-        trialAtChangeOfLevel = new Trial(GlobalControl.Instance.elapsedTime);
+        trialAtChangeOfLevel = new Trial(Time.time);
         difficultyManager.SetCurrentLevel(_newLevel);
         target.UpdateCondition();
         uiManager.UpdateLevel(_newLevel);
@@ -176,10 +176,10 @@ public class TrialsManager : MonoBehaviour
     public void StartSession()
     {
         GlobalControl globalControl = GlobalControl.Instance;
-        _sessionTime = globalControl.elapsedTime + globalControl.ballResetHoverSeconds;
+        _sessionTime = Time.time + globalControl.ballResetHoverSeconds;
     }
     private float _sessionTime;
-    public float sessionTime { get { return GlobalControl.Instance.elapsedTime - _sessionTime; } }
+    public float sessionTime { get { return Time.time - _sessionTime; } }
     public bool isSessionOver {
         get
         {
@@ -190,7 +190,7 @@ public class TrialsManager : MonoBehaviour
     }
     private List<Trial> allTrialsData = new List<Trial>();
     Trial trialAtChangeOfLevel;
-    public int bestSoFarNbOfBounces;
+    public int bestSoFarNbOfBounces { get; private set; }
     public double EvaluateSessionPerformance()
     {
         double ComputeAverage(
@@ -219,7 +219,7 @@ public class TrialsManager : MonoBehaviour
             ComputeAverage(_totalAccurateBounces, allTrialsData.Count, 0, 1.3) : 0;
 
         // evaluating time percentage of the way to end of the session
-        double _timeScalar = 1 - (GlobalControl.Instance.elapsedTime / maximumTrialTime);
+        double _timeScalar = 1 - (Time.time / maximumTrialTime);
         double _targetHeightModifier = difficultyManager.hasTarget ? 3 : 2;
         return Mathf.Clamp01(
             (float)((_averageBounces + _averageAccurateBounces + _timeScalar) / _targetHeightModifier)
