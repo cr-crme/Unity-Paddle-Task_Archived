@@ -161,9 +161,6 @@ public class Ball : MonoBehaviour
 
     public void IndicateSuccessBall()
     {
-        if (!trialsManager.hasTarget)
-            return;
-
         // Turns ball green briefly and plays success sound.
         ballSoundManager.PlaySuccessSound();
         ballColorManager.IndicateSuccess();
