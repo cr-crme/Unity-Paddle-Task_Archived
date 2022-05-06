@@ -9,13 +9,9 @@ using UnityEngine.SceneManagement;
 
 public class PaddleGame : MonoBehaviour
 {	
-    // Manage the current task to perform
-    [SerializeField, Tooltip("The main trial manager for the game")]
-    private TrialsManager trialsManager;
-    
     [Tooltip("The ball being bounced")]
     [SerializeField]
-    private GameObject ball;
+    private Ball ball;
 
     [Tooltip("The canvas that displays score information to the user")]
     [SerializeField]
@@ -30,22 +26,20 @@ public class PaddleGame : MonoBehaviour
     private Text timeToDropText;
 
     [SerializeField]
-    private AudioSource difficultySource;
-
-    [SerializeField]
     private TextMeshPro difficultyDisplay;
 
     /// <summary>
     /// list of the audio clips played at the beginning of difficulties in some cases
     /// </summary>
     [SerializeField]
-    List<DifficultyAudioClip> difficultyAudioClips = new List<DifficultyAudioClip>();
+    private AudioManager audioManager;
 
     [SerializeField]
     private GlobalPauseHandler pauseHandler;
 
     float difficultyExampleTime = 30f;
 
+    #region Initialization
     void Start()
     {
         // Load the visual environment
@@ -56,17 +50,17 @@ public class PaddleGame : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        QuitTask();
+        QuitTask(GetComponent<TrialsManager>());
     }
 
     /// <summary>
     /// Stop the task, write data and return to the start screen
     /// </summary>
-    public void QuitTask()
+    public void QuitTask(TrialsManager _trialsManager)
     {
         IEnumerator QuitWhenTrialIsProcessed()
         {
-            yield return new WaitUntil(() => (trialsManager.isPreparingNewTrial));
+            yield return new WaitUntil(() => (_trialsManager.isPreparingNewTrial));
 
             // clean DDoL objects and return to the start scene
             Destroy(GlobalControl.Instance.gameObject);
@@ -76,9 +70,10 @@ public class PaddleGame : MonoBehaviour
         }
 
         // This is to ensure that the final trial is recorded.
-        trialsManager.ForceEndOfTrial();
+        _trialsManager.ForceEndOfTrial();
         StartCoroutine(QuitWhenTrialIsProcessed());
     }
+    #endregion
 
     #region UI Manager
     public void UpdateFeebackCanvas(TrialsManager _trialsManager)
@@ -86,17 +81,22 @@ public class PaddleGame : MonoBehaviour
         feedbackCanvas.UpdateAllInformation(_trialsManager);
     }
 
-    public void ToggleTimerCountdownCanvas(bool value)
+    public void ToggleTimerCountdownCanvas(bool _value)
     {
-        timeToDropQuad.SetActive(value);
+        timeToDropQuad.SetActive(_value);
+    }
+
+    public void UpdateLevel(int _newLevel)
+    {
+        difficultyDisplay.text = _newLevel.ToString();
+        audioManager.PlayDifficultyAudioClip(_newLevel);
     }
     #endregion
-
 
     #region Ball effect manager
     public void TriggerBallRespawn(bool spawnOnly)
     {
-        StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler, spawnOnly));
+        StartCoroutine(ball.RespawningCoroutine(pauseHandler, spawnOnly));
     }
 
     public IEnumerator ManageCountdownToDropCanvasCoroutine(int countdownTime)
@@ -109,13 +109,6 @@ public class PaddleGame : MonoBehaviour
             yield return new WaitForSeconds(1.0f);
         }
         ToggleTimerCountdownCanvas(false);
-    }
-    #endregion
-
-    #region Level
-    public void UpdateCurrentLevelText(int _newLevel)
-    {
-        difficultyDisplay.text = trialsManager.currentLevel.ToString();
     }
     #endregion
 
@@ -146,40 +139,28 @@ public class PaddleGame : MonoBehaviour
             yield return new WaitForSeconds(.1f);
         }
 
-        var audioClip = GetDifficultyAudioClip(trialsManager.currentLevel);
-        if (audioClip != null)
-        {
-            difficultySource.PlayOneShot(audioClip);
-        }
+        //var audioClip = GetDifficultyAudioClip(trialsManager.currentLevel);
+        //if (audioClip != null)
+        //{
+        //    difficultySource.PlayOneShot(audioClip);
+        //}
         yield return new WaitForSecondsRealtime(delay);
 
-        int _newLevel = trialsManager.currentLevel + 2;
-        if (_newLevel >= 10)
-            // finish up the difficulty showcase, quit application
-            QuitTask();
+        //int _newLevel = trialsManager.currentLevel + 2;
+        //if (_newLevel >= 10)
+        //    // finish up the difficulty showcase, quit application
+        //    QuitTask();
 
-        // reset ball, change difficulty level, possible audio announcement.
-        trialsManager.ForceLevelChanging(_newLevel);
+        //// reset ball, change difficulty level, possible audio announcement.
+        //trialsManager.ForceLevelChanging(_newLevel);
         StartCoroutine(StartDifficultyDelayedCoroutine(difficultyExampleTime));
-        ball.GetComponent<Ball>().ResetBall();
+        ball.ResetBall();
     }
 
 
-#endregion // Reset
+    #endregion // Reset
 
-#region Checks, Interactions, Data
-
-    private AudioClip GetDifficultyAudioClip(int difficulty)
-    {
-        foreach(var difficultyAudioClip in difficultyAudioClips)
-        {
-            if(difficultyAudioClip.difficulty == difficulty)
-            {
-                return difficultyAudioClip.audioClip;
-            }
-        }
-        return null;
-    }
+    #region Checks, Interactions, Data
 
     #endregion // Checks, Interactions, Data
 

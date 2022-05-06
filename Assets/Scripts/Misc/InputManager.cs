@@ -49,7 +49,7 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            paddleGame.QuitTask();
+            paddleGame.QuitTask(trialsManager);
         }
 
         // Quit application

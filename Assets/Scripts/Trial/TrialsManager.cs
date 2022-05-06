@@ -80,7 +80,7 @@ public class TrialsManager : MonoBehaviour
             if (isSessionOver)
             {
                 isPreparingNewTrial = false;
-                uiManager.QuitTask();
+                uiManager.QuitTask(this);
             }
         }
 
@@ -147,7 +147,7 @@ public class TrialsManager : MonoBehaviour
         trialAtChangeOfLevel = new Trial(GlobalControl.Instance.elapsedTime);
         difficultyManager.SetCurrentLevel(_newLevel);
         target.UpdateCondition();
-        uiManager.UpdateCurrentLevelText(_newLevel);
+        uiManager.UpdateLevel(_newLevel);
     }
     public void AutomaticLevelChanging()
     {
