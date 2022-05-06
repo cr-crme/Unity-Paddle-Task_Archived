@@ -4,19 +4,36 @@ using UnityEngine;
 
 public class GlobalPauseHandler : MonoBehaviour
 {
+    // The single instance of this class
+    public static GlobalPauseHandler Instance;
+
     [SerializeField, Tooltip("The canvas for pausing")]
     public GameObject pauseIndicator;
 
     [SerializeField]
     private Ball ball;
 
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     // If any game object requested the indicator to be block (sort of mutex)
     int lockKey = -1;
 
+    public bool isPaused { get; private set; } = false;
 
     public void TogglePause()
     {
-        if (GlobalControl.Instance.paused == true)
+        if (isPaused)
         {
             Resume();
         }
@@ -33,8 +50,7 @@ public class GlobalPauseHandler : MonoBehaviour
             Debug.Log("Pausing requested, but it is currently lock");
             return;
         }
-
-        GlobalControl.Instance.paused = true;
+        isPaused = true;
         Time.timeScale = 0;
         ball.TriggerPause();
 
@@ -48,9 +64,8 @@ public class GlobalPauseHandler : MonoBehaviour
             Debug.Log("Resuming requested, but it is currently lock");
             return;
         }
-
-        GlobalControl.Instance.paused = false;
-        Time.timeScale = ball.inHoverMode ? 1f : GlobalControl.Instance.timescale;
+        isPaused = false;
+        Time.timeScale = 1f;
         ball.TriggerResume();
         SetIndicatorVisibility(false);
     }
