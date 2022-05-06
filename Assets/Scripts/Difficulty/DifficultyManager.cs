@@ -53,8 +53,6 @@ public class DifficultyManager : MonoBehaviour
             return;
         }
         _currentLevel = value;
-
-        // GlobalControl.Instance.timescale = ballSpeed;
     }
     #endregion
 

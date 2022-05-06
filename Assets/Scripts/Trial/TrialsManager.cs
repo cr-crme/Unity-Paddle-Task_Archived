@@ -149,7 +149,8 @@ public class TrialsManager : MonoBehaviour
     {
         trialAtChangeOfLevel = new Trial(Time.time);
         difficultyManager.SetCurrentLevel(_newLevel);
-        target.UpdateCondition();
+        ball.UpdatePhysics(difficultyManager);
+        target.UpdateCondition(this);
         uiManager.UpdateLevel(_newLevel);
     }
     public void AutomaticLevelChanging()
@@ -168,6 +169,7 @@ public class TrialsManager : MonoBehaviour
         return difficultyManager.AreTrialConditionsMet(currentTrial);
     }
     public bool hasTarget { get { return difficultyManager.hasTarget; } }
+    public double targetHeightOffset { get { return difficultyManager.targetHeightOffset; } }
     #endregion
 
 

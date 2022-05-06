@@ -11,7 +11,7 @@
 public class Kinematics : MonoBehaviour
 {
     // Reference to this GameObject's rigidbody
-    [SerializeField] private Rigidbody rigidBody;
+    private Rigidbody rigidBody;
     
     public Vector3 storedPosition;
     public Vector3 storedVelocity;
@@ -21,9 +21,12 @@ public class Kinematics : MonoBehaviour
     public CircularBuffer<Vector3> velocityBuffer;
     const int CIRCULAR_BUFFER_SIZE = 50;
 
+    private Vector3 initialGravity = Physics.gravity;
+
     // Start is called before the first frame update
     void Awake()
     {
+        rigidBody = GetComponent<Rigidbody>();
         storedPosition = rigidBody.position;
         storedVelocity = rigidBody.velocity;
         storedAngularVelocity = rigidBody.angularVelocity;
@@ -195,5 +198,10 @@ public class Kinematics : MonoBehaviour
 
         Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
         return modifiedBounceVelocity;
+    }
+
+    public void UpdateGravityMultiplyer(double _scalar)
+    {
+        Physics.gravity = (float)_scalar * initialGravity;
     }
 }
