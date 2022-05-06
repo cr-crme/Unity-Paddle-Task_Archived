@@ -76,13 +76,12 @@ public class TrialsManager : MonoBehaviour
         IEnumerator FinalizeTrialCoroutine()
         {
             yield return new WaitWhile(() => !ball.isOnGround);
-
-            StartNewTrial();
             if (isSessionOver)
             {
                 isPreparingNewTrial = false;
                 uiManager.QuitTask(this);
             }
+            StartNewTrial();
         }
 
         if (isPreparingNewTrial || ball.inRespawnMode || ball.inHoverMode) 
@@ -104,13 +103,14 @@ public class TrialsManager : MonoBehaviour
         ManageIfEndOfTrial(true);
     }
     private Trial currentTrial { get { return allTrialsData.Last(); } }
-    private float trialTime { get { return GlobalControl.Instance.elapsedTime - currentTrial.time; } }
+    private float trialTime { get { return currentTrial.time; } }
     private float maximumTrialTime { 
         get
         {
             if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
             {
-                return GlobalControl.Instance.showcaseTimePerCondition * 60f * difficultyManager.nbLevel;
+                // Show case is moving two at a time
+                return GlobalControl.Instance.showcaseTimePerCondition * 60f * (difficultyManager.nbLevel/2);
             }
             else if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
             {
@@ -182,7 +182,7 @@ public class TrialsManager : MonoBehaviour
         {
             float maxTime = maximumTrialTime;
             if (maxTime <= 0) return false;
-            else return trialTime > maxTime; 
+            else return sessionTime > maxTime; 
         } 
     }
     private List<Trial> allTrialsData = new List<Trial>();
