@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class DifficultyManager : MonoBehaviour
@@ -54,7 +54,7 @@ public class DifficultyManager : MonoBehaviour
         }
         _currentLevel = value;
 
-        GlobalControl.Instance.timescale = ballSpeed;
+        // GlobalControl.Instance.timescale = ballSpeed;
     }
     #endregion
 
