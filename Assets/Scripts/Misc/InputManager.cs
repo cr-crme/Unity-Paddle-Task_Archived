@@ -95,7 +95,7 @@ public class InputManager : MonoBehaviour
         // Simulate enough bounces
         if (Input.GetKeyDown(KeyCode.L))
         {
-            if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
+            if (GlobalPreferences.Instance.session == SessionType.Session.PRACTISE)
             {
                 for (int i = 0; i < difficultyManager.nbOfBounceRequired * 7; i++)
                 {

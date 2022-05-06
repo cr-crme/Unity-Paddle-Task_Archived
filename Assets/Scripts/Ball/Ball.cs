@@ -241,7 +241,7 @@ public class Ball : MonoBehaviour
 
         effectController.StartVisualEffect(effectController.respawn);
 
-        int resetTime = GlobalControl.Instance.ballResetHoverSeconds;
+        int resetTime = GlobalPreferences.Instance.ballResetHoverSeconds;
 
         // Hover ball at target line for a second
         StartCoroutine(PlayDropSoundCoroutine(resetTime - 0.15f));

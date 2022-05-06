@@ -10,7 +10,7 @@ using TMPro;
 /// </summary>
 public class MenuController : MonoBehaviour {
 
-    private GlobalControl globalControl;
+    private GlobalPreferences globalControl;
     [SerializeField] private GameObject practiseCanvas;
     [SerializeField] private GameObject showcaseCanvas;
 
@@ -25,7 +25,7 @@ public class MenuController : MonoBehaviour {
     /// </summary>
     void Start()
     {
-        globalControl = GlobalControl.Instance;
+        globalControl = GlobalPreferences.Instance;
 
         preferenceList = new Dictionary<string, (object, LoadCallback)>(){
             { "nbPaddles", (GetNbPaddles(), LoadNbPaddlesToMenu) },

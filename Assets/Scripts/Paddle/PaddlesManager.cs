@@ -15,11 +15,11 @@ public class PaddlesManager : MonoBehaviour
     bool currentPaddleIsLeft = false;
     public int NbPaddles { get { return globalControl.nbPaddles; } }
 
-    GlobalControl globalControl;
+    GlobalPreferences globalControl;
 
     void Start()
     {
-        globalControl = GlobalControl.Instance;
+        globalControl = GlobalPreferences.Instance;
 
         if (globalControl.nbPaddles > 1)
         {

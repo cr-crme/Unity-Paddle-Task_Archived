@@ -11,7 +11,7 @@ public class DifficultyManager : MonoBehaviour
 
     private void Awake()
     {
-        difficulty = difficultyFactory.trialLevelDefinitions[GlobalControl.Instance.startingDifficulty];
+        difficulty = difficultyFactory.trialLevelDefinitions[GlobalPreferences.Instance.startingDifficulty];
     }
 
     #region Accessors
@@ -24,7 +24,7 @@ public class DifficultyManager : MonoBehaviour
 
     #region Target
     public bool hasTarget { get { return difficulty.hasTarget(currentLevel); } }
-    public TargetEnum.Height targetBaseHeight { get { return GlobalControl.Instance.targetBaseHeight; } }
+    public TargetEnum.Height targetBaseHeight { get { return GlobalPreferences.Instance.targetBaseHeight; } }
     public float targetHeightOffset { get { return difficulty.targetHeightOffset(currentLevel); } }
     public float targetWidth { get { return difficulty.targetWidth(currentLevel); } }
     #endregion
