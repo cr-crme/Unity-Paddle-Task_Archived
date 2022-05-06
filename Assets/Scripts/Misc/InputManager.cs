@@ -9,20 +9,24 @@ public class InputManager : MonoBehaviour
     [SerializeField]
     private Ball ball;
 
-    [SerializeField]
     private TrialsManager trialsManager;
 
-    [SerializeField]
     private DifficultyManager difficultyManager;
 
-    [SerializeField]
     private GlobalPauseHandler pauseHandler;
 
-    [SerializeField]
     private PaddleGame paddleGame;
 
     [SerializeField]
     private VideoControl videoControl;
+
+    private void Start()
+    {
+        trialsManager = GetComponent<TrialsManager>();
+        difficultyManager = GetComponent<DifficultyManager>();
+        pauseHandler = GetComponent<GlobalPauseHandler>();
+        paddleGame = GetComponent<PaddleGame>();
+    }
 
     void Update()
     {

@@ -3,10 +3,7 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-    [SerializeField, Tooltip("Handles the ball sound effects")]
     private BallSoundManager ballSoundManager;
-
-    [SerializeField, Tooltip("Handles the ball coloring")] 
     private BallColorManager ballColorManager;
 
     [SerializeField, Tooltip("The target the ball should reach")]
@@ -47,6 +44,8 @@ public class Ball : MonoBehaviour
 
     void Awake()
     {
+        ballSoundManager = GetComponent<BallSoundManager>();
+        ballColorManager = GetComponent<BallColorManager>();
         effectController = GetComponent<EffectController>();
 
         kinematics = GetComponent<Kinematics>();
