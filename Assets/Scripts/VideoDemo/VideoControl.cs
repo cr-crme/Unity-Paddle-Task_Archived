@@ -19,7 +19,7 @@ public class VideoControl : MonoBehaviour
 
     void Start()
     {
-        isVideoRunning = GlobalControl.Instance.playVideo;
+        isVideoRunning = GlobalPreferences.Instance.playVideo;
 
         if (isVideoRunning)
         {

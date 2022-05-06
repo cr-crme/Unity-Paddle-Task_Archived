@@ -41,7 +41,7 @@ public class UiManager : MonoBehaviour
         pauseHandler = GetComponent<GlobalPauseHandler>();
 
         // Load the visual environment
-        Instantiate(GlobalControl.Instance.environments[GlobalControl.Instance.environmentIndex]);
+        Instantiate(GlobalPreferences.Instance.environments[GlobalPreferences.Instance.environmentIndex]);
         // difficulty shifts timescale, so pause it again
         pauseHandler.Pause();
     }
@@ -61,7 +61,7 @@ public class UiManager : MonoBehaviour
             yield return new WaitUntil(() => (_trialsManager.isPreparingNewTrial));
 
             // clean DDoL objects and return to the start scene
-            Destroy(GlobalControl.Instance.gameObject);
+            Destroy(GlobalPreferences.Instance.gameObject);
             Destroy(gameObject);
 
             SceneManager.LoadScene(0);

@@ -30,17 +30,17 @@ public class TrialsManager : MonoBehaviour
         bestSoFarNbOfBounces = 0;
         StartSession();
 
-        if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
+        if (GlobalPreferences.Instance.session == SessionType.Session.SHOWCASE)
         {
             ForceLevelChanging(2);
         }
-        else if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
+        else if (GlobalPreferences.Instance.session == SessionType.Session.PRACTISE)
         {
-            ForceLevelChanging(GlobalControl.Instance.practiseStartingLevel);
+            ForceLevelChanging(GlobalPreferences.Instance.practiseStartingLevel);
         }
         else
         {
-            Debug.LogError($"SessionType: {GlobalControl.Instance.session} not implemented yet");
+            Debug.LogError($"SessionType: {GlobalPreferences.Instance.session} not implemented yet");
         }
         StartNewTrial();
     }
@@ -58,7 +58,7 @@ public class TrialsManager : MonoBehaviour
         IEnumerator FinalizeStartNewTrialCoroutine()
         {
             yield return new WaitWhile(() => ball.inRespawnMode);
-            GlobalControl globalControl = GlobalControl.Instance;
+            GlobalPreferences globalControl = GlobalPreferences.Instance;
             allTrialsData.Add(new Trial(Time.time + globalControl.ballResetHoverSeconds));
             trialAtChangeOfLevel = new Trial(Time.time + globalControl.ballResetHoverSeconds);
             uiManager.UpdateFeebackCanvas(this);
@@ -106,7 +106,7 @@ public class TrialsManager : MonoBehaviour
     private float maximumTrialTime { 
         get
         {
-            GlobalControl globalControl = GlobalControl.Instance;
+            GlobalPreferences globalControl = GlobalPreferences.Instance;
             if (globalControl.session == SessionType.Session.SHOWCASE)
             {
                 
@@ -163,7 +163,7 @@ public class TrialsManager : MonoBehaviour
     }
     public bool AreTrialConditionsMet()
     {
-        if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
+        if (GlobalPreferences.Instance.session == SessionType.Session.SHOWCASE)
             return false;
 
         return difficultyManager.AreTrialConditionsMet(currentTrial);
@@ -179,7 +179,7 @@ public class TrialsManager : MonoBehaviour
     #region Full Session
     public void StartSession()
     {
-        GlobalControl globalControl = GlobalControl.Instance;
+        GlobalPreferences globalControl = GlobalPreferences.Instance;
         _sessionTime = Time.time + globalControl.ballResetHoverSeconds;
     }
     private float _sessionTime;

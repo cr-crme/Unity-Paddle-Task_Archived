@@ -4,7 +4,7 @@ public class DynamicDifficultyAlgorithm
 {
     public int ComputeNewLevel(DifficultyManager _difficulty, Trial _trial)
     {
-        GlobalControl globalControl = GlobalControl.Instance;
+        GlobalPreferences globalControl = GlobalPreferences.Instance;
         int _newLevel = -1;
         if (globalControl.session == SessionType.Session.PRACTISE)
         {

@@ -20,7 +20,7 @@ public class EffectController : MonoBehaviour
 
         InitializeParticleEffect(dissolve);
         InitializeParticleEffect(respawn);
-        respawn.effectTime = GlobalControl.Instance.ballResetHoverSeconds;
+        respawn.effectTime = GlobalPreferences.Instance.ballResetHoverSeconds;
         InitializeParticleEffect(fire);
         InitializeParticleEffect(blueFire);
         InitializeParticleEffect(embers);

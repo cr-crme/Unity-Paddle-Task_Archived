@@ -5,11 +5,11 @@ using UnityEngine;
 /// <summary>
 /// Stores calibration data for trial use in a single place.
 /// </summary>
-public class GlobalControl : MonoBehaviour 
+public class GlobalPreferences : MonoBehaviour 
 {
 
     // The single instance of this class
-    public static GlobalControl Instance;
+    public static GlobalPreferences Instance;
 
     // participant ID to differentiate data files
     public string participantID { get; private set; }
