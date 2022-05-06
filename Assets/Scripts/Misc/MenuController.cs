@@ -318,7 +318,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private TMP_Dropdown difficulty;
     public void RecordDifficulty(int _value)
     {
-        globalControl.difficulty = (DifficultyChoice)_value;
+        globalControl.startingDifficulty = (DifficultyChoice)_value;
         SaveDifficulty(_value);
     }
     private void SetDifficulty(int _value)
@@ -354,7 +354,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI practiseStartingLevelText;
     public void RecordPractiseStartingLevel(float _value)
     {
-        globalControl.level = (int)_value;
+        globalControl.practiseStartingLevel = (int)_value;
         UpdatePractiseStartingLevelText((int)_value);
         SavePractiseStartingLevel((int)_value);
     }

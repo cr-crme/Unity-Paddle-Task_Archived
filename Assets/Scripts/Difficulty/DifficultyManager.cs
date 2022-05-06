@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class DifficultyManager : MonoBehaviour
@@ -11,7 +11,7 @@ public class DifficultyManager : MonoBehaviour
 
     private void Awake()
     {
-        difficulty = difficultyFactory.trialLevelDefinitions[GlobalControl.Instance.difficulty];
+        difficulty = difficultyFactory.trialLevelDefinitions[GlobalControl.Instance.startingDifficulty];
     }
 
     #region Accessors
