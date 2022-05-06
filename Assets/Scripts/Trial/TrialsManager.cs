@@ -8,7 +8,7 @@ public class TrialsManager : MonoBehaviour
     private DifficultyManager difficultyManager;
     private DynamicDifficultyAlgorithm dda = new DynamicDifficultyAlgorithm();
 
-    private PaddleGame uiManager;
+    private UiManager uiManager;
 
     [SerializeField]
     [Tooltip("The paddles in the game")]
@@ -25,7 +25,7 @@ public class TrialsManager : MonoBehaviour
     private void Start()
     {
         difficultyManager = GetComponent<DifficultyManager>();
-        uiManager = GetComponent<PaddleGame>();
+        uiManager = GetComponent<UiManager>();
 
         bestSoFarNbOfBounces = 0;
         StartSession();

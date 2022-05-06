@@ -9,7 +9,7 @@ public class VideoControl : MonoBehaviour
     public AudioSource audioSource;
     public float postVideoDelay = 3f;
     public GameObject renderTarget;
-    public PaddleGame paddleGame;
+    public UiManager paddleGame;
     public List<VideoData> videoDatas = new List<VideoData>();
     
     GlobalControl globalControl;

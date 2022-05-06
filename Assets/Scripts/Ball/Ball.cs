@@ -13,7 +13,7 @@ public class Ball : MonoBehaviour
     private TrialsManager trialsManager;
 
     [SerializeField]
-    private PaddleGame uiManager;
+    private UiManager uiManager;
 
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;

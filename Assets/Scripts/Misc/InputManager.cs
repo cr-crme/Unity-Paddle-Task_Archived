@@ -15,7 +15,7 @@ public class InputManager : MonoBehaviour
 
     private GlobalPauseHandler pauseHandler;
 
-    private PaddleGame paddleGame;
+    private UiManager paddleGame;
 
     [SerializeField]
     private VideoControl videoControl;
@@ -25,7 +25,7 @@ public class InputManager : MonoBehaviour
         trialsManager = GetComponent<TrialsManager>();
         difficultyManager = GetComponent<DifficultyManager>();
         pauseHandler = GetComponent<GlobalPauseHandler>();
-        paddleGame = GetComponent<PaddleGame>();
+        paddleGame = GetComponent<UiManager>();
     }
 
     void Update()
