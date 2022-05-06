@@ -30,7 +30,6 @@ public class TrialsManager : MonoBehaviour
         bestSoFarNbOfBounces = 0;
         StartSession();
 
-        StartNewTrial();
         if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
         {
             ForceLevelChanging(2);
@@ -43,6 +42,7 @@ public class TrialsManager : MonoBehaviour
         {
             Debug.LogError($"SessionType: {GlobalControl.Instance.session} not implemented yet");
         }
+        StartNewTrial();
     }
 
     private void Update()
@@ -58,17 +58,17 @@ public class TrialsManager : MonoBehaviour
         IEnumerator FinalizeStartNewTrialCoroutine()
         {
             yield return new WaitWhile(() => ball.inRespawnMode);
+            GlobalControl globalControl = GlobalControl.Instance;
+            allTrialsData.Add(new Trial(globalControl.elapsedTime + globalControl.ballResetHoverSeconds));
+            trialAtChangeOfLevel = new Trial(globalControl.elapsedTime + globalControl.ballResetHoverSeconds);
+            uiManager.UpdateFeebackCanvas(this);
             isPreparingNewTrial = false;
         }
         if (allTrialsData.Count > 0 && allTrialsData.Last().nbBounces > bestSoFarNbOfBounces)
         {
             bestSoFarNbOfBounces = allTrialsData.Last().nbBounces;
         }
-        allTrialsData.Add(new Trial(GlobalControl.Instance.elapsedTime));
-        trialAtChangeOfLevel = new Trial(GlobalControl.Instance.elapsedTime);
-
-        uiManager.TriggerBallRespawn(allTrialsData.Count == 1);
-        uiManager.UpdateFeebackCanvas(this);
+        uiManager.TriggerBallRespawn(allTrialsData.Count == 0);
         StartCoroutine(FinalizeStartNewTrialCoroutine());
     }
     public void ManageIfEndOfTrial(bool forceEndOfTrial = false)
@@ -102,19 +102,21 @@ public class TrialsManager : MonoBehaviour
 
         ManageIfEndOfTrial(true);
     }
-    private Trial currentTrial { get { return allTrialsData.Last(); } }
-    private float trialTime { get { return currentTrial.time; } }
+    private Trial currentTrial { get { return allTrialsData.Count == 0 ? null : allTrialsData.Last(); } }
     private float maximumTrialTime { 
         get
         {
-            if (GlobalControl.Instance.session == SessionType.Session.SHOWCASE)
+            GlobalControl globalControl = GlobalControl.Instance;
+            if (globalControl.session == SessionType.Session.SHOWCASE)
             {
-                // Show case is moving two at a time
-                return GlobalControl.Instance.showcaseTimePerCondition * 60f * (difficultyManager.nbLevel/2);
+                
+                return globalControl.showcaseTimePerCondition 
+                    * globalControl.timeConversionToMinute 
+                    * ( difficultyManager.nbLevel / 2 );  // Show case is moving two at a time
             }
-            else if (GlobalControl.Instance.session == SessionType.Session.PRACTISE)
+            else if (globalControl.session == SessionType.Session.PRACTISE)
             {
-                return GlobalControl.Instance.practiseMaxTrialTime * 60f;
+                return globalControl.practiseMaxTrialTime * globalControl.timeConversionToMinute;
             }
             else
             {
@@ -140,8 +142,8 @@ public class TrialsManager : MonoBehaviour
 
         uiManager.UpdateFeebackCanvas(this);
     }
-    public int currentNumberOfBounces { get { return currentTrial.nbBounces; } }
-    public int currentNumberOfAccurateBounces { get { return currentTrial.nbAccurateBounces; } }
+    public int currentNumberOfBounces { get { return currentTrial == null ? 0 : currentTrial.nbBounces; } }
+    public int currentNumberOfAccurateBounces { get { return currentTrial == null ? 0 : currentTrial.nbAccurateBounces; } }
     public int currentLevel { get { return difficultyManager.currentLevel; } }
     public void ForceLevelChanging(int _newLevel)
     {
@@ -173,7 +175,8 @@ public class TrialsManager : MonoBehaviour
     #region Full Session
     public void StartSession()
     {
-        _sessionTime = GlobalControl.Instance.elapsedTime;
+        GlobalControl globalControl = GlobalControl.Instance;
+        _sessionTime = globalControl.elapsedTime + globalControl.ballResetHoverSeconds;
     }
     private float _sessionTime;
     public float sessionTime { get { return GlobalControl.Instance.elapsedTime - _sessionTime; } }

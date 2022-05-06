@@ -38,7 +38,6 @@ public class Ball : MonoBehaviour
     public bool isOnGround { get { return transform.position.y < transform.localScale.y; } }
     public bool inHoverMode { get; protected set; } = true;
     public bool inRespawnMode { get; protected set; } = false;
-    private int ballResetHoverSeconds = 3;
     private int ballRespawnSeconds = 1;
 
 

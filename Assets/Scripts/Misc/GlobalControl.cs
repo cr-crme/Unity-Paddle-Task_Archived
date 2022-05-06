@@ -32,6 +32,8 @@ public class GlobalControl : MonoBehaviour
     // Time per level for showcase condition
     public int showcaseTimePerCondition = 0;
 
+    public float timeConversionToMinute = 60f;
+
     // Time elapsed while game is not paused, in seconds 
     public float elapsedTime { get; private set; } = 0;
 
