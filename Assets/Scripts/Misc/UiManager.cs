@@ -7,7 +7,7 @@ using System;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class PaddleGame : MonoBehaviour
+public class UiManager : MonoBehaviour
 {	
     [Tooltip("The ball being bounced")]
     [SerializeField]
