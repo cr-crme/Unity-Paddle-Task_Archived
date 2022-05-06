@@ -8,66 +8,59 @@ public class Target : MonoBehaviour
     [SerializeField]
     private Camera hmd;
 
-    [SerializeField]
-    private DifficultyManager difficultyManager;
-
 
     // Sets Target Line height based on HMD eye level and target position preference
     public void UpdateCondition(TrialsManager _trialsManager)
     {
-        UpdateHeight(_trialsManager.targetHeightOffset);
-        UpdateWidth();
-        UpdateToggle();
+        UpdateHeight(_trialsManager.targetBaseHeight, _trialsManager.targetHeightOffset);
+        UpdateWidth(_trialsManager.targetWidth);
+        UpdateToggle(_trialsManager.hasTarget);
     }
 
-    private void UpdateHeight(double _heightOffset)
+    private void UpdateHeight(TargetEnum.Height baseHeight, double _heightOffset)
     {
         Vector3 oldPosition = transform.position;
 
         float x = oldPosition.x;
         float z = oldPosition.z;
-        float y = ComputeTargetHeight(GetHmdHeight()) + (float)_heightOffset;
+        float y = GetHmdHeight() * TargetBaseHeightModifier(baseHeight) + (float)_heightOffset;
 
         transform.position = new Vector3(x, y, z);
     }
 
-    private void UpdateWidth()
+    private void UpdateWidth(double _width)
     {
         transform.localScale = new Vector3(
-            transform.localScale.x, 
-            difficultyManager.targetWidth,
-            transform.localScale.z
+            transform.localScale.x, (float)_width, transform.localScale.z
         );
     }
-    private void UpdateToggle()
+    private void UpdateToggle(bool _hasTarget)
     {
-        gameObject.SetActive(difficultyManager.hasTarget);
+        gameObject.SetActive(_hasTarget);
     }
 
-    private float ComputeTargetHeight(float eyeLevel)
+    private float TargetBaseHeightModifier(TargetEnum.Height baseHeight)
     {
-        switch (difficultyManager.targetHeight)
+        switch (baseHeight)
         {
             case TargetEnum.Height.RAISED:
-                return eyeLevel * 1.1f;
+                return 1.1f;
             case TargetEnum.Height.LOWERED:
-                return eyeLevel * 0.9f;
+                return 0.9f;
             case TargetEnum.Height.EYE_LEVEL:
-                return eyeLevel;
+                return 1f;
             default:
                 Debug.LogError("Error: Invalid Target Height Preference");
-                return eyeLevel;
+                return 1f;
         }
     }
 
     // Returns true if the ball is within the target line boundaries.
     public bool IsInsideTarget(Vector3 height)
     {
-        if (!difficultyManager.hasTarget) return false;
-
         float targetHeight = transform.position.y;
-        float lowerLimit = targetHeight - (difficultyManager.targetWidth / 2f);
-        float upperLimit = targetHeight + (difficultyManager.targetWidth / 2f);
+        float lowerLimit = targetHeight - (transform.localScale.y / 2f);
+        float upperLimit = targetHeight + (transform.localScale.y / 2f);
 
         return (height.y > lowerLimit) && (height.y < upperLimit);
     }
