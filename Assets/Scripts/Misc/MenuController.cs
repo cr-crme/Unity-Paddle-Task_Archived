@@ -101,12 +101,12 @@ public class MenuController : MonoBehaviour {
     /// <param name="arg0"></param>
     public void RecordID(string arg0)
     {
-        globalControl.participantID = arg0;
+        globalControl.SetParticipantID(arg0);
     }
 
     public void RecordNbPaddles(int _value)
     {
-        globalControl.nbPaddles = _value + 1;  // 0-based
+        globalControl.SetNbPaddles(_value + 1);  // 0-based
         SaveNbPaddles(_value);
     }
     private void SetNbPaddles(int _value)
@@ -138,7 +138,7 @@ public class MenuController : MonoBehaviour {
 
     public void RecordEnvironment(int _value)
     {
-        globalControl.environmentIndex = _value;
+        globalControl.SetEnvironmentIndex(_value);
         SaveEnvironment(_value);
     }
     private void SetEnvironment(int _value)
@@ -174,7 +174,7 @@ public class MenuController : MonoBehaviour {
     // Records the Session from the dropdown menu
     public void RecordSession(int _value)
     {
-        globalControl.session = (SessionType.Session)_value;
+        globalControl.SetSession((SessionType.Session)_value);
         SaveSession(_value);
         UpdateConditionalUIObjects();
     }
@@ -213,7 +213,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI showcaseTimePerTrialText;
     public void RecordPractiseTotalTime(float _value)
     {
-        globalControl.practiseMaxTrialTime = (int)_value;
+        globalControl.SetPractiseMaxTrialTime((int)_value);
         UpdatePractiseTotalTimeText((int)_value);
         SavePractiseTotalTime((int)_value);
     }
@@ -257,7 +257,7 @@ public class MenuController : MonoBehaviour {
 
     public void RecordShowcaseTimePerTrial(float _value)
     {
-        globalControl.showcaseTimePerCondition = (int)_value;
+        globalControl.SetShowcaseTimePerCondition((int)_value);
         UpdateShowcaseTimePerTrialText((int)_value);
         SaveShowcaseTimePerTrial((int)_value);
     }
@@ -318,7 +318,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private TMP_Dropdown difficulty;
     public void RecordDifficulty(int _value)
     {
-        globalControl.startingDifficulty = (DifficultyChoice)_value;
+        globalControl.SetStartingDifficulty((DifficultyChoice)_value);
         SaveDifficulty(_value);
     }
     private void SetDifficulty(int _value)
@@ -354,7 +354,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI practiseStartingLevelText;
     public void RecordPractiseStartingLevel(float _value)
     {
-        globalControl.practiseStartingLevel = (int)_value;
+        globalControl.SetPractiseStartingLevel((int)_value);
         UpdatePractiseStartingLevelText((int)_value);
         SavePractiseStartingLevel((int)_value);
     }
@@ -394,7 +394,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private Toggle showcaseVideo;
     public void RecordShowcaseVideo(bool _value)
     {
-        globalControl.playVideo = _value;
+        globalControl.SetPlayVideo(_value);
         SaveShowcaseVideo(_value);
     }
     private void SetShowcaseVideo(bool _value)
@@ -429,7 +429,7 @@ public class MenuController : MonoBehaviour {
     [SerializeField] private TMP_Dropdown targetHeight;
     public void RecordTargetHeight(int _value)
     {
-        globalControl.targetHeightPreference = (TargetEnum.Height)_value;
+        globalControl.SetTargetBaseHeight((TargetEnum.Height)_value);
         SaveTargetHeight(_value);
     }
     private void SetTargetHeight(int _value)
@@ -466,7 +466,7 @@ public class MenuController : MonoBehaviour {
    
     public void RecordBallHoverTime(float _value)
     {
-        globalControl.ballResetHoverSeconds = (int)_value;
+        globalControl.SetBallResetHoverSeconds((int)_value);
         UpdateBallHoverTimeText(_value);
         SaveBallHoverTime(_value);
     }

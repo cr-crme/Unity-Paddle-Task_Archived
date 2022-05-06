@@ -12,31 +12,26 @@ public class VideoControl : MonoBehaviour
     public UiManager paddleGame;
     public List<VideoData> videoDatas = new List<VideoData>();
     
-    GlobalControl globalControl;
     GlobalPauseHandler globalPauseHandler;
 
     private bool isVideoRunning = false;
-    private int pauseLockKey = -1;
+    private int pauseLockKey;
 
     void Start()
     {
-        globalControl = GlobalControl.Instance;
+        isVideoRunning = GlobalControl.Instance.playVideo;
 
-        if (GlobalControl.Instance.playVideo)
+        if (isVideoRunning)
         {
-            isVideoRunning = true;
             globalPauseHandler = GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>();
-            globalPauseHandler.Pause();
-            pauseLockKey = globalPauseHandler.SetIndicatorVisibility(false, true);
-
-            float total = 0;
+            float watingTime = 0;  // Start all coroutines video but wait in line the previous has ended
             for (int i = 0; i < videoDatas.Count; i++)
             {
-                StartCoroutine(PracticeTimeCoroutine(total, videoDatas[i]));
+                StartCoroutine(PracticeTimeCoroutine(watingTime, videoDatas[i]));
                 float duration = (float)videoDatas[i].videoClip.length + videoDatas[i].postClipTime; 
-                total += duration;
+                watingTime += duration;
             }
-            StartCoroutine(PlaybackFinishedCoroutine(total + .2f));
+            StartCoroutine(PlaybackFinishedCoroutine(watingTime + .2f));
         }
         else
         {
@@ -61,23 +56,19 @@ public class VideoControl : MonoBehaviour
         renderTarget.gameObject.SetActive(false);
         player.Stop();
         audioSource.Stop();
-        globalControl.playVideo = false;
-        globalPauseHandler.Pause();
-        globalPauseHandler.SetIndicatorVisibility(false, false, pauseLockKey);
+        globalPauseHandler.Pause(pauseLockKey);
         isVideoRunning = false;
     }
 
-    IEnumerator PracticeTimeCoroutine(float start, VideoData videoData)
+    IEnumerator PracticeTimeCoroutine(float waitingBeforeStartTime, VideoData videoData)
     {
-        yield return new WaitForSecondsRealtime(start);
+        yield return new WaitForSecondsRealtime(waitingBeforeStartTime);
+        pauseLockKey = globalPauseHandler.Pause(-1, true, false);
         player.clip = videoData.videoClip;
         player.Play();
         audioSource.PlayOneShot(videoData.audioClip);
-        Debug.Log("playing video " + player.clip.name);
         yield return new WaitForSecondsRealtime((float)videoData.videoClip.length);
-        player.Pause();
-        globalPauseHandler.Resume();
+        globalPauseHandler.Resume(pauseLockKey);
         yield return new WaitForSecondsRealtime(videoData.postClipTime);
-        globalPauseHandler.Pause();
     }
 }
