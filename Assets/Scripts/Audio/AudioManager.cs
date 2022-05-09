@@ -11,11 +11,11 @@ public class AudioManager : MonoBehaviour
     /// list of the audio clips played at the beginning of difficulties in some cases
     /// </summary>
     [SerializeField]
-    List<LevelAudioClip> levelAudioClips = new List<LevelAudioClip>();
+    List<LevelAudioClip> showcaseLevelAudioClips = new List<LevelAudioClip>();
 
-    public void PlayDifficultyAudioClip(int _level)
+    public void PlayShowcaseDifficultyAudioClip(int _level)
     {
-        foreach (LevelAudioClip clip in levelAudioClips)
+        foreach (LevelAudioClip clip in showcaseLevelAudioClips)
         {
             if (clip.level == _level)
             {

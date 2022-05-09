@@ -170,12 +170,6 @@ public class Ball : MonoBehaviour
 
 
     #region Spawning manager
-    public void ResetBall()
-    {
-        ResetBallProperties();
-        trialsManager.StartNewTrial();
-    }
-
     private void ResetBallProperties()
     {
         ballColorManager.SetToNormalColor();
@@ -243,7 +237,7 @@ public class Ball : MonoBehaviour
 
         int resetTime = GlobalPreferences.Instance.ballResetHoverSeconds;
 
-        // Hover ball at target line for a second
+        // Hover ball at target line for some time
         StartCoroutine(PlayDropSoundCoroutine(resetTime - 0.15f));
         StartCoroutine(ReleaseHoverAfterCountdown(resetTime));
 

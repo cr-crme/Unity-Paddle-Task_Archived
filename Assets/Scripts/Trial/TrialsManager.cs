@@ -38,6 +38,11 @@ public class TrialsManager : MonoBehaviour
         {
             ForceLevelChanging(GlobalPreferences.Instance.practiseStartingLevel);
         }
+        else if (GlobalPreferences.Instance.session == SessionType.Session.TUTORIAL)
+        {
+            ForceLevelChanging(0);
+            GlobalPreferences.Instance.SetPlayVideo(true);
+        }
         else
         {
             Debug.LogError($"SessionType: {GlobalPreferences.Instance.session} not implemented yet");
@@ -71,37 +76,36 @@ public class TrialsManager : MonoBehaviour
         uiManager.TriggerBallRespawn(allTrialsData.Count == 0);
         StartCoroutine(FinalizeStartNewTrialCoroutine());
     }
-    public void ManageIfEndOfTrial(bool forceEndOfTrial = false)
+    public void ManageIfEndOfTrial()
     {
-        IEnumerator FinalizeTrialCoroutine()
-        {
-            yield return new WaitWhile(() => !ball.isOnGround);
-            if (isSessionOver)
-            {
-                isPreparingNewTrial = false;
-                uiManager.QuitTask(this);
-            }
-            StartNewTrial();
-        }
-
         if (isPreparingNewTrial || ball.inRespawnMode || ball.inHoverMode) 
             return;
 
-        if (forceEndOfTrial)
-            ball.ForceToDrop();
-
         if (ball.isOnGround || isSessionOver)
         {
-            isPreparingNewTrial = true;
-            StartCoroutine(FinalizeTrialCoroutine());
+            StartCoroutine(FinalizeTrialCoroutine(true));
         }
     }
-    public void ForceEndOfTrial()
+    public void ForceEndOfTrial(bool _startNewTrial = true)
     {
         if (isPreparingNewTrial) return;
 
-        ManageIfEndOfTrial(true);
+        ball.ForceToDrop();
+        StartCoroutine(FinalizeTrialCoroutine(_startNewTrial));
     }
+    IEnumerator FinalizeTrialCoroutine(bool _startNewTrial)
+    {
+        isPreparingNewTrial = true;
+        yield return new WaitWhile(() => !ball.isOnGround);
+        if (isSessionOver)
+        {
+            isPreparingNewTrial = false;
+            uiManager.QuitTask(this);
+        }
+        if (_startNewTrial)
+            StartNewTrial();
+    }
+
     private Trial currentTrial { get { return allTrialsData.Count == 0 ? null : allTrialsData.Last(); } }
     private float maximumTrialTime { 
         get
@@ -118,9 +122,13 @@ public class TrialsManager : MonoBehaviour
             {
                 return globalControl.practiseMaxTrialTime * globalControl.timeConversionToMinute;
             }
+            else if (globalControl.session == SessionType.Session.TUTORIAL)
+            {
+                return 0;
+            }
             else
             {
-                Debug.LogError("Time over not implemented for current session type");
+                Debug.LogError($"SessionType: {GlobalPreferences.Instance.session} not implemented yet");
                 return 0;
             }
         }
