@@ -41,14 +41,16 @@ public class InputManager : MonoBehaviour
         // Restart the ball from remote control
         if (SteamVR_Actions.default_GrabPinch.GetStateDown(SteamVR_Input_Sources.Any))
         {
-            Debug.Log("Forcing restart.");
-            StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler));
+            if (GlobalPauseHandler.Instance.isPaused)
+                GlobalPauseHandler.Instance.Resume();
+            else
+                StartCoroutine(ball.GetComponent<Ball>().RespawningCoroutine(pauseHandler));
         }
 
         // Toggle pause/resume state
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            GameObject.Find("[SteamVR]").GetComponent<GlobalPauseHandler>().TogglePause();
+            GlobalPauseHandler.Instance.TogglePause();
         }
 
         if (Input.GetKeyDown(KeyCode.Q))
