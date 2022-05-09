@@ -5600,7 +5600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49ca875f6a80b9f49acaffa6e64ab1c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  game_object: {fileID: 7130375269244165898}
+  _gameObject: {fileID: 7130375269244165898}
   axis: 1
   radius: 150
   clockwise: 0
@@ -14061,7 +14061,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49ca875f6a80b9f49acaffa6e64ab1c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  game_object: {fileID: 7129850517639995724}
+  _gameObject: {fileID: 7129850517639995724}
   axis: 1
   radius: 150
   clockwise: 0
@@ -17648,7 +17648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49ca875f6a80b9f49acaffa6e64ab1c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  game_object: {fileID: 7130649454301121678}
+  _gameObject: {fileID: 7130649454301121678}
   axis: 1
   radius: 140
   clockwise: 0
