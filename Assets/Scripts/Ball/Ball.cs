@@ -230,10 +230,16 @@ public class Ball : MonoBehaviour
             pauseHandler.Resume();
         }
 
-        IEnumerator PlayDropSoundCoroutine(float _waitTimeBeforePlaying)
+        IEnumerator PlayRespawnBallSoundCoroutine()
+        {
+            yield return new WaitWhile(() => GlobalPauseHandler.Instance.isPaused);
+            ballSoundManager.PlayRespawnBallSound();
+        }
+
+        IEnumerator PlayDropBallAtStartSoundCoroutine(float _waitTimeBeforePlaying)
         {
             yield return new WaitForSeconds(_waitTimeBeforePlaying);
-            ballSoundManager.PlayDropSound();
+            ballSoundManager.PlayDropBallSound();
         }
 
         inHoverMode = true;
@@ -243,11 +249,12 @@ public class Ball : MonoBehaviour
         pauseHandler.Pause();
 
         effectController.StartVisualEffect(effectController.respawn);
+        StartCoroutine(PlayRespawnBallSoundCoroutine());
 
         int resetTime = GlobalPreferences.Instance.ballResetHoverSeconds;
 
         // Hover ball at target line for some time
-        StartCoroutine(PlayDropSoundCoroutine(resetTime - 0.15f));
+        StartCoroutine(PlayDropBallAtStartSoundCoroutine(resetTime - 0.15f));
         StartCoroutine(ReleaseHoverAfterCountdown(resetTime));
 
         // Show countdown to participant

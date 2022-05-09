@@ -2,28 +2,39 @@
 using UnityEngine;
 
 public class BallSoundManager : MonoBehaviour {
-    
-    public AudioSource dropSound;
+
+    public AudioSource dropBallAtStartSound;
+    public AudioSource respawnBall;
     public AudioSource successSound;
     public AudioSource effectSource;
     public AudioSource[] bounceSounds;
 
-    // Play high pitch sound when ball is about to drop.
-    public void PlayDropSound()
+    private void Awake()
     {
-        // Stop the bounce sounds that are currently playing. We dont want to overload the audio.
-        dropSound.Stop();
-        dropSound.PlayOneShot(dropSound.clip);  
+        dropBallAtStartSound.Stop();
+        respawnBall.Stop();
+        successSound.Stop();
+        effectSource.Stop();
+        foreach (AudioSource sound in bounceSounds)
+            sound.Stop();
     }
 
-    // Play success sound when ball apex is within target window
-    public IEnumerator PlaySuccessSound(float time = 0.0f)
+    // Play high pitch sound when ball is about to drop.
+    public void PlayDropBallSound()
     {
-        yield return new WaitForSeconds(time);
-        successSound.Stop();
-        successSound.PlayOneShot(successSound.clip);
+        // Stop the bounce sounds that are currently playing. We dont want to overload the audio.
+        dropBallAtStartSound.Stop();
+        dropBallAtStartSound.PlayOneShot(dropBallAtStartSound.clip);
     }
-    
+
+    // Play a sound while the ball respawns
+    public void PlayRespawnBallSound()
+    {
+        // Stop the bounce sounds that are currently playing. We dont want to overload the audio.
+        respawnBall.Stop();
+        respawnBall.PlayOneShot(respawnBall.clip);  
+    }
+        
     // Non-coroutine version of above function
     public void PlaySuccessSound()
     {
