@@ -87,7 +87,8 @@ public class UiManager : MonoBehaviour
     public void UpdateLevel(int _newLevel)
     {
         difficultyDisplay.text = _newLevel.ToString();
-        audioManager.PlayDifficultyAudioClip(_newLevel);
+        if (GlobalPreferences.Instance.session == SessionType.Session.SHOWCASE)
+            audioManager.PlayShowcaseDifficultyAudioClip(_newLevel);
     }
     #endregion
 

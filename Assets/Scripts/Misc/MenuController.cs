@@ -13,6 +13,7 @@ public class MenuController : MonoBehaviour {
     private GlobalPreferences globalControl;
     [SerializeField] private GameObject practiseCanvas;
     [SerializeField] private GameObject showcaseCanvas;
+    [SerializeField] private GameObject tutorialCanvas;
 
     // Loads all saved preferences to the main menu
     private delegate void LoadCallback(bool resetToDefault);
@@ -35,7 +36,6 @@ public class MenuController : MonoBehaviour {
             { "showcase_timePerTrial", (GetShowcaseTimePerTrial(), LoadShowcaseTimePerTrialToMenu) },
             { "difficulty", (GetDifficulty(), LoadDifficulty) },
             { "practise_level", (GetPractiseStartingLevel(), LoadPractiseStartingLevelToMenu) },
-            { "showcase_toggleVideo", (GetShowcaseVideo(), LoadShowcaseVideoToMenu) },
             { "targetHeight", (GetTargetHeight(), LoadTargetHeightToMenu) },
             { "hoverTime", (GetBallHoverTime(), LoadBallHoverTimeToMenu) },
         };
@@ -298,13 +298,19 @@ public class MenuController : MonoBehaviour {
         {
             practiseCanvas.SetActive(true);
             showcaseCanvas.SetActive(false);
-
+            tutorialCanvas.SetActive(false);
         }
         else if (globalControl.session == SessionType.Session.SHOWCASE)
         {
-            showcaseCanvas.SetActive(true);
             practiseCanvas.SetActive(false);
-
+            showcaseCanvas.SetActive(true);
+            tutorialCanvas.SetActive(false);
+        }
+        else if (globalControl.session == SessionType.Session.TUTORIAL)
+        {
+            showcaseCanvas.SetActive(false);
+            practiseCanvas.SetActive(false);
+            tutorialCanvas.SetActive(true);
         }
         else
         {
@@ -387,41 +393,6 @@ public class MenuController : MonoBehaviour {
 
         RecordPractiseStartingLevel(_value);
         SetPractiseStartingLevel(_value);
-    }
-    #endregion
-
-    #region VideoTutorial
-    [SerializeField] private Toggle showcaseVideo;
-    public void RecordShowcaseVideo(bool _value)
-    {
-        globalControl.SetPlayVideo(_value);
-        SaveShowcaseVideo(_value);
-    }
-    private void SetShowcaseVideo(bool _value)
-    {
-        showcaseVideo.isOn = _value;
-    }
-    private bool GetShowcaseVideo()
-    {
-        return showcaseVideo.isOn;
-    }
-    private void SaveShowcaseVideo(bool _value)
-    {
-        PlayerPrefs.SetInt("showcase_toggleVideo", _value ? 1 : 0);
-        PlayerPrefs.Save();
-    }
-    private void LoadShowcaseVideoToMenu(bool resetToDefault)
-    {
-        bool _value;
-        if (resetToDefault)
-            _value = (bool)preferenceList["showcase_toggleVideo"].Item1;
-        else if (PlayerPrefs.HasKey("showcase_toggleVideo"))
-            _value = PlayerPrefs.GetInt("showcase_toggleVideo") == 1 ? true : false;
-        else
-            return;
-
-        RecordShowcaseVideo(_value);
-        SetShowcaseVideo(_value);
     }
     #endregion
 

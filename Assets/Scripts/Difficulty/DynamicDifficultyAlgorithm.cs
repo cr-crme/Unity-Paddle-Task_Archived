@@ -13,7 +13,8 @@ public class DynamicDifficultyAlgorithm
                 if (_difficulty.currentLevel + 1 < _difficulty.nbLevel)
                     _newLevel = _difficulty.currentLevel + 1;
             }
-        } else if (globalControl.session == SessionType.Session.SHOWCASE)
+        } 
+        else if (globalControl.session == SessionType.Session.SHOWCASE)
         {
             if (_trial.time > globalControl.showcaseTimePerCondition * globalControl.timeConversionToMinute)
             {
@@ -21,9 +22,13 @@ public class DynamicDifficultyAlgorithm
                     _newLevel = _difficulty.currentLevel + 2;
             }
         }
+        else if (globalControl.session == SessionType.Session.TUTORIAL)
+        {
+            // No DDA for tutorial
+        }
         else
         {
-            Debug.LogError("Session type not implemented yet");
+            Debug.LogError($"SessionType: {GlobalPreferences.Instance.session} not implemented yet");
         }
         return _newLevel;
     }

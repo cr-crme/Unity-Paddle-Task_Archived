@@ -1,4 +1,4 @@
 ﻿public class SessionType
 {
-    public enum Session { PRACTISE, SHOWCASE };
+    public enum Session { PRACTISE, SHOWCASE, TUTORIAL };
 }
