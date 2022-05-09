@@ -1,4 +1,4 @@
-﻿//======= Copyright (c) Valve Corporation, All rights reserved. ===============
+//======= Copyright (c) Valve Corporation, All rights reserved. ===============
 //
 // Purpose: Draws different sized room-scale play areas for targeting content
 //
@@ -245,6 +245,7 @@ namespace Valve.VR
 
         public void OnEnable()
         {
+            transform.position = new Vector3((float)0.0, (float)0.00, (float)0.0);
             if (OpenVR.Input == null)
             {
                 // Place the camera at the height of a child to simule it
