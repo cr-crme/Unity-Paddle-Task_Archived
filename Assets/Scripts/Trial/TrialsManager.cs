@@ -47,7 +47,15 @@ public class TrialsManager : MonoBehaviour
         {
             Debug.LogError($"SessionType: {GlobalPreferences.Instance.session} not implemented yet");
         }
-        StartNewTrial();
+
+        IEnumerator WaitNextFrameAndStartFirstTrial()
+        {
+            // Wait for a couple of frames that everything is loaded and ready then start a trial
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            StartNewTrial();
+        }
+        StartCoroutine(WaitNextFrameAndStartFirstTrial());
     }
 
     private void Update()
