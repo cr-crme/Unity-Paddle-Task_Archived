@@ -1,70 +1,79 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
-using Unity.Labs.SuperScience;
 
 public class Ball : MonoBehaviour
 {
-    [Tooltip("The normal ball color")]
-    [SerializeField]
-    private Material ballMat;
+    private BallSoundManager ballSoundManager;
+    private BallColorManager ballColorManager;
 
-    [Tooltip("The ball color when it is in the target height range")]
-    [SerializeField]
-    private Material greenBallMat;
+    [SerializeField, Tooltip("The target the ball should reach")]
+    private Target target;
 
-    [Tooltip("Auxilliary color materials")]
-    [SerializeField]
-    private Material redBallMat;
-    [SerializeField]
-    private Material blueBallMat;
+    [SerializeField, Tooltip("The trials manager")]
+    private TrialsManager trialsManager;
 
-    [Tooltip("The script that handles the game logic")]
     [SerializeField]
-    private PaddleGame gameScript;
-
-    [SerializeField, Tooltip("Handles the ball sound effects")]
-    private BallSoundPlayer ballSoundPlayer;
+    private UiManager uiManager;
 
     // The current bounce effect in a forced exploration condition
     public Vector3 currentBounceModification;
 
-    // This is true when the player is currently paddling the ball. If the 
-    // player stops paddling the ball, set to false.
-    public bool isBouncing = false;
-
     // If the ball just bounced, this will be true (momentarily)
     private bool justBounced = false;
 
+    private bool _isCollidingWithPaddle;
+    public bool shouldCollideWithPaddle
+    {
+        get { return _isCollidingWithPaddle; }
+        set { _isCollidingWithPaddle = value; }
+    }
+
+
     // A reference to this ball's rigidbody and collider
+    private Kinematics kinematics;
+    public EffectController effectController;
     private Rigidbody rigidBody;
 
-    // For Green/White IEnumerator coroutine 
-    bool inTurnBallWhiteCR = false;
-
-
     // Variables to keep track of resetting the ball after dropping to the ground
+    public bool isOnGround { get { return transform.position.y < transform.localScale.y; } }
     public bool inHoverMode { get; protected set; } = true;
     public bool inRespawnMode { get; protected set; } = false;
-    private bool inHoverResetCoroutine = false;
-    private bool inPlayDropSoundRoutine = false;
-    private int ballResetHoverSeconds = 3;
     private int ballRespawnSeconds = 1;
 
-    public EffectController effectController;
 
     void Awake()
     {
-        rigidBody = GetComponent<Rigidbody>();
-        ballSoundPlayer = GetComponent<BallSoundPlayer>();
+        ballSoundManager = GetComponent<BallSoundManager>();
+        ballColorManager = GetComponent<BallColorManager>();
         effectController = GetComponent<EffectController>();
 
-        // Physics for ball is disabled until Space is pressed
-        rigidBody.velocity = Vector3.zero;
-        rigidBody.useGravity = false;
-        rigidBody.detectCollisions = false;
+        kinematics = GetComponent<Kinematics>();
+        kinematics.storedPosition = SpawnPosition;
+
+        rigidBody = GetComponent<Rigidbody>();
     }
 
+    public void ForceToDrop()
+    {
+        shouldCollideWithPaddle = false;
+    }
+
+    public void TriggerPause()
+    {
+        kinematics.TriggerPause();
+        shouldCollideWithPaddle = false;
+    }
+
+    public void TriggerResume()
+    {
+        if (inHoverMode) return;
+        kinematics.TriggerResume();
+        shouldCollideWithPaddle = true;
+    }
+
+
+
+    #region Collision with paddle
     void OnCollisionEnter(Collision c)
     {
         // On collision with paddle, ball should bounce
@@ -75,19 +84,11 @@ public class Ball : MonoBehaviour
             Vector3 cpNormal = c.GetContact(0).normal;
             BounceBall(paddleVelocity, cpNormal);
         }
-        // if ball collides with the floor or something random, it is no longer bouncing
-        else
-        {
-            isBouncing = false;
-        }
     }
 
     public void SimulateOnCollisionEnterWithPaddle(Vector3 paddleVelocity, Vector3 cpNormal)
     {
-        if (GetComponent<SphereCollider>().enabled)
-        {
-            BounceBall(paddleVelocity, cpNormal);
-        }
+        BounceBall(paddleVelocity, cpNormal);
     }
 
     // For every frame that the ball is still in collision with the paddle, 
@@ -99,249 +100,51 @@ public class Ball : MonoBehaviour
         if (c.gameObject.tag == "Paddle")
         {
             float pVySlice = Paddle.GetPaddleFromCollider(c).Velocity.y / 8.0f;    // 8 is a good divisor
-            rigidBody.velocity += new Vector3(0, pVySlice, 0);
+            kinematics.AddToVelocity(new Vector3(0, pVySlice, 0));
         }
     }
+    #endregion
 
-    // Called from ExplorationMode.cs --> start()
-    public void InitBounceMod()
-    {
-        List<Vector3> bounceModList = GameObject.Find("[SteamVR]").GetComponent<ExplorationMode>().GetBounceModList();
-        Debug.Log("Init bounce mod. ec:" + GlobalControl.Instance.expCondition);
-        switch (GlobalControl.Instance.expCondition)
-        {
-            case TaskType.ExpCondition.NORMAL:
-                currentBounceModification = bounceModList[0];
-                break;
-            case TaskType.ExpCondition.LIGHTEST:
-                currentBounceModification = bounceModList[1];
-                break;
-            case TaskType.ExpCondition.LIGHTER:
-                currentBounceModification = bounceModList[2];
-                break;
-            case TaskType.ExpCondition.HEAVIER:
-                currentBounceModification = bounceModList[3];
-                break;
-            case TaskType.ExpCondition.HEAVIEST:
-                currentBounceModification = bounceModList[4];
-                break;
-            default:
-                currentBounceModification = new Vector3(0, 0, 0);
-                break;
-        }
 
-        Debug.Log("Initializing ball bounce mod to " + currentBounceModification.y);
-    }
 
-    // Returns the default spawn position of the ball (10cm above the target line) 
-    public static Vector3 spawnPosition(GameObject targetLine)
-    {
-        return new Vector3(0.0f, targetLine.transform.position.y + 0.1f, 0.5f);
-    }
-
-    public IEnumerator Respawning(GlobalPauseHandler pauseHandler)
-    {
-        Debug.Log("Respawning started " + Time.timeScale);
-        inRespawnMode = true;
-        Time.timeScale = 1f;
-        effectController.StopAllParticleEffects();
-        effectController.StartEffect(effectController.dissolve);
-        yield return new WaitForSeconds(ballRespawnSeconds);
-        inRespawnMode = false;
-        inHoverMode = true;
-        yield return new WaitForEndOfFrame();
-        effectController.StopParticleEffect(effectController.dissolve);
-        pauseHandler.Pause();
-        effectController.StartEffect(effectController.respawn);
-        yield return new WaitForSeconds(ballRespawnSeconds);
-        TurnBallWhite();
-        Debug.Log("Respawning finished " + Time.timeScale);
-    }
-
+    #region Bounce logic
     private void BounceBall(Vector3 paddleVelocity, Vector3 cpNormal)
     {
-        Vector3 Vin = GetComponent<Kinematics>().storedVelocity;
-        
-        ApplyBouncePhysics(paddleVelocity, cpNormal, Vin);
+        if (!shouldCollideWithPaddle)
+            return;
+
+        if (trialsManager.isPreparingNewTrial)
+            // Deactivate contact with paddle when we are not in a trial
+            return;
+
+        // Manage Bounce Coroutine
+        IEnumerator ManageBounceInTargetCoroutine()
+        {
+            // Wait until the ball reach the target then compute if the trial is valid
+            // We wait even if there is no target as it prevents from double bounces
+            while (!kinematics.ReachedApex()) { yield return null; }
+            if (trialsManager.hasTarget && target.IsInsideTarget(kinematics.GetCurrentPosition()))
+            {
+                IndicateSuccessBall();  // Flash ball green
+                trialsManager.AddAccurateBounceToCurrentTrial();
+            }
+
+            // Setting justBounce here ensure that the ball starts decending before being available again
+            justBounced = false;
+        }
 
         // Determine if collision should be counted as an active bounce
-        if (paddleVelocity.magnitude < 0.05f)
-        {
-            isBouncing = false;
-        }
-        else
-        {
-            isBouncing = true;
-
-            CheckApexSuccess();
-            DeclareBounce();
-            GetComponent<BounceSoundPlayer>().PlayBounceSound();
-        }
-    }
-
-    public bool isOnGround()
-    {
-        return transform.position.y < transform.localScale.y;
-    }
-
-    void CheckApexSuccess()
-    {
-        StartCoroutine(CheckForApex());
-    }
-
-    IEnumerator CheckForApex()
-    {
-        yield return new WaitWhile( () => !GetComponent<Kinematics>().ReachedApex());
-
-        float apexHeight = rigidBody.position.y;
-        bool successfulBounce = gameScript.GetHeightInsideTargetWindow(apexHeight);
-
-        if (successfulBounce) { 
-            IndicateSuccessBall();       // Flash ball green 
-        }
-    
-        if (GlobalControl.Instance.expCondition == TaskType.ExpCondition.RANDOM)
-        {
-            gameScript.ModifyPhysicsOnSuccess(successfulBounce);    // Check if 3 bounces were successful in the last 10
-        }
-    }
-
-    // Turns ball green briefly and plays success sound.
-    public void IndicateSuccessBall()
-    {
-        ballSoundPlayer.PlaySuccessSound();
-
-        TurnBallGreen();
-        StartCoroutine(TurnBallWhiteCR(0.3f));
-    }
-
-    // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
-    void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 cpNormal, Vector3 Vin)
-    {
-        // Reduce the effects of the paddle tilt so the ball doesn't bounce everywhere
-        Vector3 reducedNormal = ProvideLeewayFromUp(cpNormal);
-
-        // Get reflected bounce, with energy transfer
-        Vector3 Vreflected = GetComponent<Kinematics>().GetReflectionDamped(Vin, reducedNormal, 0.8f);
-        if (GlobalControl.Instance.condition == TaskType.Condition.REDUCED)
-        {
-            Vreflected = LimitDeviationFromUp(Vreflected, GlobalControl.Instance.degreesOfFreedom);
-        }
-
-        // Apply paddle velocity
-        if (GlobalControl.Instance.condition == TaskType.Condition.REDUCED)
-        {
-            Vreflected = new Vector3(0, Vreflected.y + (1.25f * paddleVelocity.y), 0);
-        }
-        else
-        {
-            Vreflected += new Vector3(0, paddleVelocity.y, 0);
-        }
-        rigidBody.velocity = Vreflected;
-
-        // If physics are being changed mid game, change them!
-        if (GlobalControl.Instance.explorationMode == GlobalControl.ExplorationMode.FORCED)
-        {
-            rigidBody.velocity += currentBounceModification;
-        }
-    }
-
-    Vector3 ProvideLeewayFromUp(Vector3 n)
-    {
-        float degreesOfTilt = Vector3.Angle(Vector3.up, n);
-        float limit = 2.0f; // feels pretty realistic through testing
-        if (degreesOfTilt < limit)
-        {
-            degreesOfTilt /= limit;
-        }
-        else
-        {
-            degreesOfTilt -= limit;
-        }
-        return LimitDeviationFromUp(n, degreesOfTilt);
-    }
-
-    // Try to declare that the ball has been bounced. If the ball
-    // was bounced too recently, then this declaration will fail.
-    // This is to ensure that bounces are only counted once.
-    public void DeclareBounce()
-    {
-        if (justBounced)
-        {
-            // do nothing, this bounce has already been counted
-            return;
-        }
-        else
+        if (paddleVelocity.magnitude >= 0.05f && !justBounced)
         {
             justBounced = true;
-            gameScript.BallBounced();
-            StartCoroutine(FinishBounceDeclaration());
-        }
-    }
+            ballSoundManager.PlayBounceSound();
+            trialsManager.AddBounceToCurrentTrial();
+            effectController.SelectScoreDependentEffects(trialsManager.currentNumberOfBounces);
+            kinematics.ApplyBouncePhysics(paddleVelocity, cpNormal, kinematics.storedVelocity);
 
-    // Wait a little bit before a bounce can be declared again.
-    // This is to ensure that bounces are not counted multiple times.
-    IEnumerator FinishBounceDeclaration()
-    {
-        yield return new WaitForSeconds(0.2f);
-        justBounced = false;
-    }
-
-    // Ball has been reset. Reset the trial as well.
-    public void ResetBall()
-    {
-        TurnBallWhite();
-        gameScript.ResetTrial();
-    }
-
-    // Drops ball after reset
-    public IEnumerator ReleaseHoverOnReset(float time)
-    {
-        if (inHoverResetCoroutine)
-        {
-            yield break;
-        }
-        inHoverResetCoroutine = true;
-
-        yield return new WaitForSeconds(time);
-
-        // Stop hovering
-        inHoverMode = false;
-        inHoverResetCoroutine = false;
-        inPlayDropSoundRoutine = false;
-
-        GetComponent<SphereCollider>().enabled = true;
-    }
-
-    // Play drop sound
-    public IEnumerator PlayDropSound(float time)
-    {
-        if (inPlayDropSoundRoutine)
-        {
-            yield break;
-        }
-        inPlayDropSoundRoutine = true;
-        yield return new WaitForSeconds(time);
-
-        ballSoundPlayer.PlayDropSound();
-    }
-
-    // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction
-    // but with adjusted height so that the angle does not exceed the desired degrees of freedom
-    public Vector3 LimitDeviationFromUp(Vector3 v, float degreesOfFreedom)
-    {
-        if (Vector3.Angle(Vector3.up, v) <= degreesOfFreedom)
-        {
-            return v;
+            StartCoroutine(ManageBounceInTargetCoroutine());
         }
 
-        float bounceMagnitude = v.magnitude;
-        float yReduced = bounceMagnitude * Mathf.Cos(degreesOfFreedom * Mathf.Deg2Rad);
-        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin(degreesOfFreedom * Mathf.Deg2Rad);
-        Vector3 xzReduced = new Vector3(v.x, 0, v.z).normalized * xzReducedMagnitude;
-
-        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
-        return modifiedBounceVelocity;
     }
 
     // Modifies the bounce for this forced exploration game
@@ -356,43 +159,99 @@ public class Ball : MonoBehaviour
         return currentBounceModification;
     }
 
-    public void TurnBallGreen()
+    public void IndicateSuccessBall()
     {
-        GetComponent<MeshRenderer>().material = greenBallMat;
+        // Turns ball green briefly and plays success sound.
+        ballSoundManager.PlaySuccessSound();
+        ballColorManager.IndicateSuccess();
+    }
+    #endregion
+
+
+
+    #region Spawning manager
+    private void ResetBallProperties()
+    {
+        ballColorManager.SetToNormalColor();
+
+        rigidBody.velocity = Vector3.zero;
+        rigidBody.angularVelocity = Vector3.zero;
+        transform.position = SpawnPosition;
+        transform.rotation = Quaternion.identity;
     }
 
-    public void TurnBallRed()
+    // Returns the default spawn position of the ball:
+    // 10cm above the target line, 50cm in front of the 0 
+    public Vector3 SpawnPosition
     {
-        GetComponent<MeshRenderer>().material = redBallMat;
+        get { return new Vector3(0.0f, target.transform.position.y + 0.1f, 0.5f); }
     }
 
-    public void TurnBallBlue()
+    public IEnumerator RespawningCoroutine(GlobalPauseHandler pauseHandler, bool spawnOnly = false)
     {
-        GetComponent<MeshRenderer>().material = blueBallMat;
-    }
-
-    public void TurnBallWhite()
-    {
-        GetComponent<MeshRenderer>().material = ballMat;
-    }
-
-    public IEnumerator TurnBallWhiteCR(float time = 0.0f)
-    {
-        if (inTurnBallWhiteCR)
+        if (!spawnOnly)
         {
-            yield break;
+            inRespawnMode = true;
+            Time.timeScale = 1f; // Normal speed for the animation
+            effectController.StopAllParticleEffects();
+            effectController.StartVisualEffect(effectController.dissolve);
+            yield return new WaitForSeconds(ballRespawnSeconds);
+            yield return new WaitForEndOfFrame();
+            effectController.StopParticleEffect(effectController.dissolve);
+            inRespawnMode = false;
         }
-        yield return new WaitForSeconds(time);
-        inTurnBallWhiteCR = true;
 
-        TurnBallWhite();
-
-        inTurnBallWhiteCR = false;
+        ManageHoveringPhaseCoroutine(pauseHandler);
     }
+    #endregion
 
-    public IEnumerator TurnBallGreenCR(float time = 0.0f)
+
+    #region Hovering manager
+    // Holds the ball over the paddle at Target Height for 0.5 seconds, then releases
+    private void ManageHoveringPhaseCoroutine(GlobalPauseHandler pauseHandler)
     {
-        yield return new WaitForSeconds(time);
-        TurnBallGreen();
+        // Drops ball after reset
+        IEnumerator ReleaseHoverAfterCountdown(float time)
+        {
+            yield return new WaitForSeconds(time);
+
+            // Stop hovering
+            inHoverMode = false;
+            shouldCollideWithPaddle = true;
+            pauseHandler.Resume();
+        }
+
+        IEnumerator PlayDropSoundCoroutine(float _waitTimeBeforePlaying)
+        {
+            yield return new WaitForSeconds(_waitTimeBeforePlaying);
+            ballSoundManager.PlayDropSound();
+        }
+
+        inHoverMode = true;
+        shouldCollideWithPaddle = false;
+
+        ResetBallProperties();
+        pauseHandler.Pause();
+
+        effectController.StartVisualEffect(effectController.respawn);
+
+        int resetTime = GlobalPreferences.Instance.ballResetHoverSeconds;
+
+        // Hover ball at target line for some time
+        StartCoroutine(PlayDropSoundCoroutine(resetTime - 0.15f));
+        StartCoroutine(ReleaseHoverAfterCountdown(resetTime));
+
+        // Show countdown to participant
+        StartCoroutine(uiManager.ManageCountdownToDropCanvasCoroutine(resetTime));
     }
+
+    #endregion
+
+
+    #region Difficulty and level
+    public void UpdatePhysics(DifficultyManager _difficultyManager)
+    {
+        kinematics.UpdateGravityMultiplyer(_difficultyManager.ballSpeed);
+    }
+    #endregion
 }

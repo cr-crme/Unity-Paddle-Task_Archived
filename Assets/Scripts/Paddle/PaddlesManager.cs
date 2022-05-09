@@ -13,15 +13,15 @@ public class PaddlesManager : MonoBehaviour
     private Paddle rightPaddle;
 
     bool currentPaddleIsLeft = false;
-    public int NbPaddles { get { return globalControl.numPaddles; } }
+    public int NbPaddles { get { return globalControl.nbPaddles; } }
 
-    GlobalControl globalControl;
+    GlobalPreferences globalControl;
 
     void Start()
     {
-        globalControl = GlobalControl.Instance;
+        globalControl = GlobalPreferences.Instance;
 
-        if (globalControl.numPaddles > 1)
+        if (globalControl.nbPaddles > 1)
         {
             rightPaddle.EnablePaddle();
             rightPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
@@ -31,15 +31,22 @@ public class PaddlesManager : MonoBehaviour
         }
     }
 
-
-    public IEnumerator WaitThenSwitchPaddles()
+    public void SwitchPaddleIfNeeded(DifficultyManager _difficultyManager)
     {
-        // In order to prevent bugs, wait a little bit for the paddles to switch
-        yield return new WaitForSeconds(0.1f);
-        SwitchActivePaddle();
+        IEnumerator WaitThenSwitchPaddlesCoroutine()
+        {
+            // In order to prevent bugs, wait a little bit for the paddles to switch
+            yield return new WaitForSeconds(0.1f);
+            SwitchActivePaddle();
+        }
+        if (_difficultyManager.mustSwitchPaddleAfterHitting)
+        {
+            StartCoroutine(WaitThenSwitchPaddlesCoroutine());
+        }
     }
 
-    public void SwitchActivePaddle()
+
+    private void SwitchActivePaddle()
     {
         if (currentPaddleIsLeft)
         {
@@ -55,7 +62,7 @@ public class PaddlesManager : MonoBehaviour
     }
 
     // Finds the currently active paddle (in the case of two paddles)
-    public Paddle ActivePaddle
+    private Paddle ActivePaddle
     {
         get { return currentPaddleIsLeft ? leftPaddle : rightPaddle; }
     }

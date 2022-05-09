@@ -47,6 +47,17 @@ public class Paddle : MonoBehaviour
         return c.gameObject.transform.parent.transform.parent.GetComponent<Paddle>();
     }
 
+    private void Start()
+    {
+        opaquePaddleMat = GetComponent<Material>();
+        opaqueBacksideMat = GetComponent<Material>();
+        transparentPaddleMat = GetComponent<Material>();
+        transparentBacksideMat = GetComponent<Material>();
+        paddleCollider = paddleCollider.gameObject;
+        paddleModel = paddleModel.gameObject;
+        backsideModel = backsideModel.gameObject;   
+    }
+
     void Update()
     {
         // send updated information to physicstracker
@@ -70,18 +81,6 @@ public class Paddle : MonoBehaviour
     public bool ColliderIsActive()
     {
         return paddleCollider.activeInHierarchy;
-    }
-
-    // Gets velocity of paddle
-    public Vector3 GetVelocity()
-    {
-        return paddleCollider.GetComponent<VelocityNoRigidBody>().GetVelocity();
-    }
-
-    // Gets acceleration of paddle
-    public Vector3 GetAcceleration()
-    {
-        return paddleCollider.GetComponent<VelocityNoRigidBody>().GetAcceleration();
     }
 
     // Set up this paddle as the left or right paddle
