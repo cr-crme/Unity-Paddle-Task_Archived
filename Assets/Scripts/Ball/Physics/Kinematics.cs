@@ -19,7 +19,7 @@ public class Kinematics : MonoBehaviour
     public Quaternion storedRotation;
 
     public CircularBuffer<Vector3> velocityBuffer;
-    const int CIRCULAR_BUFFER_SIZE = 10;
+    const int CIRCULAR_BUFFER_SIZE = 15;
 
     private Vector3 initialGravity = Physics.gravity;
 
