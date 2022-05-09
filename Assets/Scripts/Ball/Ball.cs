@@ -99,10 +99,19 @@ public class Ball : MonoBehaviour
     {
         if (c.gameObject.tag == "Paddle")
         {
-            float pVySlice = Paddle.GetPaddleFromCollider(c).Velocity.y / 8.0f;    // 8 is a good divisor
+            if (!shouldCollideWithPaddle)
+                return;
+
+            if (trialsManager.isPreparingNewTrial)
+                // Deactivate contact with paddle when we are not in a trial
+                return;
+
+            float pVySlice = Paddle.GetPaddleFromCollider(c).Velocity.y / 5.0f;    // 8 is a good divisor
             kinematics.AddToVelocity(new Vector3(0, pVySlice, 0));
         }
     }
+
+
     #endregion
 
 
@@ -123,7 +132,7 @@ public class Ball : MonoBehaviour
             // Wait until the ball reach the target then compute if the trial is valid
             // We wait even if there is no target as it prevents from double bounces
             while (!kinematics.ReachedApex()) { yield return null; }
-            if (trialsManager.hasTarget && target.IsInsideTarget(kinematics.GetCurrentPosition()))
+            if (trialsManager.hasTarget && target.IsInsideTarget(kinematics.currentPosition))
             {
                 IndicateSuccessBall();  // Flash ball green
                 trialsManager.AddAccurateBounceToCurrentTrial();
@@ -134,7 +143,7 @@ public class Ball : MonoBehaviour
         }
 
         // Determine if collision should be counted as an active bounce
-        if (paddleVelocity.magnitude >= 0.05f && !justBounced)
+        if (!justBounced) 
         {
             justBounced = true;
             ballSoundManager.PlayBounceSound();

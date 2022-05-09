@@ -19,7 +19,7 @@ public class Kinematics : MonoBehaviour
     public Quaternion storedRotation;
 
     public CircularBuffer<Vector3> velocityBuffer;
-    const int CIRCULAR_BUFFER_SIZE = 50;
+    const int CIRCULAR_BUFFER_SIZE = 10;
 
     private Vector3 initialGravity = Physics.gravity;
 
@@ -50,15 +50,13 @@ public class Kinematics : MonoBehaviour
         }
     }
 
-    public Vector3 GetCurrentPosition()
-    {
-        return rigidBody.position;
-    }
+    public Vector3 currentPosition { get { return rigidBody.position; } }
 
     public void AddToVelocity(Vector3 vector)
     {
         rigidBody.velocity += vector;
     }
+    public Vector3 currentVelocity { get { return rigidBody.velocity; } }
 
     // Contains all the procedures to resume physics. Fires once per input.
     public void TriggerResume()
@@ -107,14 +105,6 @@ public class Kinematics : MonoBehaviour
         storedRotation = rigidBody.rotation;
     }
 
-    // Returns the reflected velocity vector of a given input vector and normal contact point.
-    // Efficiency represents the percentage (0.0-1.0) of energy dissipated from the impact.  
-    public Vector3 GetReflectionDamped(Vector3 inVector, Vector3 inNormal, float efficiency = 1.0f)
-    {
-        Vector3 reflected = Vector3.Reflect(inVector, inNormal);
-        reflected *= efficiency;
-        return reflected;
-    }
 
     // Add position to a circular buffer of size 10
     private void StreamVelocityToBuffer()
@@ -149,56 +139,62 @@ public class Kinematics : MonoBehaviour
     }
 
     // Perform physics calculations to bounce ball. Includes ExplorationMode modifications.
-    public void ApplyBouncePhysics(Vector3 paddleVelocity, Vector3 cpNormal, Vector3 Vin)
+    public void ApplyBouncePhysics(Vector3 _paddleVelocity, Vector3 _paddleNormal, Vector3 _ballVelocity)
     {
+        Vector3 LimitDeviationFromUp(Vector3 _normal)
+        {
+            // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction
+            // but with adjusted height so that the angle does not exceed the desired degrees of freedom
+
+            float ProvideLeewayFromUp(Vector3 _vector)
+            {
+                float _limit = 2.0f; // feels pretty realistic through testing
+                float _angleToUp = Vector3.Angle(Vector3.up, _vector);
+                return _angleToUp < _limit ? _angleToUp / _limit : _angleToUp - _limit;
+            }
+
+            float _tiltInDegree = ProvideLeewayFromUp(_normal);
+
+            if (Vector3.Angle(Vector3.up, _normal) <= _tiltInDegree)
+            {
+                // If the angle to vertical is already small
+                return _normal;
+            }
+
+            float _bounceMagnitude = _normal.magnitude;
+            float _yReduced = _bounceMagnitude * Mathf.Cos(_tiltInDegree * Mathf.Deg2Rad);
+            float _xzReducedMagnitude = _bounceMagnitude * Mathf.Sin(_tiltInDegree * Mathf.Deg2Rad);
+            Vector3 _xzReduced = new Vector3(_normal.x, 0, _normal.z).normalized * _xzReducedMagnitude;
+
+            Vector3 _modifiedBounceVelocity = new Vector3(_xzReduced.x, _yReduced, _xzReduced.z);
+            return _modifiedBounceVelocity;
+        }
+
+        Vector3 GetReflectionDamped(Vector3 _inVector, Vector3 _inNormal, float _efficiency = 1.0f)
+        {
+            // Returns the reflected velocity vector of a given input vector and normal contact point.
+            // Efficiency represents the percentage (0.0-1.0) of energy dissipated from the impact.  
+            Vector3 _reflected = Vector3.Reflect(_inVector, _inNormal);
+            _reflected *= _efficiency;
+            return _reflected;
+        }
+
+
         // Reduce the effects of the paddle tilt so the ball doesn't bounce everywhere
-        Vector3 reducedNormal = ProvideLeewayFromUp(cpNormal);
+        Vector3 _velocityWithReducedAngleToUp = LimitDeviationFromUp(_paddleNormal);
 
         // Get reflected bounce, with energy transfer
-        Vector3 Vreflected = GetReflectionDamped(Vin, reducedNormal, 0.8f);
-        //TODO: if (...reduce energy transfer)
-        //    Vreflected = LimitDeviationFromUp(Vreflected, GlobalControl.Instance.degreesOfFreedom);
+        Vector3 _velocityOfReflectedBall = GetReflectionDamped(_ballVelocity, _velocityWithReducedAngleToUp, 0.8f);
 
         // Apply paddle velocity
-        //TODO: if (... reduce velocity transfer)
-        //    Vreflected = new Vector3(0, Vreflected.y + (1.25f * paddleVelocity.y), 0);
-        Vreflected += new Vector3(0, paddleVelocity.y, 0);
+        Vector3 _velocityAddedWithPaddle = _velocityOfReflectedBall + new Vector3(0, _paddleVelocity.y, 0);
 
-        rigidBody.velocity = Vreflected;
+        // Put the value in the rigid body 
+        rigidBody.velocity = _velocityAddedWithPaddle;
     }
 
-    private Vector3 ProvideLeewayFromUp(Vector3 n)
-    {
-        float degreesOfTilt = Vector3.Angle(Vector3.up, n);
-        float limit = 2.0f; // feels pretty realistic through testing
-        if (degreesOfTilt < limit)
-        {
-            degreesOfTilt /= limit;
-        }
-        else
-        {
-            degreesOfTilt -= limit;
-        }
-        return LimitDeviationFromUp(n, degreesOfTilt);
-    }
 
-    // If in Reduced condition, returns the vector of the same original magnitude and same x-z direction
-    // but with adjusted height so that the angle does not exceed the desired degrees of freedom
-    private Vector3 LimitDeviationFromUp(Vector3 v, float degreesOfFreedom)
-    {
-        if (Vector3.Angle(Vector3.up, v) <= degreesOfFreedom)
-        {
-            return v;
-        }
 
-        float bounceMagnitude = v.magnitude;
-        float yReduced = bounceMagnitude * Mathf.Cos(degreesOfFreedom * Mathf.Deg2Rad);
-        float xzReducedMagnitude = bounceMagnitude * Mathf.Sin(degreesOfFreedom * Mathf.Deg2Rad);
-        Vector3 xzReduced = new Vector3(v.x, 0, v.z).normalized * xzReducedMagnitude;
-
-        Vector3 modifiedBounceVelocity = new Vector3(xzReduced.x, yReduced, xzReduced.z);
-        return modifiedBounceVelocity;
-    }
 
     public void UpdateGravityMultiplyer(double _scalar)
     {
