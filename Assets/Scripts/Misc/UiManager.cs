@@ -58,7 +58,7 @@ public class UiManager : MonoBehaviour
     {
         IEnumerator QuitWhenTrialIsProcessed()
         {
-            yield return new WaitUntil(() => (_trialsManager.isPreparingNewTrial));
+            yield return new WaitUntil(() => (!_trialsManager.isInActiveTrial));
 
             // clean DDoL objects and return to the start scene
             Destroy(GlobalPreferences.Instance.gameObject);
