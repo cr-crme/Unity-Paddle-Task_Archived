@@ -16,8 +16,8 @@ public class GlobalPreferences : MonoBehaviour
     public void SetParticipantID(string _value) { participantID = _value; }
 
     // The number of paddles that the player is using.
-    public int nbPaddles { get; private set; }
-    public void SetNbPaddles(int _value) { nbPaddles = _value; }
+    public PaddleChoice paddleChoice { get; private set; }
+    public void SetPaddleChoice(PaddleChoice _value) { paddleChoice = _value; }
 
 
     // Target Line Height

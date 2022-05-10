@@ -1,6 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+public enum PaddleChoice { LEFT, BOTH, RIGHT };
 
 public class PaddlesManager : MonoBehaviour
 {
@@ -12,20 +13,21 @@ public class PaddlesManager : MonoBehaviour
     [SerializeField]
     private Paddle rightPaddle;
 
-    bool currentPaddleIsLeft = false;
-    public int NbPaddles { get { return globalControl.nbPaddles; } }
-
-    GlobalPreferences globalControl;
+    private bool currentPaddleIsLeft = false;
+    private PaddleChoice paddleChoice;
+    public int NbPaddles { get { return GlobalPreferences.Instance.paddleChoice == PaddleChoice.BOTH ? 2 : 1; } }
 
     void Start()
     {
-        globalControl = GlobalPreferences.Instance;
+        paddleChoice = GlobalPreferences.Instance.paddleChoice;
 
-        if (globalControl.nbPaddles > 1)
+        if (paddleChoice == PaddleChoice.RIGHT || paddleChoice == PaddleChoice.BOTH)
         {
             rightPaddle.EnablePaddle();
             rightPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
-
+        }
+        if (paddleChoice == PaddleChoice.LEFT || paddleChoice == PaddleChoice.BOTH) 
+        { 
             leftPaddle.EnablePaddle();
             leftPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
         }
@@ -48,6 +50,9 @@ public class PaddlesManager : MonoBehaviour
 
     private void SwitchActivePaddle()
     {
+        if (paddleChoice != PaddleChoice.BOTH)
+            return;
+
         if (currentPaddleIsLeft)
         {
             leftPaddle.DisablePaddle();
@@ -61,8 +66,8 @@ public class PaddlesManager : MonoBehaviour
         currentPaddleIsLeft = !currentPaddleIsLeft;
     }
 
-    // Finds the currently active paddle (in the case of two paddles)
-    private Paddle ActivePaddle
+    // Finds the currently active paddle
+    public Paddle ActivePaddle
     {
         get { return currentPaddleIsLeft ? leftPaddle : rightPaddle; }
     }
