@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 /// <summary>
 /// 
@@ -34,17 +33,14 @@ namespace FileIO_CSV
             string _result = "";
 
             bool firstColumn = true;
-            foreach (string value in columns)
+            foreach (string _col in columns)
             {
                 // Add separator if this isn't the first value
                 if (!firstColumn)
                     _result += ",";
-                // Implement special handling for values that contain comma or quote
-                // Enclose in quotes and double up any double quotes
-                if (value.IndexOfAny(new char[] { '"', ',' }) != -1)
-                    _result += string.Format("\"{0}\"", value.Replace("\"", "\"\""));
-                else
-                    _result += value;
+
+                // Remove the "" in the text and adds it to the next element
+                _result += _col.Replace("\"", "").Replace(",", ".");
                 firstColumn = false;
             }
             return _result;

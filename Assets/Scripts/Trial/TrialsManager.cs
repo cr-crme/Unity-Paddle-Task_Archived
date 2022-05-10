@@ -21,12 +21,13 @@ public class TrialsManager : MonoBehaviour
     private Target target;
     public bool isInActiveTrial { get; private set; } = false;
 
-    private SaveTrialManager saveTrialManager = new SaveTrialManager();
+    private SaveTrialManager saveTrialManager;
 
     private void Start()
     {
         difficultyManager = GetComponent<DifficultyManager>();
         uiManager = GetComponent<UiManager>();
+        saveTrialManager = GetComponent<SaveTrialManager>();
 
         bestSoFarNbOfBounces = 0;
         StartSession();
@@ -70,7 +71,7 @@ public class TrialsManager : MonoBehaviour
     {
         if (!isInActiveTrial) return;
 
-        // saveTrialManager.AddFrameToTrial(currentTrial, ball);
+        saveTrialManager.AddFrameToTrial(currentTrial, ball);
     }
 
     #region Current trial in the session
