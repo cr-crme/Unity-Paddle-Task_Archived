@@ -31,7 +31,7 @@ public class Ball : MonoBehaviour
 
     // A reference to this ball's rigidbody and collider
     private Kinematics kinematics;
-    public EffectController effectController;
+    private EffectController effectController;
     private Rigidbody rigidBody;
 
     // Variables to keep track of resetting the ball after dropping to the ground
@@ -72,6 +72,10 @@ public class Ball : MonoBehaviour
     }
 
 
+    #region Accessor
+    public float height { get { return kinematics.currentPosition.y; } }
+    #endregion
+
 
     #region Collision with paddle
     void OnCollisionEnter(Collision c)
@@ -102,7 +106,7 @@ public class Ball : MonoBehaviour
             if (!shouldCollideWithPaddle)
                 return;
 
-            if (trialsManager.isPreparingNewTrial)
+            if (!trialsManager.isInActiveTrial)
                 // Deactivate contact with paddle when we are not in a trial
                 return;
 
@@ -122,7 +126,7 @@ public class Ball : MonoBehaviour
         if (!shouldCollideWithPaddle)
             return;
 
-        if (trialsManager.isPreparingNewTrial)
+        if (!trialsManager.isInActiveTrial)
             // Deactivate contact with paddle when we are not in a trial
             return;
 

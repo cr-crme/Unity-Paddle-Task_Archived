@@ -19,8 +19,9 @@ public class TrialsManager : MonoBehaviour
 
     [SerializeField]
     private Target target;
+    public bool isInActiveTrial { get; private set; } = false;
 
-    public bool isPreparingNewTrial { get; private set; } = true;
+    private SaveTrialManager saveTrialManager = new SaveTrialManager();
 
     private void Start()
     {
@@ -60,9 +61,16 @@ public class TrialsManager : MonoBehaviour
 
     private void Update()
     {
-        if (isPreparingNewTrial) return;
+        if (!isInActiveTrial) return;
 
         ManageIfEndOfTrial();
+    }
+
+    private void FixedUpdate()
+    {
+        if (!isInActiveTrial) return;
+
+        // saveTrialManager.AddFrameToTrial(currentTrial, ball);
     }
 
     #region Current trial in the session
@@ -75,7 +83,7 @@ public class TrialsManager : MonoBehaviour
             allTrialsData.Add(new Trial(Time.time + globalControl.ballResetHoverSeconds));
             trialAtChangeOfLevel = new Trial(Time.time + globalControl.ballResetHoverSeconds);
             uiManager.UpdateFeebackCanvas(this);
-            isPreparingNewTrial = false;
+            isInActiveTrial = true;
         }
         if (allTrialsData.Count > 0 && allTrialsData.Last().nbBounces > bestSoFarNbOfBounces)
         {
@@ -86,7 +94,7 @@ public class TrialsManager : MonoBehaviour
     }
     public void ManageIfEndOfTrial()
     {
-        if (isPreparingNewTrial || ball.inRespawnMode || ball.inHoverMode) 
+        if (!isInActiveTrial || ball.inRespawnMode || ball.inHoverMode) 
             return;
 
         if (ball.isOnGround || isSessionOver)
@@ -96,18 +104,18 @@ public class TrialsManager : MonoBehaviour
     }
     public void ForceEndOfTrial(bool _startNewTrial = true)
     {
-        if (isPreparingNewTrial) return;
+        if (!isInActiveTrial) return;
 
         ball.ForceToDrop();
         StartCoroutine(FinalizeTrialCoroutine(_startNewTrial));
     }
     IEnumerator FinalizeTrialCoroutine(bool _startNewTrial)
     {
-        isPreparingNewTrial = true;
+        isInActiveTrial = false;
         yield return new WaitWhile(() => !ball.isOnGround);
         if (isSessionOver)
         {
-            isPreparingNewTrial = false;
+            isInActiveTrial = true;  // Trick the Quit so it records everything
             uiManager.QuitTask(this);
         }
         if (_startNewTrial)
