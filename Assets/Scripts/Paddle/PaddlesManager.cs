@@ -24,12 +24,10 @@ public class PaddlesManager : MonoBehaviour
         if (paddleChoice == PaddleChoice.RIGHT || paddleChoice == PaddleChoice.BOTH)
         {
             rightPaddle.EnablePaddle();
-            rightPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.RIGHT);
         }
         if (paddleChoice == PaddleChoice.LEFT || paddleChoice == PaddleChoice.BOTH) 
         { 
             leftPaddle.EnablePaddle();
-            leftPaddle.SetPaddleIdentifier(Paddle.PaddleIdentifier.LEFT);
         }
     }
 
