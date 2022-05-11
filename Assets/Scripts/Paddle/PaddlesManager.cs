@@ -21,12 +21,11 @@ public class PaddlesManager : MonoBehaviour
     {
         paddleChoice = GlobalPreferences.Instance.paddleChoice;
 
-        if (paddleChoice == PaddleChoice.RIGHT || paddleChoice == PaddleChoice.BOTH)
+        rightPaddle.EnablePaddle();
+        leftPaddle.DisablePaddle();
+        if (paddleChoice == PaddleChoice.LEFT)
         {
-            rightPaddle.EnablePaddle();
-        }
-        if (paddleChoice == PaddleChoice.LEFT || paddleChoice == PaddleChoice.BOTH) 
-        { 
+            rightPaddle.DisablePaddle();
             leftPaddle.EnablePaddle();
         }
     }
