@@ -12,8 +12,11 @@ public class GlobalPreferences : MonoBehaviour
     public static GlobalPreferences Instance;
 
     // participant ID to differentiate data files
-    public string participantID { get; private set; }
-    public void SetParticipantID(string _value) { participantID = _value; }
+    public string participantID { get; private set; } = "Default";
+    public void SetParticipantID(string _value)
+    {
+        participantID = _value == "" ? "Default" : _value;
+    }
 
     // The number of paddles that the player is using.
     public PaddleChoice paddleChoice { get; private set; }

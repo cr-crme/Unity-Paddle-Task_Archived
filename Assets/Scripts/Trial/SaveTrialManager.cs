@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -8,15 +9,17 @@ public class SaveTrialManager : MonoBehaviour
 
     private FileIO_CSV.CsvFileWriter trial;
     private FileIO_CSV.CsvRow trialCsv;
+
     public SaveTrialManager()
     {
         // Create a results directory if it does not exist
-        resultsFolder = $"Results/{GlobalPreferences.Instance.participantID}";
+        resultsFolder = $"Results/{GlobalPreferences.Instance.participantID}" +
+            $"/{DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss")}";
         Directory.CreateDirectory(resultsFolder);
 
         // Prepare the Trial csv file
-        trial = new FileIO_CSV.CsvFileWriter($"{resultsFolder}/Trial.csv");
-        trialCsv = new FileIO_CSV.CsvRow(new List<string>() { "Time", "Ball position"});
+        trial = new FileIO_CSV.CsvFileWriter($"{resultsFolder}/FullTrial.csv");
+        trialCsv = new FileIO_CSV.CsvRow(new List<string>() { "Time", "Ball position" });
         trial.Write(trialCsv + "\n");
     }
 

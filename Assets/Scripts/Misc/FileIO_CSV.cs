@@ -46,7 +46,7 @@ namespace FileIO_CSV
             return _result;
         }
 
-        static public List<string> ParseLineToColumn(string _textToParse)
+        static public List<string> ParseLineToColumn(string _textToParse, char separator = ',')
         {
             List<string> _result = new List<string>();
 
@@ -61,43 +61,11 @@ namespace FileIO_CSV
             {
                 string value;
 
-                // Special handling for quoted field
-                if (_textToParse[pos] == '"')
-                {
-                    // Skip initial quote
+                // Parse unquoted value
+                int start = pos;
+                while (pos < _textToParse.Length && _textToParse[pos] != separator)
                     pos++;
-
-                    // Parse quoted value
-                    int start = pos;
-                    while (pos < _textToParse.Length)
-                    {
-                        // Test for quote character
-                        if (_textToParse[pos] == '"')
-                        {
-                            // Found one
-                            pos++;
-
-                            // If two quotes together, keep one
-                            // Otherwise, indicates end of value
-                            if (pos >= _textToParse.Length || _textToParse[pos] != '"')
-                            {
-                                pos--;
-                                break;
-                            }
-                        }
-                        pos++;
-                    }
-                    value = _textToParse.Substring(start, pos - start);
-                    value = value.Replace("\"\"", "\"");
-                }
-                else
-                {
-                    // Parse unquoted value
-                    int start = pos;
-                    while (pos < _textToParse.Length && _textToParse[pos] != ',')
-                        pos++;
-                    value = _textToParse.Substring(start, pos - start);
-                }
+                value = _textToParse.Substring(start, pos - start);
 
                 // Add field to list
                 if (rows < _result.Count)
@@ -107,7 +75,7 @@ namespace FileIO_CSV
                 rows++;
 
                 // Eat up to and including next comma
-                while (pos < _textToParse.Length && _textToParse[pos] != ',')
+                while (pos < _textToParse.Length && _textToParse[pos] != separator)
                     pos++;
                 if (pos < _textToParse.Length)
                     pos++;
