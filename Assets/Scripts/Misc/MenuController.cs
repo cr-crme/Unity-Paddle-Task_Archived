@@ -29,7 +29,7 @@ public class MenuController : MonoBehaviour {
         globalControl = GlobalPreferences.Instance;
 
         preferenceList = new Dictionary<string, (object, LoadCallback)>(){
-            { "nbPaddles", (GetNbPaddles(), LoadNbPaddlesToMenu) },
+            { "paddle_choice", (GetPaddleChoice(), LoadPaddleChoiceToMenu) },
             { "environment", (GetEnvironment(), LoadEnvironmentToMenu) },
             { "session", (GetRecordSession(), LoadSessionToMenu) },
             { "practise_totalTime", (GetPractiseTotalTime(), LoadPractiseTotalTimeToMenu) },
@@ -70,14 +70,7 @@ public class MenuController : MonoBehaviour {
     #region Finalization
     public void NextScene()
     {
-        if (globalControl.nbPaddles == 1)
-        {
-            SceneManager.LoadScene("Paddle");
-        }
-        else
-        {
-            SceneManager.LoadScene("Paddle 2");
-        }
+        SceneManager.LoadScene("Paddle");
     }
 
     /// <summary>
@@ -90,7 +83,7 @@ public class MenuController : MonoBehaviour {
     #endregion
 
     #region GenericInformation
-    [SerializeField] private TMP_Dropdown nbPaddles;
+    [SerializeField] private TMP_Dropdown paddlesChoice;
     [SerializeField] private TMP_Dropdown environment;
 
     /// <summary>
@@ -104,36 +97,36 @@ public class MenuController : MonoBehaviour {
         globalControl.SetParticipantID(arg0);
     }
 
-    public void RecordNbPaddles(int _value)
+    public void RecordPaddleChoice(int _value)
     {
-        globalControl.SetNbPaddles(_value + 1);  // 0-based
-        SaveNbPaddles(_value);
+        globalControl.SetPaddleChoice((PaddleChoice)_value);
+        SavePaddleChoice(_value);
     }
-    private void SetNbPaddles(int _value)
+    private void SetPaddleChoice(int _value)
     {
-        nbPaddles.value =_value;
+        paddlesChoice.value =_value;
     }
-    private int GetNbPaddles()
+    private int GetPaddleChoice()
     {
-        return nbPaddles.value;
+        return paddlesChoice.value;
     }
-    private void SaveNbPaddles(int _value)
+    private void SavePaddleChoice(int _value)
     {
-        PlayerPrefs.SetInt("nbPaddles", _value);
+        PlayerPrefs.SetInt("paddle_choice", _value);
         PlayerPrefs.Save();
     }
-    private void LoadNbPaddlesToMenu(bool resetToDefault)
+    private void LoadPaddleChoiceToMenu(bool resetToDefault)
     {
         int _value;
         if (resetToDefault)
-            _value = (int)preferenceList["nbPaddles"].Item1;
-        else if (PlayerPrefs.HasKey("nbPaddles"))
-            _value = PlayerPrefs.GetInt("nbPaddles");
+            _value = (int)preferenceList["paddle_choice"].Item1;
+        else if (PlayerPrefs.HasKey("paddle_choice"))
+            _value = PlayerPrefs.GetInt("paddle_choice");
         else
             return;
 
-        RecordNbPaddles(_value);
-        SetNbPaddles(_value);
+        RecordPaddleChoice(_value);
+        SetPaddleChoice(_value);
     }
 
     public void RecordEnvironment(int _value)

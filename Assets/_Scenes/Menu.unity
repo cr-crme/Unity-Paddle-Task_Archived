@@ -1818,7 +1818,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: One Paddle
+  m_text: Both Paddles
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1887,7 +1887,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 505127816}
-    characterCount: 10
+    characterCount: 12
     spriteCount: 0
     spaceCount: 1
     wordCount: 2
@@ -6800,7 +6800,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Number of Paddles
+  m_text: Choice of paddle
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6869,7 +6869,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1411007502}
-    characterCount: 17
+    characterCount: 16
     spriteCount: 0
     spaceCount: 2
     wordCount: 3
@@ -7886,7 +7886,7 @@ GameObject:
   - component: {fileID: 1537809547}
   - component: {fileID: 1537809546}
   m_Layer: 0
-  m_Name: Num Paddle Dropdown
+  m_Name: Paddle Choice
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7957,18 +7957,20 @@ MonoBehaviour:
   m_CaptionImage: {fileID: 0}
   m_ItemText: {fileID: 947221070}
   m_ItemImage: {fileID: 0}
-  m_Value: 0
+  m_Value: 1
   m_Options:
     m_Options:
-    - m_Text: One Paddle
+    - m_Text: Left Paddle
       m_Image: {fileID: 0}
-    - m_Text: Two Paddles
+    - m_Text: Both Paddles
+      m_Image: {fileID: 0}
+    - m_Text: Right Paddle
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1554919718}
-        m_MethodName: RecordNbPaddles
+        m_MethodName: RecordPaddleChoice
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8153,7 +8155,7 @@ MonoBehaviour:
   practiseCanvas: {fileID: 75102140}
   showcaseCanvas: {fileID: 792992381}
   tutorialCanvas: {fileID: 1317286261}
-  nbPaddles: {fileID: 1537809546}
+  paddlesChoice: {fileID: 1537809546}
   environment: {fileID: 1683081206}
   session: {fileID: 1845413355}
   practiseTotalTime: {fileID: 446172990}

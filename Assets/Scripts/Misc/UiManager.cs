@@ -1,9 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Valve.VR;
-using System;
 using TMPro;
 using UnityEngine.SceneManagement;
 
@@ -58,7 +55,7 @@ public class UiManager : MonoBehaviour
     {
         IEnumerator QuitWhenTrialIsProcessed()
         {
-            yield return new WaitUntil(() => (_trialsManager.isPreparingNewTrial));
+            yield return new WaitUntil(() => (!_trialsManager.isInActiveTrial));
 
             // clean DDoL objects and return to the start scene
             Destroy(GlobalPreferences.Instance.gameObject);
