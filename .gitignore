@@ -39,3 +39,7 @@ sysinfo.txt
 *.vrmanifest
 
 *.csv
+
+Assets/SteamVR/Editor/SteamVR_UnitySettingsWindow.cs.meta~refs/
+
+Assets/SteamVR/Editor/SteamVR_UnitySettingsWindow.cs.meta~refs.meta
